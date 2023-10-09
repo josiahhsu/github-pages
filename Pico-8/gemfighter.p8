@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 36
+version 41
 __lua__
 function _init()
  cls()
@@ -42,8 +42,8 @@ end
 
 function _update()
  if gameactive then
-	 controls()
-	 timer()
+  controls()
+  timer()
  else
   end_fight()
  end
@@ -52,16 +52,16 @@ end
 function _draw()
  if gameactive then
   screen.draw_screen() 
-		ctrl.draw_pointer()
-	end
+  ctrl.draw_pointer()
+ end
 end
 
 function wait(t)
-	//waits for t frames
-	for i = 0, t do
-		flip()
-		timer()
-	end
+ //waits for t frames
+ for i = 0, t do
+  flip()
+  timer()
+ end
 end
 
 function round(i)
@@ -90,8 +90,8 @@ function end_fight()
  rect(18,78,63,104,7)
  local g = stats[5]
  if e.hp == 0 then
-	 print("victory!",26,89,7)
-	else
+  print("victory!",26,89,7)
+ else
   print("defeat...",24,89,7) 
   g = 0
  end
@@ -105,45 +105,45 @@ function init_screen()
  local t = {}
  
  function t.draw_screen(d)
-	 draw_grid()
-		draw_enemy()
-		draw_stats()
-		if d != nil then
-		 //optional delay after draw
-			wait(d)
-		end
+  draw_grid()
+  draw_enemy()
+  draw_stats()
+  if d != nil then
+   //optional delay after draw
+   wait(d)
+  end
  end
  return t
 end
 
 function make_cell(x,y,cl)
-	//creates a cell at the
-	//specified position
-	local c = {}
-	c.x = x
-	c.y = y
-	c.val = 1
-	if cl == nil then
-	 //if color not specified,
-	 //assign random color
- 	cl = ceil(rnd(5))
+ //creates a cell at the
+ //specified position
+ local c = {}
+ c.x = x
+ c.y = y
+ c.val = 1
+ if cl == nil then
+  //if color not specified,
+  //assign random color
+  cl = ceil(rnd(5))
  end
  c.color = cl
-	c.clear = false
-	function c.clear_cell()
+ c.clear = false
+ function c.clear_cell()
   c.clear = true
   gems[c.color].clear_cell()
-	end
-	return c
+ end
+ return c
 end
 
 function make_grid()
-	//initializes a grid of cells
-	local grid = {}
+ //initializes a grid of cells
+ local grid = {}
  for i = 1, size do
- 	grid[i] = {}
+  grid[i] = {}
   for j = 1, size do
-  	grid[i][j] = make_cell(i,j)
+   grid[i][j] = make_cell(i,j)
   end
  end
  return grid
@@ -158,84 +158,84 @@ function init_grid()
 end
 
 function shuffle()
-	//shuffles the board while
-	//keeping current tiles
-	for c = 1, size do
-	 for r = 1, size do
-	 	local x = ceil(rnd(size))
-	 	local y = ceil(rnd(size))
-	 	swap(grid[c][r],grid[x][y])
-	 end
-	end
-	screen.draw_screen()
-	update_grid()
+ //shuffles the board while
+ //keeping current tiles
+ for c = 1, size do
+  for r = 1, size do
+   local x = ceil(rnd(size))
+   local y = ceil(rnd(size))
+   swap(grid[c][r],grid[x][y])
+  end
+ end
+ screen.draw_screen()
+ update_grid()
 end
 
 function draw_grid()
-	//displays the board
-	rectfill(0,0,128,128,1)
-	rectfill(9,6,117,122,15)
-	rectfill(9,49,117,122,13)
-	rect(9,59,72,122,6)
-	for i = 1, size do
+ //displays the board
+ rectfill(0,0,128,128,1)
+ rectfill(9,6,117,122,15)
+ rectfill(9,49,117,122,13)
+ rect(9,59,72,122,6)
+ for i = 1, size do
   for j = 1, size do
-  	draw_cell(grid[i][j],i,j)
+   draw_cell(grid[i][j],i,j)
   end
  end
 end
 
 function update_grid()
-	//updates grid display and
-	//returns # of changed cells
-	local num = clear_cells()
-	local chain = 0
-	while gameactive and num != 0 do
-	 chain += 1
-		screen.draw_screen(5)
-		num = clear_cells()
-	end
-	return chain
+ //updates grid display and
+ //returns # of changed cells
+ local num = clear_cells()
+ local chain = 0
+ while gameactive and num != 0 do
+  chain += 1
+  screen.draw_screen(5)
+  num = clear_cells()
+ end
+ return chain
 end
 
 function draw_cell(cell)
-	//displays one cell
-	if not cell.clear then
-		local x = cell.x*9+1
-		local y = cell.y*9+51
-		spr(cell.color,x,y)
-	end
+ //displays one cell
+ if not cell.clear then
+  local x = cell.x*9+1
+  local y = cell.y*9+51
+  spr(cell.color,x,y)
+ end
 end
 -->8
 function controls()
-	if btnp(0) then
-		ctrl.left()
-	elseif btnp(1) then
-		ctrl.right()
-	elseif btnp(2) then
-		ctrl.up()
-	elseif btnp(3) then
- 	ctrl.down()
-	end
-	
-	if btnp(4) then
-	 ctrl.z()
-	elseif btnp(5) then
-	 ctrl.x()
-	end
+ if btnp(0) then
+  ctrl.left()
+ elseif btnp(1) then
+  ctrl.right()
+ elseif btnp(2) then
+  ctrl.up()
+ elseif btnp(3) then
+  ctrl.down()
+ end
+ 
+ if btnp(4) then
+  ctrl.z()
+ elseif btnp(5) then
+  ctrl.x()
+ end
 end
 
 function grid_controls()
  local t = {}
  function t.left()
-		move_pointer(-1,0)
+  move_pointer(-1,0)
  end
  
  function t.right()
-		move_pointer(1,0)
+  move_pointer(1,0)
  end
  
  function t.up()
-		move_pointer(0,-1)
+  move_pointer(0,-1)
  end
  
  function t.down()
@@ -247,20 +247,20 @@ function grid_controls()
  end
  
  function t.x()
-	 ps = nil
+  ps = nil
   ctrl = menu_controls()
-		sfx(0)
+  sfx(0)
  end
  
  function t.draw_pointer()
-		local x = px*9+1
-		local y = py*9+51
-		spr(8,x,y)
-		if ps != nil then
-			local hx = ps.x*9+1
-			local hy = ps.y*9+51
-			spr(9,hx,hy)
-		end
+  local x = px*9+1
+  local y = py*9+51
+  spr(8,x,y)
+  if ps != nil then
+   local hx = ps.x*9+1
+   local hy = ps.y*9+51
+   spr(9,hx,hy)
+  end
  end
  return t
 end
@@ -276,21 +276,21 @@ function menu_controls()
  end
  
  function t.up()
-		if pskill > 1 then
-			pskill-=1
-			sfx(0)
-		end
+  if pskill > 1 then
+   pskill-=1
+   sfx(0)
+  end
  end
  
  function t.down()
-		if pskill < #skills then
-			pskill+=1
-			sfx(0)
-		end
+  if pskill < #skills then
+   pskill+=1
+   sfx(0)
+  end
  end
  
  function t.z()
-		use_skill(skills[pskill])
+  use_skill(skills[pskill])
  end
  
  function t.x()
@@ -306,177 +306,177 @@ function menu_controls()
 end
 
 function move_pointer(dx,dy)
-	//moves the pointer
-	local x = px + dx
-	local y = py + dy
-	
-	//keeps in bounds
-	if valid_move(x,y) then
-		px = x
-		py = y
-		sfx(0)
-	end
+ //moves the pointer
+ local x = px + dx
+ local y = py + dy
+ 
+ //keeps in bounds
+ if valid_move(x,y) then
+  px = x
+  py = y
+  sfx(0)
+ end
 end
 
 function valid_move(x,y)
-	//checks to see if pointer
-	//movement is valid
-	local in_bounds = 
-		x>=1 and x <= size and
-	 y>=1 and y <= size
-	//restricts movement to 1 
-	//square if cell selected
-	if in_bounds and
-				ps != nil then
-		local hx = ps.x
-		local hy = ps.y
-		return 
-			abs(hx-x) <=1 and hy == y or
-			abs(hy-y) <=1 and hx == x
-	else
-		return in_bounds
-	end
+ //checks to see if pointer
+ //movement is valid
+ local in_bounds = 
+  x>=1 and x <= size and
+  y>=1 and y <= size
+ //restricts movement to 1 
+ //square if cell selected
+ if in_bounds and
+    ps != nil then
+  local hx = ps.x
+  local hy = ps.y
+  return 
+   abs(hx-x) <=1 and hy == y or
+   abs(hy-y) <=1 and hx == x
+ else
+  return in_bounds
+ end
 end
 
 function swap_action()
-	//player initiated 
-	//cell swap
-	sfx(0)
-	local c = grid[px][py]
-	if ps == nil then
-		//stores a cell
-		ps = c
-	else
-		//swaps selected cell
-		if not (ps.x == c.x 
-					and ps.y == c.y) then
-		 swap(ps, c)
-		 screen.draw_screen(5)
-		 if update_grid() == 0 and
-		    gameactive then
-		  //invalid move
-		  sfx(3)
-			 swap(ps, c)
-			end
-		end
-		ps = nil
-	end
+ //player initiated 
+ //cell swap
+ sfx(0)
+ local c = grid[px][py]
+ if ps == nil then
+  //stores a cell
+  ps = c
+ else
+  //swaps selected cell
+  if not (ps.x == c.x 
+     and ps.y == c.y) then
+   swap(ps, c)
+   screen.draw_screen(5)
+   if update_grid() == 0 and
+      gameactive then
+    //invalid move
+    sfx(3)
+    swap(ps, c)
+   end
+  end
+  ps = nil
+ end
 end
 
 function swap(c1, c2)
-	//swaps two cells in the grid
-	//and updates their x/y coords
-	local x1 = c1.x
-	local y1 = c1.y
-	local x2 = c2.x
-	local y2 = c2.y
-	local temp = grid[x1][y1]
-	temp.x = x2
-	temp.y = y2
-	grid[x1][y1] = grid[x2][y2]
-	grid[x1][y1].x = x1
-	grid[x1][y1].y = y1
-	grid[x2][y2] = temp	
+ //swaps two cells in the grid
+ //and updates their x/y coords
+ local x1 = c1.x
+ local y1 = c1.y
+ local x2 = c2.x
+ local y2 = c2.y
+ local temp = grid[x1][y1]
+ temp.x = x2
+ temp.y = y2
+ grid[x1][y1] = grid[x2][y2]
+ grid[x1][y1].x = x1
+ grid[x1][y1].y = y1
+ grid[x2][y2] = temp 
 end
 -->8
 function match(c1, c2)
-	//checks if two cells are
-	//considered a match
-	return fget(c1)==fget(c2)
+ //checks if two cells are
+ //considered a match
+ return fget(c1)==fget(c2)
 end
 
 function clear_cells()
-	//checks for matches and
-	//clears all cells
-	local cl = false
-	for i = 1, size do
-		cl = check_line(i,true) or cl 
-	 cl = check_line(i,false) or cl 
-	end
-	
-	//allows for player to see
-	//cleared cells
-	if gameactive and cl then
-		sfx(1)
-	 update_stats()
-		screen.draw_screen(5)
-	end
-	
-	//counts how many cells
-	//were cleared
-	cleared = 0
-	
-	for c = 1, size do
-		for r = 1, size do
-			if grid[c][r].clear then
-				//swaps cleared cell to top
-				//and replaces it - "drop"
-				cleared += 1
-				for j = r, 2, -1 do
-					swap(grid[c][j],
-					     grid[c][j-1])
-				end
-				grid[c][1] = make_cell(c,1)
-			end
-		end
-	end
-	return cleared
+ //checks for matches and
+ //clears all cells
+ local cl = false
+ for i = 1, size do
+  cl = check_line(i,true) or cl 
+  cl = check_line(i,false) or cl 
+ end
+ 
+ //allows for player to see
+ //cleared cells
+ if gameactive and cl then
+  sfx(1)
+  update_stats()
+  screen.draw_screen(5)
+ end
+ 
+ //counts how many cells
+ //were cleared
+ cleared = 0
+ 
+ for c = 1, size do
+  for r = 1, size do
+   if grid[c][r].clear then
+    //swaps cleared cell to top
+    //and replaces it - "drop"
+    cleared += 1
+    for j = r, 2, -1 do
+     swap(grid[c][j],
+          grid[c][j-1])
+    end
+    grid[c][1] = make_cell(c,1)
+   end
+  end
+ end
+ return cleared
 end
 
 function check_line(l,isrow)
  //checks for 3 or more
  //matches in a line
  local cleared = false
-	local s = 1 //start index
-	local e = 1 //end index
-	local cl = -1 //stored color
-	//indicated row/col
-	local r = l
-	local c = l
-	//scalars for row/col
-	local sr = 1
-	local sc = 1
-	if isrow then
-	 sr = 0
-	 c = 0
-	else
-		sc = 0
-		r = 0
-	end
-	for i = 1, size do
-		local ir = i*sr+r
-		local ic = i*sc+c
-		local cell = grid[ic][ir]
-		local m = match(cell.color,cl)
-		if m then
-			e += 1
-		end
-		if not m	or i == size then
-			//marks given col from
-			//start index to end index
-			local cnt = e-s
-			if cnt >= 2 then
-				cleared = true
-				for j = s, e do
-					local jr = j*sr+r
-					local jc = j*sc+c
-					grid[jc][jr].clear_cell()
-				end
-				
-				//apply multiplier
-				for i = 1, #tmp do
-				 local ml = ((cnt-2)*.5)+1
-				 local s = tmp[i]*max(ml,1)
-				 stats[i]+=round(s)
-				 tmp[i] = 0
-				end
-			end
-			cl = grid[ic][ir].color
-			s = i
-			e = s
-		end
-	end
-	return cleared
+ local s = 1 //start index
+ local e = 1 //end index
+ local cl = -1 //stored color
+ //indicated row/col
+ local r = l
+ local c = l
+ //scalars for row/col
+ local sr = 1
+ local sc = 1
+ if isrow then
+  sr = 0
+  c = 0
+ else
+  sc = 0
+  r = 0
+ end
+ for i = 1, size do
+  local ir = i*sr+r
+  local ic = i*sc+c
+  local cell = grid[ic][ir]
+  local m = match(cell.color,cl)
+  if m then
+   e += 1
+  end
+  if not m or i == size then
+   //marks given col from
+   //start index to end index
+   local cnt = e-s
+   if cnt >= 2 then
+    cleared = true
+    for j = s, e do
+     local jr = j*sr+r
+     local jc = j*sc+c
+     grid[jc][jr].clear_cell()
+    end
+    
+    //apply multiplier
+    for i = 1, #tmp do
+     local ml = ((cnt-2)*.5)+1
+     local s = tmp[i]*max(ml,1)
+     stats[i]+=round(s)
+     tmp[i] = 0
+    end
+   end
+   cl = grid[ic][ir].color
+   s = i
+   e = s
+  end
+ end
+ return cleared
 end
 -->8
 function init_stats()
@@ -506,29 +506,29 @@ function update_stats()
 end
 
 function draw_stats()
-	for i = 1, 3 do
-	 //energies
-	 local y = i*9
-	 spr(i,74,51+y)
-	 print(frac(stats[i],caps[i]),
-	       83,53+y,1)
-	end
-	
-	//health
-	spr(0,10,50)
+ for i = 1, 3 do
+  //energies
+  local y = i*9
+  spr(i,74,51+y)
+  print(frac(stats[i],caps[i]),
+        83,53+y,1)
+ end
+ 
+ //health
+ spr(0,10,50)
  print(frac(stats[0],caps[0]),
        21,52,1)
-	
-	//shield
-	spr(4,55,50)
-	print(frac(stats[4],caps[4]),
-	      66,52,1)
-	
-	//gold
-	spr(5,91,50)
-	print(stats[5],102,52,1)
-	
-	draw_skills()
+ 
+ //shield
+ spr(4,55,50)
+ print(frac(stats[4],caps[4]),
+       66,52,1)
+ 
+ //gold
+ spr(5,91,50)
+ print(stats[5],102,52,1)
+ 
+ draw_skills()
 end
 
 function frac(a,b)
@@ -547,8 +547,8 @@ function draw_enemy()
        60,9,1)
  
  //warning
-	if flr(ti+1)%e.delay == 0 and 
-	   e.hp > 0 then	   
+ if flr(ti+1)%e.delay == 0 and 
+    e.hp > 0 then    
   spr(6,43,27)
   spr(6,85,27)
  end
@@ -564,7 +564,7 @@ function update_enemy()
  screen.draw_screen()
  if e.hp == 0 then
   gameactive = false
-	end
+ end
 end
 
 function enemy(h,p,d,s)
@@ -580,12 +580,12 @@ function enemy(h,p,d,s)
   if not gameactive then
    return
   end
-	 if flr(ti) % d == 0 then
-	  t.next()
-	  t.cooldown = true
-	 else
-	  t.cooldown = false
-	 end
+  if flr(ti) % d == 0 then
+   t.next()
+   t.cooldown = true
+  else
+   t.cooldown = false
+  end
  end
  
  function t.next()
@@ -601,15 +601,15 @@ function enemy(h,p,d,s)
  
  function t.fight()
   //standard attack
-	 local p = variance(t.power)
-	 if stats[4] > 0 then
-	  local s = stats[4]
-	  stats[4] = max(0,stats[4]-p)
-	  p -= s-stats[4]
-	 end
-	 stats[0] -= p
-	 sfx(2)
-		update_stats()
+  local p = variance(t.power)
+  if stats[4] > 0 then
+   local s = stats[4]
+   stats[4] = max(0,stats[4]-p)
+   p -= s-stats[4]
+  end
+  stats[0] -= p
+  sfx(2)
+  update_stats()
  end
  
  function t.heal()
@@ -696,11 +696,11 @@ function use_skill(s)
   e.hp -= s.attack
   stats[0] += s.heal
   for i = 1, 3 do
-	  stats[i] -= s.cost[i]
+   stats[i] -= s.cost[i]
   end
-	 sfx(s.sfx)
-	 update_stats()
-	 update_enemy()
+  sfx(s.sfx)
+  update_stats()
+  update_enemy()
  else
   sfx(3)
  end
@@ -712,35 +712,35 @@ function init_gems()
  
  local red = make_cell(-1,-1,1)
  function red.clear_cell()
-	 tmp[red.color]+=red.val
-	end
-	add(t,red)
-	
-	local blue = make_cell(-1,-1,2)
+  tmp[red.color]+=red.val
+ end
+ add(t,red)
+ 
+ local blue = make_cell(-1,-1,2)
  function blue.clear_cell()
-	 tmp[blue.color]+=blue.val
-	end
-	add(t,blue)
-	
-	local green = make_cell(-1,-1,3)
+  tmp[blue.color]+=blue.val
+ end
+ add(t,blue)
+ 
+ local green = make_cell(-1,-1,3)
  function green.clear_cell()
-	 tmp[green.color]+=green.val
-	end
-	add(t,green)
-	
-	local gray = make_cell(-1,-1,4)
+  tmp[green.color]+=green.val
+ end
+ add(t,green)
+ 
+ local gray = make_cell(-1,-1,4)
  function gray.clear_cell()
-	 tmp[gray.color]+=gray.val
-	end
-	add(t,gray)
-	
-	local gold = make_cell(-1,-1,5)
+  tmp[gray.color]+=gray.val
+ end
+ add(t,gray)
+ 
+ local gold = make_cell(-1,-1,5)
  function gold.clear_cell()
-	 tmp[gold.color]+=gold.val
-	end
-	add(t,gold)
-	
-	return t
+  tmp[gold.color]+=gold.val
+ end
+ add(t,gold)
+ 
+ return t
 end
 __gfx__
 0000000000555500005555000055550005555550005555000009900000000000670000762e0000e2000000000000000000000000000000000000000000000000
