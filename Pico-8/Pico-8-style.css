@@ -3,3 +3,8 @@
     text-align: center;
     font-family: 'Courier New', Courier, monospace;
 }
+
+#home{
+    text-align: center;
+    background-color: gray;
+}
