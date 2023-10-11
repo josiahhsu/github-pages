@@ -35,13 +35,21 @@ end
 
 function make_grid()
  //makes grid of cells
+ total = 0
  local grid = {}
  for i = 1, 10 do
   grid[i] = {}
   for j = 1, 10 do
-   grid[i][j] = make_cell()
-   total += grid[i][j].value
+   local cell = make_cell()
+   grid[i][j] = cell
+   total += cell.value
   end
+ end
+ 
+ // make sure grid has good
+ // amount of cells
+ if total < 40 or total > 60 then
+  grid = make_grid()
  end
  return grid
 end
@@ -83,11 +91,11 @@ function reveal_cell(cell,value)
  //opens a cell, either marking
  //or clearing based on value
  if not cell.revealed then
+  cell.revealed = true
   if cell.value != value then
    cell.mistake = true
    mistakes += 1
   end
-  cell.revealed = true
   if cell.value == 1 then
    total -= 1
    if total == 0 then
@@ -135,14 +143,13 @@ function draw_grid()
  print("⬆️",14,4,5)
  print("⬅️⬇️➡️",6,10,5)
  print("to move",4,16,5)
- print("z to mark",4,22,5)
- print("x to clear",4,28,5)
+ print("🅾️ to mark",4,22,5)
+ print("❎ to clear",4,28,5)
  print("remaining:"..total,4,34,5)
  print("mistakes:"..mistakes,4,40,5)
  draw_nums()
  for i = 1, #grid do
   for j = 1, #grid[i] do
-   local cell = grid[i][j]
    draw_cell(i,j)
   end
  end
@@ -184,7 +191,7 @@ function count_nums(l,isrow)
   sc = 0
   r = 0
  end
- local count = 0
+ local cnt = 0
  local p = 1
  local nums = {}
  for i = #grid, 1, -1 do
@@ -192,18 +199,17 @@ function count_nums(l,isrow)
   local ic = i*sc+c
   local cell = grid[ic][ir]
   if cell.value == 0 then
-   if count != 0 then
-    nums[p] = count
+   if cnt > 0 then
+    nums[p] = cnt
     p+=1
    end
-   count = 0
+   cnt = 0
   else
-   count += 1
+   cnt += 1
   end
  end
- if count != 0 then
-  nums[p] = count
-  p+=1
+ if cnt != 0 then
+  nums[p] = cnt
  end
  return nums
 end
