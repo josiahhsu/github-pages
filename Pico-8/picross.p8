@@ -15,11 +15,9 @@ function _update()
 end
 
 function _draw()
+ draw_grid()
  if total > 0 then
-  draw_grid()
   draw_pointer(px,py)
- else
-  draw_grid()
  end
 end
 -->8
