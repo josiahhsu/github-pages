@@ -7,11 +7,15 @@ function _init()
  m = 18
  n = 14
  grid = make_grid()
+ 
  px = 1
  py = 1
+ ctrl = opening_move()
  t = 0
- game_active = true
+ game_active = false
  mine_placement()
+ 
+ screen=draw_1()
 end
 
 function _update()
@@ -22,10 +26,7 @@ function _update()
 end
 
 function _draw()
- draw_grid()
- if game_active then
-  draw_pointer(px,py)
- end
+ screen.draw()
 end
 -->8
 function make_cell(mine,x,y)
@@ -88,10 +89,28 @@ function controls()
  end
  
  if btnp(4) then
-  open_cell(grid[px][py],1)
+  ctrl.z()
  elseif btnp(5) then
   flag_cell(grid[px][py],0)
  end
+end
+
+function opening_move()
+ local t = {}
+ function t.z()
+  game_active = true
+  open_cell(grid[px][py],1)
+  ctrl = standard_move()
+ end
+ return t
+end
+
+function standard_move()
+ local t = {}
+ function t.z()
+  open_cell(grid[px][py],1)
+ end
+ return t
 end
 
 function move_pointer(dx,dy)
@@ -118,6 +137,7 @@ function open_cell(cell,value)
    reveal_all()
    cell.spr = 19
    game_active = false
+   screen = draw_2()
   end
  end
 end
@@ -188,6 +208,24 @@ function draw_pointer(x,y)
  x,y = coords(x,y)
  rect(x,y,x+7,y+7,9)
 end
+
+function draw_1() 
+ local t = {}
+ function t.draw()
+  draw_grid()
+  draw_pointer(px,py)
+ end
+ return t
+end
+
+function draw_2() 
+ local t = {}
+ function t.draw()
+  draw_grid()
+ end
+ return t
+end
+
 __gfx__
 55555555555555555555555555555555555555555555555555555555555555555555555500000000000000000000000000000000000000000000000000000000
 56666665566cc66556633665566886655616616556eeee655662266556dddd655660066500000000000000000000000000000000000000000000000000000000
