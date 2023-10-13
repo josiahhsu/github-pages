@@ -73,13 +73,13 @@ function controls()
  //player controls for movement
  //and revealing cells
  if btnp(0) then
-  move_pointer(-1,0)
+  move_horz(-1)
  elseif btnp(1) then
-  move_pointer(1,0)
+  move_horz(1)
  elseif btnp(2) then
-  move_pointer(0,-1)
+  move_vert(-1)
  elseif btnp(3) then
-  move_pointer(0,1)
+  move_vert(1)
  end
  
  if btnp(4) then
@@ -89,16 +89,17 @@ function controls()
  end
 end
 
-function move_pointer(dx,dy)
- //moves pointer along grid
+function move_horz(dx)
  local x = px+dx
- local y = py+dy
  if x <= n and x>=1 then 
-  px += dx
+  px = x
  end
- 
+end
+
+function move_vert(dy)
+ local y = py+dy
  if y <= m and y>=1 then 
-  py += dy 
+  py = y 
  end
 end
 
