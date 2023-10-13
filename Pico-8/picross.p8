@@ -4,6 +4,7 @@ __lua__
 function _init()
  cls()
  total = 0
+ n = 10
  grid = make_grid()
  px = 1
  py = 1
@@ -35,9 +36,9 @@ function make_grid()
  //makes grid of cells
  total = 0
  local grid = {}
- for i = 1, 10 do
+ for i = 1, n do
   grid[i] = {}
-  for j = 1, 10 do
+  for j = 1, n do
    local cell = make_cell()
    grid[i][j] = cell
    total += cell.value
@@ -76,11 +77,11 @@ function move_pointer(dx,dy)
  //moves pointer along grid
  local x = px+dx
  local y = py+dy
- if x <= #grid and x>=1 then 
+ if x <= n and x>=1 then 
   px += dx
  end
  
- if y <= #grid[1] and y>=1 then 
+ if y <= n and y>=1 then 
   py += dy 
  end
 end
@@ -104,8 +105,8 @@ function reveal_cell(cell,value)
 end
 
 function reveal_all()
- for i = 1, #grid do
-  for j = 1, #grid[i] do
+ for i = 1, m do
+  for j = 1, n do
    grid[i][j].revealed = true
   end
  end
@@ -146,8 +147,8 @@ function draw_grid()
  print("remaining:"..total,4,34,5)
  print("mistakes:"..mistakes,4,40,5)
  draw_nums()
- for i = 1, #grid do
-  for j = 1, #grid[i] do
+ for i = 1, n do
+  for j = 1, n do
    draw_cell(i,j)
   end
  end
@@ -163,7 +164,7 @@ function draw_pointer(x,y)
 end
 
 function draw_nums()
- for i = 1, #grid do
+ for i = 1, n do
   local row = count_nums(i, true)
   local col = count_nums(i, false)
   for j = 1, #row do
@@ -192,7 +193,7 @@ function count_nums(l,isrow)
  local cnt = 0
  local p = 1
  local nums = {}
- for i = #grid, 1, -1 do
+ for i = n, 1, -1 do
   local ir = i*sr+r
   local ic = i*sc+c
   local cell = grid[ic][ir]
