@@ -10,23 +10,17 @@ function _init()
  
  px = 1
  py = 1
- ctrl = opening_move()
+ state = init_state()
  t = 0
- game_active = false
  mine_placement()
- 
- screen=draw_1()
 end
 
 function _update()
- controls()
- if game_active then
-  t+=1/30
- end
+ state.update()
 end
 
 function _draw()
- screen.draw()
+ state.draw()
 end
 -->8
 function make_cell(mine,x,y)
@@ -89,28 +83,10 @@ function controls()
  end
  
  if btnp(4) then
-  ctrl.z()
+  state.z()
  elseif btnp(5) then
   flag_cell(grid[px][py],0)
  end
-end
-
-function opening_move()
- local t = {}
- function t.z()
-  game_active = true
-  open_cell(grid[px][py],1)
-  ctrl = standard_move()
- end
- return t
-end
-
-function standard_move()
- local t = {}
- function t.z()
-  open_cell(grid[px][py],1)
- end
- return t
 end
 
 function move_pointer(dx,dy)
@@ -136,8 +112,7 @@ function open_cell(cell,value)
   if cell.mine then
    reveal_all()
    cell.spr = 19
-   game_active = false
-   screen = draw_2()
+   state = end_state()
   end
  end
 end
@@ -209,23 +184,60 @@ function draw_pointer(x,y)
  rect(x,y,x+7,y+7,9)
 end
 
-function draw_1() 
- local t = {}
- function t.draw()
+-->8
+function init_state()
+ local s = {}
+ 
+ function s.update()
+  controls()
+ end
+ 
+ function s.draw()
+  draw_grid()
+  draw_pointer(px, py)
+ end
+ 
+ function s.z()
+  state = play_state()
+  open_cell(grid[px][py],1)
+ end
+ 
+ return s
+end
+
+function play_state()
+ local s = {}
+ 
+ function s.update()
+  controls()
+  t+=1/30
+ end
+ 
+ function s.draw()
   draw_grid()
   draw_pointer(px,py)
  end
- return t
+ 
+ function s.z()
+  open_cell(grid[px][py],1)
+ end
+ 
+ return s
 end
 
-function draw_2() 
- local t = {}
- function t.draw()
+function end_state()
+ local s = {}
+ 
+ function s.update() end
+ 
+ function s.draw()
   draw_grid()
  end
- return t
+ 
+ function s.z() end
+ 
+ return s
 end
-
 __gfx__
 55555555555555555555555555555555555555555555555555555555555555555555555500000000000000000000000000000000000000000000000000000000
 56666665566cc66556633665566886655616616556eeee655662266556dddd655660066500000000000000000000000000000000000000000000000000000000
