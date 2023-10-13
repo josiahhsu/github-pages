@@ -107,7 +107,7 @@ function reveal_cell(cell,value)
 end
 
 function reveal_all()
- for i = 1, m do
+ for i = 1, n do
   for j = 1, n do
    grid[i][j].revealed = true
   end
@@ -198,15 +198,14 @@ function count_nums(l,isrow)
  for i = n, 1, -1 do
   local ir = i*sr+r
   local ic = i*sc+c
-  local cell = grid[ic][ir]
-  if cell.value == 0 then
+  local v = grid[ic][ir].value
+  cnt += v
+  if v == 0 then
    if cnt > 0 then
     nums[p] = cnt
     p+=1
    end
    cnt = 0
-  else
-   cnt += 1
   end
  end
  if cnt != 0 then
