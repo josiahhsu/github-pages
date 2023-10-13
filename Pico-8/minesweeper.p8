@@ -90,14 +90,14 @@ end
 
 function move_horz(dx)
  local x = px+dx
- if x <= n and x>=1 then 
+ if x <= m and x>=1 then 
   px = x
  end
 end
 
 function move_vert(dy)
  local y = py+dy
- if y <= m and y>=1 then 
+ if y <= n and y>=1 then 
   py = y 
  end
 end
