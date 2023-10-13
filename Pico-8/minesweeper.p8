@@ -12,7 +12,6 @@ function _init()
  py = 1
  state = init_state()
  t = 0
- mine_placement()
 end
 
 function _update()
