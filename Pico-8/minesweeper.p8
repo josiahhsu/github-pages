@@ -85,7 +85,7 @@ function controls()
  if btnp(4) then
   state.z()
  elseif btnp(5) then
-  flag_cell(grid[px][py],0)
+  flag_cell(grid[px][py])
  end
 end
 
@@ -93,11 +93,11 @@ function move_pointer(dx,dy)
  //moves pointer along grid
  local x = px+dx
  local y = py+dy
- if x <= #grid and x>=1 then 
+ if x <= n and x>=1 then 
   px += dx
  end
  
- if y <= #grid[1] and y>=1 then 
+ if y <= m and y>=1 then 
   py += dy 
  end
 end
@@ -178,9 +178,9 @@ function draw_grid()
  end
 end
 
-function draw_pointer(x,y)
+function draw_pointer()
  //draws pointer position
- x,y = coords(x,y)
+ x,y = coords(px,py)
  rect(x,y,x+7,y+7,9)
 end
 
@@ -194,7 +194,7 @@ function init_state()
  
  function s.draw()
   draw_grid()
-  draw_pointer(px, py)
+  draw_pointer()
  end
  
  function s.z()
@@ -215,7 +215,7 @@ function play_state()
  
  function s.draw()
   draw_grid()
-  draw_pointer(px,py)
+  draw_pointer()
  end
  
  function s.z()
