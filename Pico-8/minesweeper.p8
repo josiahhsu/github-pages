@@ -23,7 +23,7 @@ function _draw()
  state.draw()
 end
 -->8
-function make_cell(mine,x,y)
+function make_cell(mine)
  //makes a cell and determines
  //whether it's marked or not
  local cell = {}
@@ -58,7 +58,7 @@ function make_grid()
  for i = 1, m do
   grid[i] = {}
   for j = 1, n do
-   grid[i][j] = make_cell(deli(ms),i,j)
+   grid[i][j] = make_cell(deli(ms))
   end
  end
  return grid
