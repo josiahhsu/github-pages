@@ -6,6 +6,7 @@ function _init()
  total = 10
  m = 18
  n = 14
+ remaining = m*n - total
  grid = make_grid()
  
  px = 1
@@ -32,9 +33,6 @@ function make_cell(mine,x,y)
  cell.mine = mine
  cell.flagged = false
  cell.revealed = false
- function cell.reveal()
- 
- end
  return cell
 end
 
@@ -135,6 +133,7 @@ function open_cell(x,y)
   return
  end
  
+ remaining -= 1
  cell.revealed = true
  if cell.mine then
   reveal_all()
@@ -159,6 +158,11 @@ function open_cell(x,y)
    end
    foreach(cells, f)
   end
+ end
+ 
+ if remaining == 0 then
+  flag_all()
+  state = end_state()
  end
 end
 
@@ -191,6 +195,19 @@ function reveal_all()
   end
  end
 end
+
+function flag_all()
+ for i = 1, m do
+  for j = 1, n do
+   local cell = grid[i][j]
+   cell.revealed=true
+   if cell.mine and 
+      not cell.flagged then
+    cell.spr = 16
+   end
+  end
+ end
+end
 -->8
 function coords(x,y)
  //translates value to partial
@@ -200,10 +217,8 @@ end
 
 function draw_cell(x,y)  
  //draws cells on grid
- local cell = grid[x][y]
- x,y = coords(x,y)
- 
- spr(cell.spr,x,y)
+ sx,sy = coords(x,y)
+ spr(grid[x][y].spr,sx,sy)
 end
 
 function draw_grid()
