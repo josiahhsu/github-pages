@@ -52,7 +52,7 @@ end
 function make_plain(cell)
  //removes special effects
  //from cells
- cell.color %= 8;
+ cell.color %= 8
  function cell:clear_cell()
   cell.clear = true
  end
@@ -518,15 +518,18 @@ end
 function wildcard(c1,c2)
  //clears all cells matching
  //a given color
- if c1.color == 0 then
-  c1.clear = true
-  make_plain(c1)
- else
-  c2.clear = true
-  make_plain(c2)
+ 
+ //ensure c1 is wild
+ if c2.color == 0 then
+  c1, c2 = c2, c1
  end
  
- local c = max(c1.color,c2.color)
+ //clear c1
+ c1.clear = true
+ make_plain(c1)
+ 
+ //clear all colors matching c2
+ local c = c2.color
  local cells = {}
  for i = 1, size do
   for j = 1, size do
@@ -561,15 +564,13 @@ function clear_all()
   local dx = i*9
   //animation
   for j = 1,6 do
-   local y1 = 14+j*18-18
-   local y2 = 32+j*18-18
-   if j % 2 == 1 then
-    local x2 = 27+dx
-    rectfill(9,y1,x2,y2,cs[j])
-   else
-    local x2 = 99-dx
-    rectfill(117,y1,x2,y2,cs[j])
-   end
+   local y1 = -4+j*18
+   local y2 = 14+j*18
+   
+   local ln = j % 2==1
+   local x1 = ln and 9 or 117
+   local x2 = ln and 27+dx or 99-dx
+   rectfill(x1,y1,x2,y2,cs[j])
   end
   wait(1)
  end
