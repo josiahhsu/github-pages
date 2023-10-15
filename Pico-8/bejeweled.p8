@@ -352,17 +352,12 @@ end
 function swap(c1, c2)
  //swaps two cells in the grid
  //and updates their x/y coords
- local x1 = c1.x
- local y1 = c1.y
- local x2 = c2.x
- local y2 = c2.y
- local temp = grid[x1][y1]
- temp.x = x2
- temp.y = y2
- grid[x1][y1] = grid[x2][y2]
- grid[x1][y1].x = x1
- grid[x1][y1].y = y1
- grid[x2][y2] = temp 
+ local x1, x2 = c1.x, c2.x
+ local y1, y2 = c1.y, c2.y
+ grid[x1][y1], grid[x2][y2] = 
+ grid[x2][y2], grid[x1][y1]
+ c1.x, c2.x = x2, x1
+ c1.y, c2.y = y2, y1
 end
 -->8
 function match(c1, c2)
