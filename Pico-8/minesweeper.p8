@@ -164,6 +164,7 @@ end
 
 function open_cell(x,y) 
  local cell = grid[x][y]
+ 
  // don't open revealed
  // or flagged cells
  if cell.revealed or
@@ -217,14 +218,10 @@ function flag_cell(x,y)
  end
  
  // toggle flag
- if cell.flagged then
-  cell.spr = 20
-  total += 1
- else
-  cell.spr = 16
-  total -= 1
- end
- cell.flagged = not cell.flagged
+ local f = cell.flagged
+ cell.spr = f and 20 or 16
+ total += f and 1 or -1
+ cell.flagged = not f
 end
 
 function end_game(win)
@@ -235,15 +232,11 @@ function end_game(win)
    cell.revealed=true
    if cell.mine and 
       not cell.flagged then
-    if win then
-     // flag mines if game won
-     cell.spr = 16
-    else   
-     // show mines if game lost
-     cell.spr = 18
-    end
+    // flag mines if game won,
+    // show mines if game lost
+    cell.spr = win and 16 or 18
    elseif cell.flagged and
-      not cell.mine then
+          not cell.mine then
     // mark incorrect flags
     cell.spr = 17
    end
