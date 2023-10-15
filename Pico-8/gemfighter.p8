@@ -256,7 +256,7 @@ function grid_controls()
   local x = px*9+1
   local y = py*9+51
   spr(8,x,y)
-  if ps != nil then
+  if ps then
    local hx = ps.x*9+1
    local hy = ps.y*9+51
    spr(9,hx,hy)
@@ -326,8 +326,7 @@ function valid_move(x,y)
   y>=1 and y <= size
  //restricts movement to 1 
  //square if cell selected
- if in_bounds and
-    ps != nil then
+ if in_bounds and ps then
   local hx = ps.x
   local hy = ps.y
   return 

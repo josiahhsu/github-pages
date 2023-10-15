@@ -84,10 +84,7 @@ function make_bomb(cell)
     for j = -1, 1 do
      local dc = c+i
      local dr = r+j
-     if dc >= 1 and 
-      dc <= size and
-      dr >= 1 and 
-      dr <= size then
+     if in_bounds(dc,dr) then
       clear_cell(grid[dc][dr])
      end 
     end
@@ -259,6 +256,10 @@ function controls()
  end
 end
 
+function in_bounds(x,y)
+  return x>=1 and x <= size and
+         y>=1 and y <= size
+end
 
 function move_pointer(dx,dy)
  //moves the pointer
@@ -276,20 +277,18 @@ end
 function valid_move(x,y)
  //checks to see if pointer
  //movement is valid
- local in_bounds = 
-  x>=1 and x <= size and
-  y>=1 and y <= size
+ local valid = in_bounds(x,y)
+ 
  //restricts movement to 1 
  //square if cell selected
- if in_bounds and
-    ps != nil then
+ if valid and ps then
   local hx = ps.x
   local hy = ps.y
   return 
    abs(hx-x) <=1 and hy == y or
    abs(hy-y) <=1 and hx == x
  else
-  return in_bounds
+  return valid
  end
 end
 
@@ -298,7 +297,7 @@ function draw_pointer()
  local x = px*9+1
  local y = py*9+6
  spr(8,x,y)
- if ps != nil then
+ if ps then
   local hx = ps.x*9+1
   local hy = ps.y*9+6
   spr(9,hx,hy)
