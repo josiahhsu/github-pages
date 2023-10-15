@@ -36,9 +36,6 @@ function make_cell(mine)
  cell.mine = mine
  cell.flagged = false
  cell.opened = false
- function cell.o()
-  flag_cell()
- end
  return cell
 end
 
@@ -87,7 +84,11 @@ function controls()
  if btnp(4) then
   state.z()
  elseif btnp(5) then
-  grid[px][py].o()
+  if grid[px][py].opened then
+   open_adjacent()
+  else
+   flag_cell()
+  end
  end
 end
 
@@ -213,12 +214,6 @@ function open_cell(x,y)
   // there's no mines
   if cnt == 0 then
    cell_do_area(a,open_cell)
-  end
-  
-  // swap out flagging function
-  // for open_adjacent
-  function cell.o()
-   open_adjacent()
   end
  end
  
