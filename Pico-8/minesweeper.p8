@@ -89,23 +89,36 @@ function controls()
 end
 
 function move_horz(dx)
- local x = px+dx
- if x <= m and x>=1 then 
-  px = x
+ if in_bounds_x(px+dx) then 
+  px += dx
  end
 end
 
 function move_vert(dy)
- local y = py+dy
- if y <= n and y>=1 then 
-  py = y 
+ if in_bounds_y(py+dy) then 
+  py += dy 
  end
 end
 
+function in_range(s,e,v)
+ return s <= v and v <= e
+end
+
+function in_bounds_x(x)
+ return in_range(1,m,x)
+end
+
+function in_bounds_y(y)
+ return in_range(1,n,y)
+end
+
+function in_bounds(x,y)
+ return in_bounds_x(x) and
+        in_bounds_y(y)
+end
+
 function open_cell(x,y)
- // check that cell is in bounds
- if not (x >= 1 and x <= m and
-    y >= 1 and y <= n) then
+ if not in_bounds(x,y) then
   return
  end
  
@@ -128,8 +141,7 @@ function open_cell(x,y)
   for i=x-1, x+1 do
    for j=y-1, y+1 do
     add(cells, {i,j})
-    if i <= m and i >= 1 and
-       j <= n and j >= 1 and
+    if in_bounds(i,j) and
        grid[i][j].mine then
      cnt += 1
     end
@@ -146,6 +158,10 @@ function open_cell(x,y)
 end
 
 function flag_cell(x,y)
+ if not in_bounds(x,y) then
+  return
+ end
+ 
  local cell = grid[x][y]
  if not cell.revealed then
   if cell.flagged then
@@ -181,7 +197,11 @@ function coords(x,y)
  return (x-1)*7,y*7+18
 end
 
-function draw_cell(x,y)  
+function draw_cell(x,y)
+ if not in_bounds(x,y) then
+  return
+ end
+   
  //draws cells on grid
  local cell = grid[x][y]
  x,y = coords(x,y)
