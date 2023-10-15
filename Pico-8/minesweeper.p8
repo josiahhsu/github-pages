@@ -243,6 +243,10 @@ function end_game(win)
   end
  end
  
+ if win then
+  total = 0
+ end
+ 
  state = end_state()
 end
 -->8
