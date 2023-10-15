@@ -153,8 +153,8 @@ function opening_move(x,y)
  // other empty cells
  shuffle(empty)
  for i=1, cnt do
-  e = deli(empty)
-  grid[e[1]][e[2]].mine = true
+  local x,y = unpack(deli(empty))
+  grid[x][y].mine = true
  end
  
  cell_do(x,y,open_cell)
