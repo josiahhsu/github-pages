@@ -121,12 +121,20 @@ function in_bounds(x,y)
         in_bounds_y(y)
 end
 
-// wrapper for cell functions.
+// wrappers for cell functions.
 // only perform function if
 // position is in bounds.
 function cell_do(x,y,f)
  if in_bounds(x,y) then
   f(x,y)
+ end
+end
+
+function cell_do_all(f)
+ for i=1,m do
+  for j=1,n do
+   cell_do(i,j,f)
+  end
  end
 end
 
@@ -136,26 +144,27 @@ function opening_move(x,y)
  // surrounding mines.
  local cnt = 0
  local empty = {}
- for i = 1, m do
-  for j = 1, n do
-   local cell = grid[i][j]
-   if in_range(x-1,x+1,i) and
-      in_range(y-1,y+1,j) then
-     // remove any mines in
-     // immediate area
-     if cell.mine then
-      cell.mine = false
-      cnt+=1
-     end
-   else
-    if not cell.mine then
-     // record all other
-     // empty cells
-     add(empty, {i,j})
-    end
+ 
+ cell_do_all(
+ function(i,j)
+  local cell = grid[i][j]
+  if in_range(x-1,x+1,i) and
+     in_range(y-1,y+1,j) then
+   // remove any mines in
+   // immediate area
+   if cell.mine then
+    cell.mine = false
+    cnt+=1
+   end
+  else
+   if not cell.mine then
+    // record all other
+    // empty cells
+    add(empty, {i,j})
    end
   end
  end
+ )
  
  // add back mines in 
  // other empty cells
@@ -233,21 +242,21 @@ end
 
 function end_game(win)
  // reveal all mine locations
- for i = 1, m do
-  for j = 1, n do
-   local cell = grid[i][j]
-   if cell.mine and 
-      not cell.flagged then
-    // flag mines if game won,
-    // show mines if game lost
-    cell.spr = win and 16 or 18
-   elseif cell.flagged and
-          not cell.mine then
-    // mark incorrect flags
-    cell.spr = 17
-   end
+ cell_do_all(
+ function(x,y)
+  local cell = grid[x][y]
+  if cell.mine and 
+     not cell.flagged then
+   // flag mines if game won,
+   // show mines if game lost
+   cell.spr = win and 16 or 18
+  elseif cell.flagged and
+         not cell.mine then
+   // mark incorrect flags
+   cell.spr = 17
   end
  end
+ )
  
  if win then
   mines = 0
@@ -274,17 +283,14 @@ function draw_grid()
  line(84,0,84,24,5)
  print("mines:"..mines,87,5,5)
  print("time:"..flr(t), 87,16,5)
- for i = 1, m do
-  for j = 1, n do
-   cell_do(i,j,
-   function(x,y)
-    //draws cells on grid
-    local sx,sy = coords(x,y)
-    spr(grid[x][y].spr,sx,sy)
-   end
-   )
-  end
+ 
+ cell_do_all(
+ function(x,y)
+  //draws cells on grid
+  local sx,sy = coords(x,y)
+  spr(grid[x][y].spr,sx,sy)
  end
+ )
 end
 
 function draw_pointer()
