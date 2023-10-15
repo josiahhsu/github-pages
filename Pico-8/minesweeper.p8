@@ -4,19 +4,16 @@ __lua__
 function _init()
  cls()
  
- // grid size
- m = 18
- n = 14
+ // grid size and # of mines
+ m,n,mines = 18,14,40
  
- // mines and cells to open
- mines = 40
+ // cells to open
  remaining = m*n - mines
  
  grid = make_grid()
  
  // player position
- px = 1
- py = 1
+ px,py = 1,1
  
  t = 0
  state = init_state()
@@ -52,7 +49,7 @@ function shuffle(t)
  end
 end
 
-function mine_placement()
+function set_mines()
  local t={}
  for i=1, m*n do
   t[i] = i<=mines
@@ -64,8 +61,7 @@ end
 
 function make_grid()
  //makes grid of cells
- local ms = mine_placement()
- local grid = {}
+ local ms,grid = set_mines(),{}
  for i = 1, m do
   grid[i] = {}
   for j = 1, n do
@@ -150,8 +146,7 @@ end
 // will be a cell w/ no
 // surrounding mines
 function opening_move()
- local cnt = 0
- local empty = {}
+ local cnt,empty = 0,{}
  
  cell_do_all(
  function(i,j)
@@ -203,8 +198,7 @@ function open_cell(x,y)
   cell.spr = 19
  else
   // find # of surrounding mines
-  local cnt = 0
-  local a = {x-1,x+1,y-1,y+1}
+  local cnt,a = 0,{x-1,x+1,y-1,y+1}
   
   cell_do_area(a,
   function(i,j)
@@ -232,8 +226,7 @@ function open_cell(x,y)
 end
 
 function open_surrounding(x,y)
- local cnt = 0
- local a = {x-1,x+1,y-1,y+1}
+ local cnt,a = 0,{x-1,x+1,y-1,y+1}
   
  cell_do_area(a,
  function(i,j)
