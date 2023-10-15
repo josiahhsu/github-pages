@@ -481,12 +481,10 @@ function check_line(l,isrow)
      local jcell = grid[jc][jr]
      // priority for moved cells
      // to become special
-     if jcell == ps then
-      dc = ps.x
-      dr = ps.y
-     elseif jcell == pm then
-      dc = pm.x
-      dr = pm.y
+     if jcell == ps or
+        jcell == pm then
+      dc = jcell.x
+      dr = jcell.y
      end
      
      // detect intersection
