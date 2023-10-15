@@ -85,9 +85,9 @@ function make_bomb(cell)
      local dc = c+i
      local dr = r+j
      if dc >= 1 and 
-      dc <= #grid and
+      dc <= size and
       dr >= 1 and 
-      dr <= #grid then
+      dr <= size then
       clear_cell(grid[dc][dr])
      end 
     end
@@ -121,7 +121,7 @@ function make_lightning(cell)
     draw_grid()
    end
    
-   for i = 1, #grid do
+   for i = 1, size do
     clear_cell(grid[i][r])
     clear_cell(grid[c][i])
    end
@@ -179,10 +179,10 @@ function shuffle()
  //keeping current tiles
  print("shuffle!",90,2,6)
  wait(10)
- for c = 1, #grid do
-  for r = 1, #grid[r] do
-   local x = ceil(rnd(#grid))
-   local y = ceil(rnd(#grid))
+ for c = 1, size do
+  for r = 1, size do
+   local x = ceil(rnd(size))
+   local y = ceil(rnd(size))
    swap(grid[c][r],grid[x][y])
   end
  end
@@ -195,8 +195,8 @@ function draw_grid()
  //displays the board
  rectfill(0,0,128,128,1)
  rectfill(9,14,117,122,15)
- for i = 1, #grid do
-  for j = 1, #grid[i] do
+ for i = 1, size do
+  for j = 1, size do
    draw_cell(grid[i][j],i,j)
   end
  end
@@ -277,8 +277,8 @@ function valid_move(x,y)
  //checks to see if pointer
  //movement is valid
  local in_bounds = 
-  x>=1 and x <= #grid and
-  y>=1 and y <= #grid
+  x>=1 and x <= size and
+  y>=1 and y <= size
  //restricts movement to 1 
  //square if cell selected
  if in_bounds and
@@ -409,7 +409,7 @@ function clear_cells()
  //checks for matches and
  //clears all cells
  local cl = false
- for i = 1, #grid do
+ for i = 1, size do
   cl = check_line(i,true) or cl 
   cl = check_line(i,false) or cl 
  end
@@ -427,8 +427,8 @@ function clear_cells()
   wait(5)
  end
  
- for c = 1, #grid do
-  for r = 1, #grid[c] do
+ for c = 1, size do
+  for r = 1, size do
    if grid[c][r].clear then
     //swaps cleared cell to top
     //and replaces it - "drop"
@@ -465,7 +465,7 @@ function check_line(l,isrow)
   sc = 0
   r = 0
  end
- for i = 1, #grid do
+ for i = 1, size do
   local ir = i*sr+r
   local ic = i*sc+c
   local cell = grid[ic][ir]
@@ -473,7 +473,7 @@ function check_line(l,isrow)
    e += 1
   end
   if not match(cell.color, cl)
-     or i == #grid then
+     or i == size then
    if e-s >= 2 then
     //marks given col from
     //start index to end index
@@ -526,8 +526,8 @@ function wildcard(c1,c2)
  
  local c = max(c1.color,c2.color)
  local cells = {}
- for i = 1, #grid do
-  for j = 1, #grid[i] do
+ for i = 1, size do
+  for j = 1, size do
    local cell = grid[i][j]
    if match(cell.color,c) then
     cell.color-=cell.color%16
@@ -547,8 +547,8 @@ end
 function clear_all()
  //double wildcards - 
  //clears whole screen
- for i = 1, #grid do
-  for j = 1, #grid do
+ for i = 1, size do
+  for j = 1, size do
    grid[i][j].clear = true;
   end
  end
