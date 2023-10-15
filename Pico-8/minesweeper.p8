@@ -3,7 +3,7 @@ version 41
 __lua__
 function _init()
  cls()
- total = 100
+ total = 10
  m = 18
  n = 14
  grid = make_grid()
@@ -84,7 +84,7 @@ function controls()
  if btnp(4) then
   state.z()
  elseif btnp(5) then
-  flag_cell(px,py)
+  cell_do(px,py, flag_cell)
  end
 end
 
@@ -117,11 +117,16 @@ function in_bounds(x,y)
         in_bounds_y(y)
 end
 
-function open_cell(x,y)
- if not in_bounds(x,y) then
-  return
+// wrapper for cell functions.
+// only perform function if
+// position is in bounds.
+function cell_do(x,y,f)
+ if in_bounds(x,y) then
+  f(x,y)
  end
- 
+end
+
+function open_cell(x,y) 
  local cell = grid[x][y]
  // don't open revealed
  // or flagged cells
@@ -150,18 +155,14 @@ function open_cell(x,y)
   cell.spr=cnt
   if cnt == 0 then
    function f(e)
-    open_cell(e[1],e[2])
+    cell_do(e[1],e[2],open_cell)
    end
    foreach(cells, f)
   end
  end
 end
 
-function flag_cell(x,y)
- if not in_bounds(x,y) then
-  return
- end
- 
+function flag_cell(x,y) 
  local cell = grid[x][y]
  if not cell.revealed then
   if cell.flagged then
@@ -197,11 +198,7 @@ function coords(x,y)
  return (x-1)*7,y*7+18
 end
 
-function draw_cell(x,y)
- if not in_bounds(x,y) then
-  return
- end
-   
+function draw_cell(x,y)  
  //draws cells on grid
  local cell = grid[x][y]
  x,y = coords(x,y)
@@ -223,7 +220,7 @@ function draw_grid()
  print("time:"..flr(t), 87,16,5)
  for i = 1, m do
   for j = 1, n do
-   draw_cell(i,j)
+   cell_do(i,j,draw_cell)
   end
  end
 end
@@ -249,7 +246,7 @@ function init_state()
  
  function s.z()
   state = play_state()
-  open_cell(px,py)
+  cell_do(px,py, open_cell)
  end
  
  return s
@@ -269,7 +266,7 @@ function play_state()
  end
  
  function s.z()
-  open_cell(px,py)
+  cell_do(px,py, open_cell)
  end
  
  return s
