@@ -39,6 +39,9 @@ function make_cell(mine)
  cell.mine = mine
  cell.flagged = false
  cell.opened = false
+ function cell.o()
+  flag_cell()
+ end
  return cell
 end
 
@@ -88,7 +91,7 @@ function controls()
  if btnp(4) then
   state.z()
  elseif btnp(5) then
-  flag_cell()
+  grid[px][py].o()
  end
 end
 
@@ -205,8 +208,7 @@ function open_cell(x,y)
   
   cell_do_area(a,
   function(i,j)
-   if in_bounds(i,j) and
-      grid[i][j].mine then
+   if grid[i][j].mine then
     cnt += 1
    end
   end
@@ -218,10 +220,31 @@ function open_cell(x,y)
   if cnt == 0 then
    cell_do_area(a,open_cell)
   end
+  
+  function cell.o()
+   open_surrounding(x,y)
+  end
  end
  
  if remaining == 0 then
   end_game(true)
+ end
+end
+
+function open_surrounding(x,y)
+ local cnt = 0
+ local a = {x-1,x+1,y-1,y+1}
+  
+ cell_do_area(a,
+ function(i,j)
+  if grid[i][j].flagged then
+   cnt += 1
+  end
+ end
+ )
+ 
+ if cnt == grid[x][y].spr then
+  cell_do_area(a,open_cell)
  end
 end
 
