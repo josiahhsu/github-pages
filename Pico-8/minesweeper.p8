@@ -3,10 +3,10 @@ version 41
 __lua__
 function _init()
  cls()
- total = 40
+ mines = 40
  m = 18
  n = 14
- remaining = m*n - total
+ remaining = m*n - mines
  grid = make_grid()
  
  px = 1
@@ -46,7 +46,7 @@ end
 function mine_placement()
  local t={}
  for i=1, m*n do
-  t[i] = i<=total
+  t[i] = i<=mines
  end
  
  shuffle(t)
@@ -55,12 +55,12 @@ end
 
 function make_grid()
  //makes grid of cells
- local mines = mine_placement()
+ local ms = mine_placement()
  local grid = {}
  for i = 1, m do
   grid[i] = {}
   for j = 1, n do
-   grid[i][j] = make_cell(deli(mines),i,j)
+   grid[i][j] = make_cell(deli(ms),i,j)
   end
  end
  return grid
@@ -220,7 +220,7 @@ function flag_cell(x,y)
  // toggle flag
  local f = cell.flagged
  cell.spr = f and 20 or 16
- total += f and 1 or -1
+ mines += f and 1 or -1
  cell.flagged = not f
 end
 
@@ -244,7 +244,7 @@ function end_game(win)
  end
  
  if win then
-  total = 0
+  mines = 0
  end
  
  state = end_state()
@@ -272,7 +272,7 @@ function draw_grid()
  print("🅾️ to open",38,5,5)
  print("❎ to flag",38,16,5)
  line(84,0,84,24,5)
- print("mines:"..total,87,5,5)
+ print("mines:"..mines,87,5,5)
  print("time:"..flr(t), 87,16,5)
  for i = 1, m do
   for j = 1, n do
