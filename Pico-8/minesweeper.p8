@@ -20,6 +20,7 @@ function _update()
 end
 
 function _draw()
+ draw_grid()
  state.draw()
 end
 -->8
@@ -295,7 +296,6 @@ function init_state()
  end
  
  function s.draw()
-  draw_grid()
   draw_pointer()
  end
  
@@ -317,7 +317,6 @@ function play_state()
  end
  
  function s.draw()
-  draw_grid()
   draw_pointer()
  end
  
@@ -334,9 +333,7 @@ function end_state()
  
  function s.update() end
  
- function s.draw()
-  draw_grid()
- end
+ function s.draw() end
  
  function s.z() end
  
