@@ -160,7 +160,7 @@ function opening_move(x,y)
    if not cell.mine then
     // record all other
     // empty cells
-    add(empty, {i,j})
+    add(empty, cell)
    end
   end
  end
@@ -170,8 +170,7 @@ function opening_move(x,y)
  // other empty cells
  shuffle(empty)
  for i=1, cnt do
-  local x,y = unpack(deli(empty))
-  grid[x][y].mine = true
+  deli(empty).mine = true
  end
  
  cell_do(x,y,open_cell)
