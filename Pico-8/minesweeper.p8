@@ -125,6 +125,9 @@ function cell_do(x,y,f)
 end
 
 function opening_move(x,y)
+ // guarantees first open
+ // will be a cell w/ no
+ // surrounding mines.
  cnt = 0
  empty = {}
  for i = 1, m do
@@ -132,18 +135,24 @@ function opening_move(x,y)
    local cell = grid[i][j]
    if in_range(x-1,x+1,i) and
       in_range(y-1,y+1,j) then
+     // remove any mines in
+     // immediate area
      if cell.mine then
       cell.mine = false
       cnt+=1
      end
    else
     if not cell.mine then
+     // record all other
+     // empty cells
      add(empty, {i,j})
     end
    end
   end
  end
  
+ // add back mines in 
+ // other empty cells
  shuffle(empty)
  for i=1, cnt do
   e = deli(empty)
@@ -160,14 +169,17 @@ function open_cell(x,y)
  if cell.revealed or
     cell.flagged then
   return
- end
+ end 
  
  remaining -= 1
  cell.revealed = true
+
  if cell.mine then
   end_game(false)
+  // mark opened mine
   cell.spr = 19
  else
+  // find # of surrounding mines
   cnt = 0
   cells = {}
   for i=x-1, x+1 do
@@ -180,6 +192,9 @@ function open_cell(x,y)
    end
   end
   cell.spr=cnt
+  
+  // open surrounding cells if
+  // there's no mines
   if cnt == 0 then
    function f(e)
     cell_do(e[1],e[2],open_cell)
@@ -195,19 +210,25 @@ end
 
 function flag_cell(x,y) 
  local cell = grid[x][y]
- if not cell.revealed then
-  if cell.flagged then
-   cell.spr = 20
-   total += 1
-  else
-   cell.spr = 16
-   total -= 1
-  end
-  cell.flagged = not cell.flagged
+ 
+ // don't flag revealed cells
+ if cell.revealed then
+  return
  end
+ 
+ // toggle flag
+ if cell.flagged then
+  cell.spr = 20
+  total += 1
+ else
+  cell.spr = 16
+  total -= 1
+ end
+ cell.flagged = not cell.flagged
 end
 
 function end_game(win)
+ // reveal all mine locations
  for i = 1, m do
   for j = 1, n do
    local cell = grid[i][j]
@@ -215,12 +236,15 @@ function end_game(win)
    if cell.mine and 
       not cell.flagged then
     if win then
+     // flag mines if game won
      cell.spr = 16
     else   
+     // show mines if game lost
      cell.spr = 18
     end
    elseif cell.flagged and
       not cell.mine then
+    // mark incorrect flags
     cell.spr = 17
    end
   end
@@ -268,6 +292,7 @@ end
 
 -->8
 function init_state()
+ // before start of game
  local s = {}
  
  function s.update()
@@ -288,6 +313,7 @@ function init_state()
 end
 
 function play_state()
+ // during main gameplay
  local s = {}
  
  function s.update()
@@ -308,6 +334,7 @@ function play_state()
 end
 
 function end_state()
+ // game is over
  local s = {}
  
  function s.update() end
