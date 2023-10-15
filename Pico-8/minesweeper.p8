@@ -38,7 +38,7 @@ function make_cell(mine)
  cell.spr = 20
  cell.mine = mine
  cell.flagged = false
- cell.revealed = false
+ cell.opened = false
  return cell
 end
 
@@ -171,15 +171,15 @@ end
 function open_cell(x,y) 
  local cell = grid[x][y]
  
- // don't open revealed
- // or flagged cells
- if cell.revealed or
-    cell.flagged then
+ // don't open flagged cells
+ // or already open cells
+ if cell.flagged or
+    cell.opened then
   return
  end 
  
  remaining -= 1
- cell.revealed = true
+ cell.opened = true
 
  if cell.mine then
   end_game(false)
@@ -218,8 +218,8 @@ end
 function flag_cell(x,y) 
  local cell = grid[x][y]
  
- // don't flag revealed cells
- if cell.revealed then
+ // don't flag opened cells
+ if cell.opened then
   return
  end
  
@@ -235,7 +235,6 @@ function end_game(win)
  for i = 1, m do
   for j = 1, n do
    local cell = grid[i][j]
-   cell.revealed=true
    if cell.mine and 
       not cell.flagged then
     // flag mines if game won,
