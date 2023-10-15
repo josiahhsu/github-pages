@@ -136,9 +136,8 @@ function open_cell(x,y)
  remaining -= 1
  cell.revealed = true
  if cell.mine then
-  reveal_all()
+  end_game(false)
   cell.spr = 19
-  state = end_state()
  else
   cnt = 0
   cells = {}
@@ -161,8 +160,7 @@ function open_cell(x,y)
  end
  
  if remaining == 0 then
-  flag_all()
-  state = end_state()
+  end_game(true)
  end
 end
 
@@ -180,33 +178,26 @@ function flag_cell(x,y)
  end
 end
 
-function reveal_all()
+function end_game(win)
  for i = 1, m do
   for j = 1, n do
    local cell = grid[i][j]
    cell.revealed=true
    if cell.mine and 
       not cell.flagged then
-    cell.spr = 18
+    if win then
+     cell.spr = 16
+    else   
+     cell.spr = 18
+    end
    elseif cell.flagged and
       not cell.mine then
     cell.spr = 17
    end
   end
  end
-end
-
-function flag_all()
- for i = 1, m do
-  for j = 1, n do
-   local cell = grid[i][j]
-   cell.revealed=true
-   if cell.mine and 
-      not cell.flagged then
-    cell.spr = 16
-   end
-  end
- end
+ 
+ state = end_state()
 end
 -->8
 function coords(x,y)
