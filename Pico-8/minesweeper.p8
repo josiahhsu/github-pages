@@ -299,7 +299,7 @@ function init_state()
  
  function s.z()
   state = play_state()
-  cell_do(px,py,opening_move)
+  opening_move(px,py)
  end
  
  return s
