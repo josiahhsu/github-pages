@@ -472,15 +472,19 @@ function check_line(l,isrow)
    //start index to end index
    local cnt = e-s
    if cnt >= 2 then
+    cleared = true
+    // get middle of match for
+    // setting special cells
     local p = flr(cnt/2)
     local sp = s+p
     local dr = sp*sr+r
     local dc = sp*sc+c
-    cleared = true
     for j = s, e do
      local jr = j*sr+r
      local jc = j*sc+c
      local jcell = grid[jc][jr]
+     // priority for moved cells
+     // to become special
      if jcell == ps then
       dc = ps.x
       dr = ps.y
@@ -488,6 +492,9 @@ function check_line(l,isrow)
       dc = pm.x
       dr = pm.y
      end
+     
+     // detect intersection
+     // for lightnings
      if jcell.clear then
       add(lightnings, jcell)
      else
@@ -495,10 +502,14 @@ function check_line(l,isrow)
       jcell.clear = true
      end
     end
+    
+    // generate special cells
+    // based on match length
+    local special = grid[dc][dr]
     if cnt == 3 then
-     add(bombs, grid[dc][dr])
+     add(bombs, special)
     elseif cnt > 3 then
-     add(wilds, grid[dc][dr])
+     add(wilds, special)
     end
    end
    cl = grid[ic][ir].color
