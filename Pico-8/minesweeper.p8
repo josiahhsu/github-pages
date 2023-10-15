@@ -215,8 +215,10 @@ function open_cell(x,y)
    cell_do_area(a,open_cell)
   end
   
+  // swap out flagging function
+  // for open_adjacent
   function cell.o()
-   open_surrounding(x,y)
+   open_adjacent(x,y)
   end
  end
  
@@ -225,7 +227,7 @@ function open_cell(x,y)
  end
 end
 
-function open_surrounding(x,y)
+function open_adjacent(x,y)
  local cnt,a = 0,{x-1,x+1,y-1,y+1}
   
  cell_do_area(a,
