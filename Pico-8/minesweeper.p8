@@ -20,6 +20,7 @@ function _init()
 end
 
 function _update()
+ controls()
  state.update()
 end
 
@@ -84,11 +85,17 @@ function controls()
  if btnp(4) then
   state.z()
  elseif btnp(5) then
-  if grid[px][py].opened then
-   open_adjacent()
-  else
-   flag_cell()
-  end
+  state.o()
+ end
+end
+
+// standard o button:
+// flag or reveal adjacent
+function o()
+ if grid[px][py].opened then
+  open_adjacent()
+ else
+  flag_cell()
  end
 end
 
@@ -188,11 +195,10 @@ function open_cell(x,y)
  if cell.flagged or
     cell.opened then
   return
- end 
+ end
  
- remaining -= 1
  cell.opened = true
-
+  
  if cell.mine then
   end_game(false)
   // mark opened mine
@@ -216,6 +222,7 @@ function open_cell(x,y)
    cell_do_area(a,open_cell)
   end
   
+  remaining -= 1
   if remaining == 0 then
    end_game(true)
   end
@@ -284,19 +291,24 @@ function coords(x,y)
  return (x-1)*7,y*7+18
 end
 
-function draw_grid()
- //draws grid and info text
- rectfill(0,0,126,128,7)
- print("⬆️",13,4,5)
- print("⬅️⬇️➡️",5,10,5)
- print("to move",3,16,5)
+function draw_stats()
+ rectfill(0,0,126,24,7)
  line(35,0,35,24,5)
- print("🅾️ to open",38,2,5)
- print("❎ to flag or",38,9,5)
- print("open adjacent",38,16,5)
  line(91,0,91,24,5)
  print("mines:"..mines,94,5,5)
  print("time:"..flr(t), 94,16,5)
+end
+
+function draw_grid()
+ //draws grid and info text
+ rectfill(0,0,126,128,7)
+ draw_stats()
+ print("⬆️",13,4,5)
+ print("⬅️⬇️➡️",5,10,5)
+ print("to move",3,16,5)
+ print("🅾️ to open",38,2,5)
+ print("❎ to flag or",38,9,5)
+ print("open adjacent",38,16,5)
  
  cell_do_all(
  function(x,y)
@@ -318,9 +330,7 @@ function init_state()
  // before start of game
  local s = {}
  
- function s.update()
-  controls()
- end
+ function s.update() end
  
  function s.draw()
   draw_pointer()
@@ -331,6 +341,10 @@ function init_state()
   opening_move()
  end
  
+ function s.o() 
+  o()
+ end
+ 
  return s
 end
 
@@ -339,7 +353,6 @@ function play_state()
  local s = {}
  
  function s.update()
-  controls()
   t+=1/30
  end
  
@@ -351,6 +364,10 @@ function play_state()
   cell_do(px,py, open_cell)
  end
  
+ function s.o() 
+  o()
+ end
+ 
  return s
 end
 
@@ -360,9 +377,26 @@ function end_state()
  
  function s.update() end
  
- function s.draw() end
+ function s.draw() 
+  draw_stats()
+  if remaining == 0 then
+   print("you",10,6,5)
+   print("win",10,13,5)
+  else
+   print("game",10,6,5)
+   print("over",10,13,5)
+  end
+  print("🅾️ or ❎",48,6,5)
+  print("to restart",44,13,5)
+ end
  
- function s.z() end
+ function s.z()
+  _init()
+ end
+ 
+ function s.o()
+  _init()
+ end
  
  return s
 end
