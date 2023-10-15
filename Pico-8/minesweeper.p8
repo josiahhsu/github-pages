@@ -88,7 +88,7 @@ function controls()
  if btnp(4) then
   state.z()
  elseif btnp(5) then
-  cell_do(px,py, flag_cell)
+  flag_cell()
  end
 end
 
@@ -138,18 +138,18 @@ function cell_do_all(f)
  end
 end
 
-function opening_move(x,y)
- // guarantees first open
- // will be a cell w/ no
- // surrounding mines.
+// guarantees first open
+// will be a cell w/ no
+// surrounding mines
+function opening_move()
  local cnt = 0
  local empty = {}
  
  cell_do_all(
  function(i,j)
   local cell = grid[i][j]
-  if in_range(x-1,x+1,i) and
-     in_range(y-1,y+1,j) then
+  if in_range(px-1,px+1,i) and
+     in_range(py-1,py+1,j) then
    // remove any mines in
    // immediate area
    if cell.mine then
@@ -173,7 +173,7 @@ function opening_move(x,y)
   deli(empty).mine = true
  end
  
- cell_do(x,y,open_cell)
+ cell_do(px,py,open_cell)
 end
 
 function open_cell(x,y) 
@@ -224,8 +224,8 @@ function open_cell(x,y)
  end
 end
 
-function flag_cell(x,y) 
- local cell = grid[x][y]
+function flag_cell() 
+ local cell = grid[px][py]
  
  // don't flag opened cells
  if cell.opened then
@@ -313,7 +313,7 @@ function init_state()
  
  function s.z()
   state = play_state()
-  opening_move(px,py)
+  opening_move()
  end
  
  return s
