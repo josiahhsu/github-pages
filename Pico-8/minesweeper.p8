@@ -27,8 +27,6 @@ function make_cell(mine,x,y)
  //makes a cell and determines
  //whether it's marked or not
  local cell = {}
- cell.x = x
- cell.y = y
  cell.spr = 20
  cell.mine = mine
  cell.flagged = false
