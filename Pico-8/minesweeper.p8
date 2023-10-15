@@ -3,7 +3,7 @@ version 41
 __lua__
 function _init()
  cls()
- total = 10
+ total = 100
  m = 18
  n = 14
  remaining = m*n - total
@@ -122,6 +122,35 @@ function cell_do(x,y,f)
  if in_bounds(x,y) then
   f(x,y)
  end
+end
+
+function opening_move(x,y)
+ cnt = 0
+ empty = {}
+ for i = 1, m do
+  for j = 1, n do
+   local cell = grid[i][j]
+   if in_range(x-1,x+1,i) and
+      in_range(y-1,y+1,j) then
+     if cell.mine then
+      cell.mine = false
+      cnt+=1
+     end
+   else
+    if not cell.mine then
+     add(empty, {i,j})
+    end
+   end
+  end
+ end
+ 
+ shuffle(empty)
+ for i=1, cnt do
+  e = deli(empty)
+  grid[e[1]][e[2]].mine = true
+ end
+ 
+ cell_do(x,y,open_cell)
 end
 
 function open_cell(x,y) 
@@ -252,7 +281,7 @@ function init_state()
  
  function s.z()
   state = play_state()
-  cell_do(px,py, open_cell)
+  cell_do(px,py,opening_move)
  end
  
  return s
