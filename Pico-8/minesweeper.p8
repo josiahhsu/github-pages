@@ -203,10 +203,11 @@ function open_cell(x,y)
   // open surrounding cells if
   // there's no mines
   if cnt == 0 then
-   function f(e)
+   foreach(cells,
+   function(e)
     cell_do(e[1],e[2],open_cell)
    end
-   foreach(cells, f)
+   )
   end
  end
  
@@ -261,12 +262,6 @@ function coords(x,y)
  return (x-1)*7,y*7+18
 end
 
-function draw_cell(x,y)  
- //draws cells on grid
- local sx,sy = coords(x,y)
- spr(grid[x][y].spr,sx,sy)
-end
-
 function draw_grid()
  //draws grid and info text
  rectfill(0,0,126,128,7)
@@ -281,7 +276,13 @@ function draw_grid()
  print("time:"..flr(t), 87,16,5)
  for i = 1, m do
   for j = 1, n do
-   cell_do(i,j,draw_cell)
+   cell_do(i,j,
+   function(x,y)
+    //draws cells on grid
+    local sx,sy = coords(x,y)
+    spr(grid[x][y].spr,sx,sy)
+   end
+   )
   end
  end
 end
