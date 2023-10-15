@@ -215,10 +215,10 @@ function open_cell(x,y)
   if cnt == 0 then
    cell_do_area(a,open_cell)
   end
- end
- 
- if remaining == 0 then
-  end_game(true)
+  
+  if remaining == 0 then
+   end_game(true)
+  end
  end
 end
 
