@@ -463,17 +463,19 @@ function check_line(l,isrow)
   local ir = i*sr+r
   local ic = i*sc+c
   local cell = grid[ic][ir]
-  if match(cell.color, cl) then
+  local m = match(cell.color,cl)
+  if m then
    e += 1
   end
-  if not match(cell.color, cl)
-     or i == size then
-   if e-s >= 2 then
-    //marks given col from
-    //start index to end index
-    local p = flr((e-s)/2)
-    local dr = (s+p)*sr+r
-    local dc = (s+p)*sc+c
+  if not m or i == size then
+   //marks given col from
+   //start index to end index
+   local cnt = e-s
+   if cnt >= 2 then
+    local p = flr(cnt/2)
+    local sp = s+p
+    local dr = sp*sr+r
+    local dc = sp*sc+c
     cleared = true
     for j = s, e do
      local jr = j*sr+r
@@ -493,9 +495,9 @@ function check_line(l,isrow)
       jcell.clear = true
      end
     end
-    if e-s == 3 then
+    if cnt == 3 then
      add(bombs, grid[dc][dr])
-    elseif e-s > 3 then
+    elseif cnt > 3 then
      add(wilds, grid[dc][dr])
     end
    end
