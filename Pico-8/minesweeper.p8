@@ -3,16 +3,23 @@ version 41
 __lua__
 function _init()
  cls()
- mines = 40
+ 
+ // grid size
  m = 18
  n = 14
+ 
+ // mines and cells to open
+ mines = 40
  remaining = m*n - mines
+ 
  grid = make_grid()
  
+ // player position
  px = 1
  py = 1
- state = init_state()
+ 
  t = 0
+ state = init_state()
 end
 
 function _update()
