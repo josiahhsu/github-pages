@@ -446,19 +446,15 @@ function check_line(l,isrow)
  local s = 1 //start index
  local e = 1 //end index
  local cl = -1 //stored color
- //indicated row/col
- local r = l
- local c = l
+
+ //indicated row/col 
+ local r,c = 
+ unpack(isrow and {l,0} or {0,l})
+ 
  //scalars for row/col
- local sr = 1
- local sc = 1
- if isrow then
-  sr = 0
-  c = 0
- else
-  sc = 0
-  r = 0
- end
+ local sr,sc =
+ unpack(isrow and {0,1} or {1,0})
+
  for i = 1, size do
   local ir = i*sr+r
   local ic = i*sc+c
