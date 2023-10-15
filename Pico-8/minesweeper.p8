@@ -130,12 +130,17 @@ function cell_do(x,y,f)
  end
 end
 
-function cell_do_all(f)
- for i=1,m do
-  for j=1,n do
+function cell_do_area(a,f)
+ local x1,x2,y1,y2 = unpack(a)
+ for i=x1,x2 do
+  for j=y1,y2 do
    cell_do(i,j,f)
   end
  end
+end
+
+function cell_do_all(f)
+ cell_do_area({1,m,1,n},f)
 end
 
 // guarantees first open
@@ -196,26 +201,22 @@ function open_cell(x,y)
  else
   // find # of surrounding mines
   local cnt = 0
-  local cells = {}
-  for i=x-1, x+1 do
-   for j=y-1, y+1 do
-    add(cells, {i,j})
-    if in_bounds(i,j) and
-       grid[i][j].mine then
-     cnt += 1
-    end
+  local a = {x-1,x+1,y-1,y+1}
+  
+  cell_do_area(a,
+  function(i,j)
+   if in_bounds(i,j) and
+      grid[i][j].mine then
+    cnt += 1
    end
   end
+  )
   cell.spr=cnt
   
   // open surrounding cells if
   // there's no mines
   if cnt == 0 then
-   foreach(cells,
-   function(e)
-    cell_do(e[1],e[2],open_cell)
-   end
-   )
+   cell_do_area(a,open_cell)
   end
  end
  
