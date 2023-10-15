@@ -3,7 +3,7 @@ version 41
 __lua__
 function _init()
  cls()
- total = 100
+ total = 40
  m = 18
  n = 14
  remaining = m*n - total
