@@ -128,8 +128,8 @@ function opening_move(x,y)
  // guarantees first open
  // will be a cell w/ no
  // surrounding mines.
- cnt = 0
- empty = {}
+ local cnt = 0
+ local empty = {}
  for i = 1, m do
   for j = 1, n do
    local cell = grid[i][j]
@@ -181,8 +181,8 @@ function open_cell(x,y)
   cell.spr = 19
  else
   // find # of surrounding mines
-  cnt = 0
-  cells = {}
+  local cnt = 0
+  local cells = {}
   for i=x-1, x+1 do
    for j=y-1, y+1 do
     add(cells, {i,j})
@@ -254,7 +254,7 @@ end
 
 function draw_cell(x,y)  
  //draws cells on grid
- sx,sy = coords(x,y)
+ local sx,sy = coords(x,y)
  spr(grid[x][y].spr,sx,sy)
 end
 
@@ -279,7 +279,7 @@ end
 
 function draw_pointer()
  //draws pointer position
- x,y = coords(px,py)
+ local x,y = coords(px,py)
  rect(x,y,x+7,y+7,9)
 end
 
