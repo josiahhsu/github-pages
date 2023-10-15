@@ -218,7 +218,7 @@ function open_cell(x,y)
   // swap out flagging function
   // for open_adjacent
   function cell.o()
-   open_adjacent(x,y)
+   open_adjacent()
   end
  end
  
@@ -227,8 +227,8 @@ function open_cell(x,y)
  end
 end
 
-function open_adjacent(x,y)
- local cnt,a = 0,{x-1,x+1,y-1,y+1}
+function open_adjacent()
+ local cnt,a = 0,{px-1,px+1,py-1,py+1}
   
  cell_do_area(a,
  function(i,j)
@@ -238,7 +238,7 @@ function open_adjacent(x,y)
  end
  )
  
- if cnt == grid[x][y].spr then
+ if cnt == grid[px][py].spr then
   cell_do_area(a,open_cell)
  end
 end
