@@ -13,7 +13,7 @@ function _init()
  specials = {}
  bombs = {}
  wilds = {}
- lightnings = {} 
+ lightnings = {}
  init_grid()
  game_active = true
 end
@@ -36,7 +36,7 @@ end
 -->8
 function make_cell(x,y)
  //creates a cell of a
- //random color at the 
+ //random color at the
  //specified position
  local c = {}
  c.x = x
@@ -44,7 +44,7 @@ function make_cell(x,y)
  c.color = ceil(rnd(7))
  c.clear = false //color != 10
  c.special = false //color > 16
- 
+
  make_plain(c)
  return c
 end
@@ -65,7 +65,7 @@ function make_bomb(cell)
  cell.special = true
  cell.color = cell.color%16+16
  function cell:clear_cell()
-  //blows up surrounding cells 
+  //blows up surrounding cells
   cell.clear = true
   local c = cell.x
   local r = cell.y
@@ -86,7 +86,7 @@ function make_bomb(cell)
      local dr = r+j
      if in_bounds(dc,dr) then
       clear_cell(grid[dc][dr])
-     end 
+     end
     end
    end
   end
@@ -101,7 +101,7 @@ function make_lightning(cell)
  cell.special = true
  cell.color = cell.color%16+32
  function cell:clear_cell()
-  //blows up surrounding cells 
+  //blows up surrounding cells
   cell.clear = true
   local c = cell.x
   local r = cell.y
@@ -117,7 +117,7 @@ function make_lightning(cell)
     wait(1)
     draw_grid()
    end
-   
+
    for i = 1, size do
     clear_cell(grid[i][r])
     clear_cell(grid[c][i])
@@ -162,10 +162,10 @@ function init_grid()
    if grid[i][j].color==0 then
     grid[i][j].color = 1
     removedwild = true
-   end   
+   end
   end
  end
- 
+
  if removedwild then
   init_grid()
  end
@@ -203,7 +203,7 @@ end
 function update_grid()
  //updates grid display and
  //returns # of changed cells
- 
+
  local num = clear_cells()
  local p = 0 //cells cleared
  local c = 0 //level of chain
@@ -235,7 +235,7 @@ end
 -->8
 function controls()
  //moving the pointer and
- //controlling swaps 
+ //controlling swaps
  if btnp(0) then
   move_pointer(-1,0)
  elseif btnp(1) then
@@ -265,7 +265,7 @@ function move_pointer(dx,dy)
  //moves the pointer
  local x = px + dx
  local y = py + dy
- 
+
  //keeps in bounds
  if valid_move(x,y) then
   px = x
@@ -278,13 +278,13 @@ function valid_move(x,y)
  //checks to see if pointer
  //movement is valid
  local valid = in_bounds(x,y)
- 
- //restricts movement to 1 
+
+ //restricts movement to 1
  //square if cell selected
  if valid and ps then
   local hx = ps.x
   local hy = ps.y
-  return 
+  return
    abs(hx-x) <=1 and hy == y or
    abs(hy-y) <=1 and hx == x
  else
@@ -305,7 +305,7 @@ function draw_pointer()
 end
 
 function swap_action()
- //player initiated 
+ //player initiated
  //cell swap
  local c = grid[px][py]
  if ps == nil then
@@ -314,7 +314,7 @@ function swap_action()
   ps = c
  else
   //swaps selected cell
-  if not (ps.x == c.x 
+  if not (ps.x == c.x
      and ps.y == c.y) then
    pm = c
    pc = ps.color
@@ -329,7 +329,7 @@ function swap_action()
     sfx(1)
     wait(5)
     update_grid()
-   else 
+   else
     swap(ps, c)
     sfx(0)
     draw_grid()
@@ -353,7 +353,7 @@ function swap(c1, c2)
  //and updates their x/y coords
  local x1, x2 = c1.x, c2.x
  local y1, y2 = c1.y, c2.y
- grid[x1][y1], grid[x2][y2] = 
+ grid[x1][y1], grid[x2][y2] =
  grid[x2][y2], grid[x1][y1]
  c1.x, c2.x = x2, x1
  c1.y, c2.y = y2, y1
@@ -390,7 +390,7 @@ function set_specials()
  //adding special gems from
  //matches, with higher level
  //gems taking priority
- 
+
  foreach(bombs, make_bomb)
  bombs = {}
  foreach(lightnings, make_lightning)
@@ -404,14 +404,14 @@ function clear_cells()
  //clears all cells
  local cl = false
  for i = 1, size do
-  cl = 
+  cl =
   check_line(i,true) or
-  check_line(i,false) or cl 
+  check_line(i,false) or cl
  end
- 
+
  cleared =
- #bombs + #lightnings + #wilds 
- 
+ #bombs + #lightnings + #wilds
+
  detonate()
  set_specials()
  //allows for player to see
@@ -421,7 +421,7 @@ function clear_cells()
   draw_grid()
   wait(5)
  end
- 
+
  for c = 1, size do
   for r = 1, size do
    if grid[c][r].clear then
@@ -448,10 +448,10 @@ function check_line(l,isrow)
  local e = 1 //end index
  local cl = -1 //stored color
 
- //indicated row/col 
- local r,c = 
+ //indicated row/col
+ local r,c =
  unpack(isrow and {l,0} or {0,l})
- 
+
  //scalars for row/col
  local sr,sc =
  unpack(isrow and {0,1} or {1,0})
@@ -487,7 +487,7 @@ function check_line(l,isrow)
       dc = jcell.x
       dr = jcell.y
      end
-     
+
      // detect intersection
      // for lightnings
      if jcell.clear then
@@ -497,7 +497,7 @@ function check_line(l,isrow)
       jcell.clear = true
      end
     end
-    
+
     // generate special cells
     // based on match length
     local special = grid[dc][dr]
@@ -518,16 +518,16 @@ end
 function wildcard(c1,c2)
  //clears all cells matching
  //a given color
- 
+
  //ensure c1 is wild
  if c2.color == 0 then
   c1, c2 = c2, c1
  end
- 
+
  //clear c1
  c1.clear = true
  make_plain(c1)
- 
+
  //clear all colors matching c2
  local c = c2.color
  local cells = {}
@@ -537,11 +537,11 @@ function wildcard(c1,c2)
    if match(cell.color,c) then
     cell.color-=cell.color%16
     add(cells, cell)
-    draw_cell(cell)  
+    draw_cell(cell)
    end
   end
  end
- 
+
  sfx(4)
  wait(10)
  foreach(cells, clear_cell)
@@ -550,7 +550,7 @@ function wildcard(c1,c2)
 end
 
 function clear_all()
- //double wildcards - 
+ //double wildcards -
  //clears whole screen
  for i = 1, size do
   for j = 1, size do
@@ -566,7 +566,7 @@ function clear_all()
   for j = 1,6 do
    local y1 = -4+j*18
    local y2 = 14+j*18
-   
+
    local ln = j % 2==1
    local x1 = ln and 9 or 117
    local x2 = ln and 27+dx or 99-dx

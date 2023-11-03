@@ -60,8 +60,8 @@ function drop_blocks()
  //checks if able to move down
  if check_piece(0,1) then
   for b in all(blocks) do
-   b.y = (b.y/8 + 1)*8 
-  end 
+   b.y = (b.y/8 + 1)*8
+  end
  else
   lock_blocks()
  end
@@ -119,7 +119,7 @@ function clear_blocks()
    end
    //adjust interval
    //every 25 lines
-   if lines % 16 == 0 and 
+   if lines % 16 == 0 and
       interval > 3 then
     sfx(2)
     interval -= 3
@@ -165,13 +165,13 @@ function make_piece()
  elseif pos == 's' then
   p = make_s()
  elseif pos== 'o' then
-  p = make_o() 
+  p = make_o()
  end
  del(bag,pos)
  pos = choose_piece()
-  
+
  //game over
- if not check_piece(0,0) then 
+ if not check_piece(0,0) then
   set_color(p,10)
   music(-1)
   sfx(3)
@@ -183,7 +183,7 @@ function make_piece()
   end
   game_over = true
  end
- 
+
  return p
 end
 
@@ -191,7 +191,7 @@ function choose_piece()
  //refresh bag if empty
  if #bag == 0 then
   bag = make_bag() end
-  
+
  //selects next piece from bag
  return bag[ceil(rnd(#bag))]
 end
@@ -330,7 +330,7 @@ function draw_next()
  elseif pos == 'l' then
   spr(83,108,48,2,3)
  elseif pos == 'z' then
-  spr(85,108,48,2,3) 
+  spr(85,108,48,2,3)
  elseif pos == 's' then
   spr(87,108,48,2,3)
  elseif pos == 't' then
@@ -597,4 +597,3 @@ __music__
 00 0a42430c
 00 0942430c
 02 0b42430c
-

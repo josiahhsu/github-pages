@@ -7,33 +7,33 @@ function _init()
  px = 1 //player x coordinate
  py = 1 //player y coordinate
  ps = nil //player stored cell
- 
+
  //player stats
  //energies + max capacities
  //{hp,r,b,g,shield,gold}
  caps = init_caps()
  stats = init_stats()
  tmp = init_stats()
- 
+
  //player skills
  skills = init_skills()
  pskill = 1
  ctrl = grid_controls()
- 
+
  //grid
  size = 7 //size of grid
  grid = {}
- 
+
  //trackers
  gameactive = false
  ti = 0
- 
+
  //template gems
  gems = init_gems()
- 
+
  //screen
  screen = init_screen()
- 
+
  //enemy
  local r = flr(rnd(3))*4
  e = enemy(50,3,5,64+r)
@@ -51,7 +51,7 @@ end
 
 function _draw()
  if gameactive then
-  screen.draw_screen() 
+  screen.draw_screen()
   ctrl.draw_pointer()
  end
 end
@@ -92,7 +92,7 @@ function end_fight()
  if e.hp == 0 then
   print("victory!",26,89,7)
  else
-  print("defeat...",24,89,7) 
+  print("defeat...",24,89,7)
   g = 0
  end
  wait(30)
@@ -103,7 +103,7 @@ end
 -->8
 function init_screen()
  local t = {}
- 
+
  function t.draw_screen(d)
   draw_grid()
   draw_enemy()
@@ -216,7 +216,7 @@ function controls()
  elseif btnp(3) then
   ctrl.down()
  end
- 
+
  if btnp(4) then
   ctrl.z()
  elseif btnp(5) then
@@ -229,29 +229,29 @@ function grid_controls()
  function t.left()
   move_pointer(-1,0)
  end
- 
+
  function t.right()
   move_pointer(1,0)
  end
- 
+
  function t.up()
   move_pointer(0,-1)
  end
- 
+
  function t.down()
   move_pointer(0,1)
  end
- 
+
  function t.z()
   swap_action()
  end
- 
+
  function t.x()
   ps = nil
   ctrl = menu_controls()
   sfx(0)
  end
- 
+
  function t.draw_pointer()
   local x = px*9+1
   local y = py*9+51
@@ -268,36 +268,36 @@ end
 function menu_controls()
  local t = {}
  function t.left()
-  
+
  end
- 
+
  function t.right()
- 
+
  end
- 
+
  function t.up()
   if pskill > 1 then
    pskill-=1
    sfx(0)
   end
  end
- 
+
  function t.down()
   if pskill < #skills then
    pskill+=1
    sfx(0)
   end
  end
- 
+
  function t.z()
   use_skill(skills[pskill])
  end
- 
+
  function t.x()
   ctrl = grid_controls()
   sfx(0)
  end
- 
+
  function t.draw_pointer()
   draw_effects(skills[pskill])
   spr(9,74,78+(pskill*9))
@@ -309,7 +309,7 @@ function move_pointer(dx,dy)
  //moves the pointer
  local x = px + dx
  local y = py + dy
- 
+
  //keeps in bounds
  if valid_move(x,y) then
   px = x
@@ -321,15 +321,15 @@ end
 function valid_move(x,y)
  //checks to see if pointer
  //movement is valid
- local in_bounds = 
+ local in_bounds =
   x>=1 and x <= size and
   y>=1 and y <= size
- //restricts movement to 1 
+ //restricts movement to 1
  //square if cell selected
  if in_bounds and ps then
   local hx = ps.x
   local hy = ps.y
-  return 
+  return
    abs(hx-x) <=1 and hy == y or
    abs(hy-y) <=1 and hx == x
  else
@@ -338,7 +338,7 @@ function valid_move(x,y)
 end
 
 function swap_action()
- //player initiated 
+ //player initiated
  //cell swap
  sfx(0)
  local c = grid[px][py]
@@ -347,7 +347,7 @@ function swap_action()
   ps = c
  else
   //swaps selected cell
-  if not (ps.x == c.x 
+  if not (ps.x == c.x
      and ps.y == c.y) then
    swap(ps, c)
    screen.draw_screen(5)
@@ -367,7 +367,7 @@ function swap(c1, c2)
  //and updates their x/y coords
  local x1, x2 = c1.x, c2.x
  local y1, y2 = c1.y, c2.y
- grid[x1][y1], grid[x2][y2] = 
+ grid[x1][y1], grid[x2][y2] =
  grid[x2][y2], grid[x1][y1]
  c1.x, c2.x = x2, x1
  c1.y, c2.y = y2, y1
@@ -384,11 +384,11 @@ function clear_cells()
  //clears all cells
  local cl = false
  for i = 1, size do
-  cl = 
+  cl =
   check_line(i,true) or
-  check_line(i,false) or cl 
+  check_line(i,false) or cl
  end
- 
+
  //allows for player to see
  //cleared cells
  if gameactive and cl then
@@ -396,11 +396,11 @@ function clear_cells()
   update_stats()
   screen.draw_screen(5)
  end
- 
+
  //counts how many cells
  //were cleared
  cleared = 0
- 
+
  for c = 1, size do
   for r = 1, size do
    if grid[c][r].clear then
@@ -425,11 +425,11 @@ function check_line(l,isrow)
  local s = 1 //start index
  local e = 1 //end index
  local cl = -1 //stored color
- 
- //indicated row/col 
- local r,c = 
+
+ //indicated row/col
+ local r,c =
  unpack(isrow and {l,0} or {0,l})
- 
+
  //scalars for row/col
  local sr,sc =
  unpack(isrow and {0,1} or {1,0})
@@ -453,7 +453,7 @@ function check_line(l,isrow)
      local jc = j*sc+c
      grid[jc][jr].clear_cell()
     end
-    
+
     //apply multiplier
     for i = 1, #tmp do
      local ml = ((cnt-2)*.5)+1
@@ -490,7 +490,7 @@ function update_stats()
   s = max(0,min(caps[i],s))
   stats[i]=s
  end
- 
+
  if stats[0] == 0 then
   gameactive = false
  end
@@ -504,21 +504,21 @@ function draw_stats()
   print(frac(stats[i],caps[i]),
         83,53+y,1)
  end
- 
+
  //health
  spr(0,10,50)
  print(frac(stats[0],caps[0]),
        21,52,1)
- 
+
  //shield
  spr(4,55,50)
  print(frac(stats[4],caps[4]),
        66,52,1)
- 
+
  //gold
  spr(5,91,50)
  print(stats[5],102,52,1)
- 
+
  draw_skills()
 end
 
@@ -530,16 +530,16 @@ function draw_enemy()
  spr(32,10,7)
  print(frac(e.hp,e.maxhp),
        20,9,1)
-        
+
  spr(16,50,7)
  print(round(e.power*.75)..
        "-"..
        round(e.power*1.25),
        60,9,1)
- 
+
  //warning
- if flr(ti+1)%e.delay == 0 and 
-    e.hp > 0 then    
+ if flr(ti+1)%e.delay == 0 and
+    e.hp > 0 then
   spr(6,43,27)
   spr(6,85,27)
  end
@@ -566,7 +566,7 @@ function enemy(h,p,d,s)
  t.delay = d
  t.cooldown=true
  t.spr = s
- 
+
  function t.act()
   if not gameactive then
    return
@@ -578,7 +578,7 @@ function enemy(h,p,d,s)
    t.cooldown = false
   end
  end
- 
+
  function t.next()
   //chooses next move
   if t.cooldown then return end
@@ -589,7 +589,7 @@ function enemy(h,p,d,s)
   end
   screen.draw_screen()
  end
- 
+
  function t.fight()
   //standard attack
   local p = variance(t.power)
@@ -602,7 +602,7 @@ function enemy(h,p,d,s)
   sfx(2)
   update_stats()
  end
- 
+
  function t.heal()
   //heal if below max hp,
   //otherwise attack
@@ -630,7 +630,7 @@ function draw_effects(s)
  if s.heal > 0 then
   print("+"..s.heal,10,43,3)
  end
- 
+
  //costs
  for i = 1, 3 do
   if s.cost[i] > 0 then
@@ -655,11 +655,11 @@ function init_skills()
  add(t,skill("strike",16,4,
               5,0,{5,0,0}))
  add(t,skill("cast",17,5,
-              5,0,{0,5,0}))           
+              5,0,{0,5,0}))
  add(t,skill("heal",18,6,
               0,5,{0,0,5}))
  add(t,skill("absorb",19,7,
-              3,3,{0,4,3}))             
+              3,3,{0,4,3}))
  return t
 end
 
@@ -678,10 +678,10 @@ function use_skill(s)
  //check if skill can be used
  local valid = true
  for i = 1, 3 do
-  valid = valid and 
+  valid = valid and
           stats[i] >= s.cost[i]
  end
- 
+
  if valid then
   //use skill
   e.hp -= s.attack
@@ -700,37 +700,37 @@ end
 function init_gems()
  //template gems
  local t = {}
- 
+
  local red = make_cell(-1,-1,1)
  function red.clear_cell()
   tmp[red.color]+=red.val
  end
  add(t,red)
- 
+
  local blue = make_cell(-1,-1,2)
  function blue.clear_cell()
   tmp[blue.color]+=blue.val
  end
  add(t,blue)
- 
+
  local green = make_cell(-1,-1,3)
  function green.clear_cell()
   tmp[green.color]+=green.val
  end
  add(t,green)
- 
+
  local gray = make_cell(-1,-1,4)
  function gray.clear_cell()
   tmp[gray.color]+=gray.val
  end
  add(t,gray)
- 
+
  local gold = make_cell(-1,-1,5)
  function gold.clear_cell()
   tmp[gold.color]+=gold.val
  end
  add(t,gold)
- 
+
  return t
 end
 __gfx__
@@ -1022,4 +1022,3 @@ __sfx__
 001000001b0001a0001a0001f000250002800028000290002700026000240001f0001c0001700013000120001300014000150001600017000190001b0001d0001e00020000000000000000000000000000000000
 __music__
 00 41434344
-

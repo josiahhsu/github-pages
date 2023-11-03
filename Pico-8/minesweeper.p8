@@ -3,18 +3,18 @@ version 41
 __lua__
 function _init()
  cls()
- 
+
  // grid size and # of mines
  m,n,mines = 18,14,40
- 
+
  // cells to open
  remaining = m*n - mines
- 
+
  grid = make_grid()
- 
+
  // player position
  px,py = 1,1
- 
+
  t = 0
  state = init_state()
 end
@@ -52,7 +52,7 @@ function set_mines()
  for i=1, m*n do
   t[i] = i<=mines
  end
- 
+
  shuffle(t)
  return t
 end
@@ -81,7 +81,7 @@ function controls()
  elseif btnp(3) then
   move_vert(1)
  end
- 
+
  if btnp(4) then
   state.z()
  elseif btnp(5) then
@@ -100,14 +100,14 @@ function o()
 end
 
 function move_horz(dx)
- if in_bounds_x(px+dx) then 
+ if in_bounds_x(px+dx) then
   px += dx
  end
 end
 
 function move_vert(dy)
- if in_bounds_y(py+dy) then 
-  py += dy 
+ if in_bounds_y(py+dy) then
+  py += dy
  end
 end
 
@@ -155,7 +155,7 @@ end
 // surrounding mines
 function opening_move()
  local cnt,empty = 0,{}
- 
+
  cell_do_all(
  function(i,j)
   local cell = grid[i][j]
@@ -176,29 +176,29 @@ function opening_move()
   end
  end
  )
- 
- // add back mines in 
+
+ // add back mines in
  // other empty cells
  shuffle(empty)
  for i=1, cnt do
   deli(empty).mine = true
  end
- 
+
  cell_do(px,py,open_cell)
 end
 
-function open_cell(x,y) 
+function open_cell(x,y)
  local cell = grid[x][y]
- 
+
  // don't open flagged cells
  // or already open cells
  if cell.flagged or
     cell.opened then
   return
  end
- 
+
  cell.opened = true
-  
+
  if cell.mine then
   end_game(false)
   // mark opened mine
@@ -206,7 +206,7 @@ function open_cell(x,y)
  else
   // find # of surrounding mines
   local cnt,a = 0,{x-1,x+1,y-1,y+1}
-  
+
   cell_do_area(a,
   function(i,j)
    if grid[i][j].mine then
@@ -215,13 +215,13 @@ function open_cell(x,y)
   end
   )
   cell.spr=cnt
-  
+
   // open surrounding cells if
   // there's no mines
   if cnt == 0 then
    cell_do_area(a,open_cell)
   end
-  
+
   remaining -= 1
   if remaining == 0 then
    end_game(true)
@@ -231,7 +231,7 @@ end
 
 function open_adjacent()
  local cnt,a = 0,{px-1,px+1,py-1,py+1}
-  
+
  cell_do_area(a,
  function(i,j)
   if grid[i][j].flagged then
@@ -239,20 +239,20 @@ function open_adjacent()
   end
  end
  )
- 
+
  if cnt == grid[px][py].spr then
   cell_do_area(a,open_cell)
  end
 end
 
-function flag_cell() 
+function flag_cell()
  local cell = grid[px][py]
- 
+
  // don't flag opened cells
  if cell.opened then
   return
  end
- 
+
  // toggle flag
  local f = cell.flagged
  cell.spr = f and 20 or 16
@@ -265,7 +265,7 @@ function end_game(win)
  cell_do_all(
  function(x,y)
   local cell = grid[x][y]
-  if cell.mine and 
+  if cell.mine and
      not cell.flagged then
    // flag mines if game won,
    // show mines if game lost
@@ -277,17 +277,17 @@ function end_game(win)
   end
  end
  )
- 
+
  if win then
   mines = 0
  end
- 
+
  state = end_state()
 end
 -->8
 function coords(x,y)
  //translates value to partial
- //position on grid 
+ //position on grid
  return (x-1)*7,y*7+18
 end
 
@@ -309,7 +309,7 @@ function draw_grid()
  print("🅾️ to open",38,2,5)
  print("❎ to flag or",38,9,5)
  print("open adjacent",38,16,5)
- 
+
  cell_do_all(
  function(x,y)
   //draws cells on grid
@@ -329,55 +329,55 @@ end
 function init_state()
  // before start of game
  local s = {}
- 
+
  function s.update() end
- 
+
  function s.draw()
   draw_pointer()
  end
- 
+
  function s.z()
   state = play_state()
   opening_move()
  end
- 
- function s.o() 
+
+ function s.o()
   o()
  end
- 
+
  return s
 end
 
 function play_state()
  // during main gameplay
  local s = {}
- 
+
  function s.update()
   t+=1/30
  end
- 
+
  function s.draw()
   draw_pointer()
  end
- 
+
  function s.z()
   cell_do(px,py, open_cell)
  end
- 
- function s.o() 
+
+ function s.o()
   o()
  end
- 
+
  return s
 end
 
 function end_state()
  // game is over
  local s = {}
- 
+
  function s.update() end
- 
- function s.draw() 
+
+ function s.draw()
   draw_stats()
   if remaining == 0 then
    print("you",10,6,5)
@@ -389,15 +389,15 @@ function end_state()
   print("🅾️ or ❎",48,6,5)
   print("to restart",44,13,5)
  end
- 
+
  function s.z()
   _init()
  end
- 
+
  function s.o()
   _init()
  end
- 
+
  return s
 end
 __gfx__
@@ -546,4 +546,3 @@ __label__
 77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777770
 77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777770
 77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777770
-

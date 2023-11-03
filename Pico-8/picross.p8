@@ -44,7 +44,7 @@ function make_grid()
    total += cell.value
   end
  end
- 
+
  // make sure grid has good
  // amount of cells
  if total < 40 or total > 60 then
@@ -65,7 +65,7 @@ function controls()
  elseif btnp(3) then
   move_vert(1)
  end
- 
+
  local cell = grid[px][py]
  if btn(4) then
   reveal_cell(cell,1)
@@ -76,15 +76,15 @@ end
 
 function move_horz(dx)
  local x = px+dx
- if x <= n and x>=1 then 
+ if x <= n and x>=1 then
   px = x
  end
 end
 
 function move_vert(dy)
  local y = py+dy
- if y <= n and y>=1 then 
-  py = y 
+ if y <= n and y>=1 then
+  py = y
  end
 end
 
@@ -116,11 +116,11 @@ end
 -->8
 function coords(p)
  //translates value to partial
- //position on grid 
+ //position on grid
  return 7*p + 48
 end
 
-function draw_cell(x,y)  
+function draw_cell(x,y)
  //draws cells on grid
  local cell = grid[x][y]
  x = coords(x)
@@ -182,7 +182,7 @@ function count_nums(l,isrow)
  //counts marked cells in line
  local r = l
  local c = l
- 
+
  local sr = 1
  local sc = 1
  if isrow then
@@ -342,4 +342,3 @@ __label__
 77777777777777777777777777777777777777777777777777775767777767777777777777777777777777777777777777777777777777777777777777777777
 77777777777777777777777777777777777777777777777777775767777767777777777777777777777777777777777777777777777777777777777777777777
 77777777777777777777777777777777777777777777777777775767777767777777777777777777777777777777777777777777777777777777777777777777
-
