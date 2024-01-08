@@ -426,18 +426,17 @@ function check_line(l,isrow)
  local e = 1 //end index
  local cl = -1 //stored color
 
- //indicated row/col
- local r,c =
- unpack(isrow and {l,0} or {0,l})
-
- //scalars for row/col
- local sr,sc =
- unpack(isrow and {0,1} or {1,0})
+ //gets nth cell within a line
+ local function get_cell(n)
+  if isrow then
+   return grid[l][n]
+  else
+   return grid[n][l]
+  end
+ end
 
  for i = 1, size do
-  local ir = i*sr+r
-  local ic = i*sc+c
-  local cell = grid[ic][ir]
+  local cell = get_cell(i)
   local m = match(cell.color,cl)
   if m then
    e += 1
@@ -449,9 +448,7 @@ function check_line(l,isrow)
    if cnt >= 2 then
     cleared = true
     for j = s, e do
-     local jr = j*sr+r
-     local jc = j*sc+c
-     grid[jc][jr].clear_cell()
+     get_cell(j).clear_cell()
     end
 
     //apply multiplier
@@ -462,7 +459,7 @@ function check_line(l,isrow)
      tmp[i] = 0
     end
    end
-   cl = grid[ic][ir].color
+   cl = cell.color
    s = i
    e = s
   end
@@ -1022,3 +1019,4 @@ __sfx__
 001000001b0001a0001a0001f000250002800028000290002700026000240001f0001c0001700013000120001300014000150001600017000190001b0001d0001e00020000000000000000000000000000000000
 __music__
 00 41434344
+

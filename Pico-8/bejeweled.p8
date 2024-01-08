@@ -448,18 +448,17 @@ function check_line(l,isrow)
  local e = 1 //end index
  local cl = -1 //stored color
 
- //indicated row/col
- local r,c =
- unpack(isrow and {l,0} or {0,l})
-
- //scalars for row/col
- local sr,sc =
- unpack(isrow and {0,1} or {1,0})
+ //gets nth cell within a line
+ local function get_cell(n)
+  if isrow then
+   return grid[l][n]
+  else
+   return grid[n][l]
+  end
+ end
 
  for i = 1, size do
-  local ir = i*sr+r
-  local ic = i*sc+c
-  local cell = grid[ic][ir]
+  local cell = get_cell(i)
   local m = match(cell.color,cl)
   if m then
    e += 1
@@ -472,20 +471,15 @@ function check_line(l,isrow)
     cleared = true
     // get middle of match for
     // setting special cells
-    local p = flr(cnt/2)
-    local sp = s+p
-    local dr = sp*sr+r
-    local dc = sp*sc+c
+    local sp = s+flr(cnt/2)
+    local special = get_cell(sp)
     for j = s, e do
-     local jr = j*sr+r
-     local jc = j*sc+c
-     local jcell = grid[jc][jr]
+     local jcell = get_cell(j)
      // priority for moved cells
      // to become special
      if jcell == ps or
         jcell == pm then
-      dc = jcell.x
-      dr = jcell.y
+      special = jcell
      end
 
      // detect intersection
@@ -494,20 +488,18 @@ function check_line(l,isrow)
       add(lightnings, jcell)
      else
       clear_cell(jcell)
-      jcell.clear = true
      end
     end
 
     // generate special cells
     // based on match length
-    local special = grid[dc][dr]
     if cnt == 3 then
      add(bombs, special)
     elseif cnt > 3 then
      add(wilds, special)
     end
    end
-   cl = grid[ic][ir].color
+   cl = cell.color
    s = i
    e = s
   end
