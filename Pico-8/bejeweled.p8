@@ -404,9 +404,8 @@ function clear_cells()
  //clears all cells
  local cl = false
  for i = 1, size do
-  cl =
-  check_line(i,true) or
-  check_line(i,false) or cl
+  cl = check_line(i,true) or cl
+  cl = check_line(i,false) or cl
  end
 
  cleared =
