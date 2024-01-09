@@ -404,8 +404,7 @@ function clear_cells()
  //clears all cells
  local cl = false
  for i = 1, size do
-  cl = check_line(i,true) or cl
-  cl = check_line(i,false) or cl
+  cl = check_lines(i) or cl
  end
 
  cleared =
@@ -439,68 +438,71 @@ function clear_cells()
  return cleared
 end
 
-function check_line(l,isrow)
+function check_lines(l)
  //checks for 3 or more
  //matches in a line
  local cleared = false
- local s = 1 //start index
- local e = 1 //end index
- local cl = -1 //stored color
 
- //gets nth cell within a line
- local function get_cell(n)
-  if isrow then
-   return grid[l][n]
-  else
-   return grid[n][l]
-  end
- end
+ for isrow = 0, 1 do
+  local s = 1 //start index
+  local e = 1 //end index
+  local cl = -1 //stored color
 
- for i = 1, size do
-  local cell = get_cell(i)
-  local m = match(cell.color,cl)
-  if m then
-   e += 1
-  end
-  if not m or i == size then
-   //marks given col from
-   //start index to end index
-   local cnt = e-s
-   if cnt >= 2 then
-    cleared = true
-    // get middle of match for
-    // setting special cells
-    local sp = s+flr(cnt/2)
-    local special = get_cell(sp)
-    for j = s, e do
-     local jcell = get_cell(j)
-     // priority for moved cells
-     // to become special
-     if jcell == ps or
-        jcell == pm then
-      special = jcell
-     end
-
-     // detect intersection
-     // for lightnings
-     if jcell.clear then
-      add(lightnings, jcell)
-     else
-      clear_cell(jcell)
-     end
-    end
-
-    // generate special cells
-    // based on match length
-    if cnt == 3 then
-     add(bombs, special)
-    elseif cnt > 3 then
-     add(wilds, special)
-    end
+  //gets nth cell within a line
+  local function get_cell(n)
+   if isrow == 0 then
+    return grid[l][n]
+   else
+    return grid[n][l]
    end
-   cl = cell.color
-   s = i
-   e = s
+  end
+
+  for i = 1, size do
+   local cell = get_cell(i)
+   local m = match(cell.color,cl)
+   if m then
+    e += 1
+   end
+   if not m or i == size then
+    //marks given col from
+    //start index to end index
+    local cnt = e-s
+    if cnt >= 2 then
+     cleared = true
+     // get middle of match for
+     // setting special cells
+     local sp = s+flr(cnt/2)
+     local special = get_cell(sp)
+     for j = s, e do
+      local jcell = get_cell(j)
+      // priority for moved cells
+      // to become special
+      if jcell == ps or
+         jcell == pm then
+       special = jcell
+      end
+
+      // detect intersection
+      // for lightnings
+      if jcell.clear then
+       add(lightnings, jcell)
+      else
+       clear_cell(jcell)
+      end
+     end
+
+     // generate special cells
+     // based on match length
+     if cnt == 3 then
+      add(bombs, special)
+     elseif cnt > 3 then
+      add(wilds, special)
+     end
+    end
+    cl = cell.color
+    s = i
+    e = s
+   end
   end
  end
  return cleared

@@ -384,8 +384,7 @@ function clear_cells()
  //clears all cells
  local cl = false
  for i = 1, size do
-  cl = check_line(i,true) or cl
-  cl = check_line(i,false) or cl
+  cl = check_lines(i) or cl
  end
 
  //allows for player to see
@@ -417,50 +416,53 @@ function clear_cells()
  return cleared
 end
 
-function check_line(l,isrow)
+function check_lines(l)
  //checks for 3 or more
  //matches in a line
  local cleared = false
- local s = 1 //start index
- local e = 1 //end index
- local cl = -1 //stored color
 
- //gets nth cell within a line
- local function get_cell(n)
-  if isrow then
-   return grid[l][n]
-  else
-   return grid[n][l]
-  end
- end
+ for isrow = 0, 1 do
+  local s = 1 //start index
+  local e = 1 //end index
+  local cl = -1 //stored color
 
- for i = 1, size do
-  local cell = get_cell(i)
-  local m = match(cell.color,cl)
-  if m then
-   e += 1
-  end
-  if not m or i == size then
-   //marks given col from
-   //start index to end index
-   local cnt = e-s
-   if cnt >= 2 then
-    cleared = true
-    for j = s, e do
-     get_cell(j).clear_cell()
-    end
-
-    //apply multiplier
-    for i = 1, #tmp do
-     local ml = ((cnt-2)*.5)+1
-     local s = tmp[i]*max(ml,1)
-     stats[i]+=round(s)
-     tmp[i] = 0
-    end
+  //gets nth cell within a line
+  local function get_cell(n)
+   if isrow == 0 then
+    return grid[l][n]
+   else
+    return grid[n][l]
    end
-   cl = cell.color
-   s = i
-   e = s
+  end
+
+  for i = 1, size do
+   local cell = get_cell(i)
+   local m = match(cell.color,cl)
+   if m then
+    e += 1
+   end
+   if not m or i == size then
+    //marks given col from
+    //start index to end index
+    local cnt = e-s
+    if cnt >= 2 then
+     cleared = true
+     for j = s, e do
+      get_cell(j).clear_cell()
+     end
+
+     //apply multiplier
+     for i = 1, #tmp do
+      local ml = ((cnt-2)*.5)+1
+      local s = tmp[i]*max(ml,1)
+      stats[i]+=round(s)
+      tmp[i] = 0
+     end
+    end
+    cl = cell.color
+    s = i
+    e = s
+   end
   end
  end
  return cleared
@@ -1018,4 +1020,3 @@ __sfx__
 001000001b0001a0001a0001f000250002800028000290002700026000240001f0001c0001700013000120001300014000150001600017000190001b0001d0001e00020000000000000000000000000000000000
 __music__
 00 41434344
-
