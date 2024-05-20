@@ -183,14 +183,9 @@ function draw_grid()
 	//draws grid and info text
 	rectfill(0,0,126,128,7)
 	draw_stats()
-	print("⬆️",13,4,5)
-	print("⬅️⬇️➡️",5,10,5)
-	print("to move",3,16,5)
-	print("🅾️ to",38,1,5)
-	print("toggle cells",38,7,5)
-	print("❎ to start",38,13,5)
-	print("or stop game",38,19,5)
-
+	
+	state.drawcontrols()
+	
 	cell_do_all(
 	function(x,y)
 		//draws cells on grid
@@ -212,6 +207,16 @@ function edit_state()
 	local s = {}
 
 	function s.update() end
+
+	function s.drawcontrols()
+		print("⬆️",13,4,5)
+		print("⬅️⬇️➡️",5,10,5)
+		print("to move",3,16,5)
+		print("🅾️ to",38,1,5)
+		print("toggle cells",38,7,5)
+		print("❎ to start",38,13,5)
+		print("simulation",38,19,5)
+	end
 
 	function s.draw()
 		draw_pointer()
@@ -268,9 +273,17 @@ function play_state()
 		end
 	end
 
-	function s.draw()
-		
+	function s.drawcontrols()
+		print("⬅️/➡️ to",2,4,5)
+		print("adjust",6,10,5)
+		print("speed",7,16,5)
+		print("🅾️ to",38,1,5)
+		print("reset game",38,7,5)
+		print("❎ to end",38,13,5)
+		print("simulation",38,19,5)
 	end
+
+	function s.draw() end
 
 	function s.left()
 		if (dur < 30) then
@@ -286,16 +299,14 @@ function play_state()
 		end
 	end
 
-	function s.up()
-		
-	end
+	function s.up() end
 
-	function s.down()
-		
-	end
+	function s.down() end
 
 	function s.z()
-		
+		grid = make_grid()
+		gen = 0
+		state = edit_state()
 	end
 
 	function s.o()
