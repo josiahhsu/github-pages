@@ -125,7 +125,7 @@ end
 
 function in_bounds(x,y)
 	return in_bounds_x(x) and
-								in_bounds_y(y)
+	       in_bounds_y(y)
 end
 
 // wrappers for cell functions.
