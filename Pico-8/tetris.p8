@@ -2,342 +2,342 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 function _init()
- cls()
- music(0,1)
- t = 0
- blocks = {}
- lines = 0
- level = 1
- interval = 30
- bag = make_bag()
- pos = choose_piece()
- piece = make_piece()
- game_over = false
+	cls()
+	music(0,1)
+	t = 0
+	blocks = {}
+	lines = 0
+	level = 1
+	interval = 30
+	bag = make_bag()
+	pos = choose_piece()
+	piece = make_piece()
+	game_over = false
 end
 
 function _update()
- if not game_over then
-  t += 1
-  controls()
-  if t % interval == 0 then
-   drop_blocks() end
- end
+	if not game_over then
+		t += 1
+		controls()
+		if t % interval == 0 then
+			drop_blocks() end
+	end
 end
 
 function _draw()
- map(0,0,0,0,16,16)
- for b in all(blocks) do
-  spr(b.spr,b.x,b.y) end
- draw_next()
- print('lines:',105,1,0)
- print(lines,105,9)
- print('level:',1,1)
- print(level,1,9)
+	map(0,0,0,0,16,16)
+	for b in all(blocks) do
+		spr(b.spr,b.x,b.y) end
+	draw_next()
+	print('lines:',105,1,0)
+	print(lines,105,9)
+	print('level:',1,1)
+	print(level,1,9)
 end
 -->8
 function make_block(x,y)
- b = {}
- b.x = x
- b.y = y
- b.spr = 3
- add(blocks, b)
- return b
+	b = {}
+	b.x = x
+	b.y = y
+	b.spr = 3
+	add(blocks, b)
+	return b
 end
 
 function move_blocks(bx)
- //checks if able to
- //move left/right
- sfx(4)
- if check_piece(bx,0) then
-  //moves in specified direction
-  for b in all(blocks) do
-   b.x = (b.x/8 + bx) * 8
-  end
- end
+	//checks if able to
+	//move left/right
+	sfx(4)
+	if check_piece(bx,0) then
+		//moves in specified direction
+		for b in all(blocks) do
+			b.x = (b.x/8 + bx) * 8
+		end
+	end
 end
 
 function drop_blocks()
- //checks if able to move down
- if check_piece(0,1) then
-  for b in all(blocks) do
-   b.y = (b.y/8 + 1)*8
-  end
- else
-  lock_blocks()
- end
+	//checks if able to move down
+	if check_piece(0,1) then
+		for b in all(blocks) do
+			b.y = (b.y/8 + 1)*8
+		end
+	else
+		lock_blocks()
+	end
 end
 
 function lock_blocks()
- t = 0
- //locks all blocks in place
- for b in all(blocks) do
-  local x = b.x/8
-  local y = b.y/8
-  mset(x,y,b.spr)
-  del(blocks, b)
- end
- sfx(0)
- clear_blocks()
- piece = make_piece()
+	t = 0
+	//locks all blocks in place
+	for b in all(blocks) do
+		local x = b.x/8
+		local y = b.y/8
+		mset(x,y,b.spr)
+		del(blocks, b)
+	end
+	sfx(0)
+	clear_blocks()
+	piece = make_piece()
 end
 
 function check_block(x,y)
- //returns true if
- //block is in wall
- if fget(mget(x,y)) == 1 then
-   return true end
- return false
+	//returns true if
+	//block is in wall
+	if fget(mget(x,y)) == 1 then
+		return true end
+	return false
 end
 
 function check_piece(bx,by)
- //returns true if pieces
- //can move
- for b in all(blocks) do
-  local x = b.x/8 + bx
-  local y = b.y/8 + by
-  if check_block(x,y) then
-   return false end
- end
- return true
+	//returns true if pieces
+	//can move
+	for b in all(blocks) do
+		local x = b.x/8 + bx
+		local y = b.y/8 + by
+		if check_block(x,y) then
+			return false end
+	end
+	return true
 end
 
 function clear_blocks()
- //checks if row is full
- for r = 0,14 do
-  local count = 0
-  for c = 3,12 do
-   if fget(mget(c,r)) == 1 then
-    count += 1 end
-  end
-  if count == 10 then
-  //shift rows down
-   sfx(1)
-   lines += 1
-   for i = r,1,-1 do
-    for j = 3, 12 do
-     mset(j,i,mget(j,i-1)) end
-   end
-   //adjust interval
-   //every 25 lines
-   if lines % 16 == 0 and
-      interval > 3 then
-    sfx(2)
-    interval -= 3
-    level += 1
-   end
-  end
- end
+	//checks if row is full
+	for r = 0,14 do
+		local count = 0
+		for c = 3,12 do
+			if fget(mget(c,r)) == 1 then
+				count += 1 end
+		end
+		if count == 10 then
+		//shift rows down
+			sfx(1)
+			lines += 1
+			for i = r,1,-1 do
+				for j = 3, 12 do
+					mset(j,i,mget(j,i-1)) end
+			end
+			//adjust interval
+			//every 25 lines
+			if lines % 16 == 0 and
+			   interval > 3 then
+				sfx(2)
+				interval -= 3
+				level += 1
+			end
+		end
+	end
 end
 -->8
 function controls()
- if btnp(0) then //left
-  move_blocks(-1) end
- if btnp(1) then //right
-  move_blocks(1) end
- if btnp(2) then //hard droo
-  hard_drop() end
- if btn(3) then //down
-  drop_blocks() end
- if btnp(4) then //c-clockwise
-  rotate(.25) end
- if btnp(5) then //clockwise
-  rotate(-.25) end
+	if btnp(0) then //left
+		move_blocks(-1) end
+	if btnp(1) then //right
+		move_blocks(1) end
+	if btnp(2) then //hard droo
+		hard_drop() end
+	if btn(3) then //down
+		drop_blocks() end
+	if btnp(4) then //c-clockwise
+		rotate(.25) end
+	if btnp(5) then //clockwise
+		rotate(-.25) end
 end
 
 function hard_drop()
- while check_piece(0,1) do
-  drop_blocks()
- end
- lock_blocks()
+	while check_piece(0,1) do
+		drop_blocks()
+	end
+	lock_blocks()
 end
 -->8
 function make_piece()
- if pos == 'i' then
-  p = make_i()
- elseif pos == 't' then
-  p = make_t()
- elseif pos == 'l' then
-  p = make_l()
- elseif pos == 'j' then
-  p = make_j()
- elseif pos == 'z' then
-  p = make_z()
- elseif pos == 's' then
-  p = make_s()
- elseif pos== 'o' then
-  p = make_o()
- end
- del(bag,pos)
- pos = choose_piece()
+	if pos == 'i' then
+		p = make_i()
+	elseif pos == 't' then
+		p = make_t()
+	elseif pos == 'l' then
+		p = make_l()
+	elseif pos == 'j' then
+		p = make_j()
+	elseif pos == 'z' then
+		p = make_z()
+	elseif pos == 's' then
+		p = make_s()
+	elseif pos== 'o' then
+		p = make_o()
+	end
+	del(bag,pos)
+	pos = choose_piece()
 
- //game over
- if not check_piece(0,0) then
-  set_color(p,10)
-  music(-1)
-  sfx(3)
-  for r = 0,14 do
-   for c = 3, 12 do
-    if fget(mget(c,r)) == 1 then
-     mset(c,r,10) end
-   end
-  end
-  game_over = true
- end
+	//game over
+	if not check_piece(0,0) then
+		set_color(p,10)
+		music(-1)
+		sfx(3)
+		for r = 0,14 do
+			for c = 3, 12 do
+				if fget(mget(c,r)) == 1 then
+					mset(c,r,10) end
+			end
+		end
+		game_over = true
+	end
 
- return p
+	return p
 end
 
 function choose_piece()
- //refresh bag if empty
- if #bag == 0 then
-  bag = make_bag() end
+	//refresh bag if empty
+	if #bag == 0 then
+		bag = make_bag() end
 
- //selects next piece from bag
- return bag[ceil(rnd(#bag))]
+	//selects next piece from bag
+	return bag[ceil(rnd(#bag))]
 end
 
 function make_bag()
- return
-  {'i','j','l','z','s','t','o'}
+	return
+		{'i','j','l','z','s','t','o'}
 end
 
 function rotate(d)
- sfx(4)
- //rotates based on direction
- if can_rotate(d) then
-  for b in all(blocks) do
-   local coords = r_coords(b,d)
-   b.x = coords[1]
-   b.y = coords[2]
-  end
- end
+	sfx(4)
+	//rotates based on direction
+	if can_rotate(d) then
+		for b in all(blocks) do
+			local coords = r_coords(b,d)
+			b.x = coords[1]
+			b.y = coords[2]
+		end
+	end
 end
 
 function can_rotate(d)
- for b in all(blocks) do
-  //prevents square rotation
-  if b.spr == 9 then
-   return false end
-  //checks map coords
-  local x = r_coords(b,d)[1]/8
-  local y = r_coords(b,d)[2]/8
-  if check_block(x,y) then
-   return false end
- end
- return true
+	for b in all(blocks) do
+		//prevents square rotation
+		if b.spr == 9 then
+			return false end
+		//checks map coords
+		local x = r_coords(b,d)[1]/8
+		local y = r_coords(b,d)[2]/8
+		if check_block(x,y) then
+			return false end
+	end
+	return true
 end
 
 function r_coords(b,d)
- //returns screen coords
- //of block after rotation
- local cx = piece[1].x
- local cy = piece[1].y
- local x = b.x-cx
- local y = b.y-cy
- local r = sqrt(x^2+y^2)
- local t = atan2(x,y)+d
- local bx = round(r*cos(t))+cx
- local by = round(r*sin(t))+cy
- return {bx,by}
+	//returns screen coords
+	//of block after rotation
+	local cx = piece[1].x
+	local cy = piece[1].y
+	local x = b.x-cx
+	local y = b.y-cy
+	local r = sqrt(x^2+y^2)
+	local t = atan2(x,y)+d
+	local bx = round(r*cos(t))+cx
+	local by = round(r*sin(t))+cy
+	return {bx,by}
 end
 
 function round(x)
- //rounding function
- if x-flr(x) < ceil(x)-x then
-  return flr(x) end
- return ceil(x)
+	//rounding function
+	if x-flr(x) < ceil(x)-x then
+		return flr(x) end
+	return ceil(x)
 end
 
 -->8
 function make_i()
- p = {make_block(64,0),
-  make_block(64,8),
-  make_block(64,-16),
-  make_block(64,-8)}
-  set_color(p,3)
- return p
+	p = {make_block(64,0),
+	     make_block(64,8),
+	     make_block(64,-16),
+	     make_block(64,-8)}
+	set_color(p,3)
+	return p
 end
 
 function make_j()
- p = {make_block(64,0),
-  make_block(56,8),
-  make_block(64,-8),
-  make_block(64,8)}
-  set_color(p,4)
-  return p
+	p = {make_block(64,0),
+	     make_block(56,8),
+	     make_block(64,-8),
+	     make_block(64,8)}
+	set_color(p,4)
+	return p
 end
 
 function make_l()
- p = {make_block(64,0),
-  make_block(72,8),
-  make_block(64,-8),
-  make_block(64,8)}
-  set_color(p,5)
-  return p
+	p = {make_block(64,0),
+	     make_block(72,8),
+	     make_block(64,-8),
+	     make_block(64,8)}
+	set_color(p,5)
+	return p
 end
 
 function make_z()
 p = {make_block(56,0),
-  make_block(56,8),
-  make_block(64,0),
-  make_block(64,-8)}
-  set_color(p,6)
-  return p
+	    make_block(56,8),
+	    make_block(64,0),
+	    make_block(64,-8)}
+	set_color(p,6)
+	return p
 end
 
 function make_s()
- p = {make_block(64,0),
-  make_block(64,8),
-  make_block(56,0),
-  make_block(56,-8)}
-  set_color(p,7)
-  return p
+	p = {make_block(64,0),
+	     make_block(64,8),
+	     make_block(56,0),
+	     make_block(56,-8)}
+	set_color(p,7)
+	return p
 end
 
 function make_t()
- p = {make_block(64,0),
-  make_block(64,8),
-  make_block(56,0),
-  make_block(64,-8)}
-  set_color(p,8)
- return p
+	p = {make_block(64,0),
+	     make_block(64,8),
+	     make_block(56,0),
+	     make_block(64,-8)}
+	set_color(p,8)
+	return p
 end
 
 function make_o()
- p = {make_block(64,0),
-  make_block(72,0),
-  make_block(64,8),
-  make_block(72,8)}
-  set_color(p,9)
- return p
+	p = {make_block(64,0),
+	     make_block(72,0),
+	     make_block(64,8),
+	     make_block(72,8)}
+	set_color(p,9)
+	return p
 end
 
 function set_color(p,c)
- //sets color of blocks
- for i in all(p) do
-  i.spr = c
- end
+	//sets color of blocks
+	for i in all(p) do
+		i.spr = c
+	end
 end
 
 function draw_next()
- rectfill(104,40,128,80,5)
- rect(104,40,127,80,7)
- print('next:',107,34,0)
- if pos == 'i' then
-  spr(64,112,44,1,4)
- elseif pos == 'j' then
-  spr(81,108,48,2,3)
- elseif pos == 'l' then
-  spr(83,108,48,2,3)
- elseif pos == 'z' then
-  spr(85,108,48,2,3)
- elseif pos == 's' then
-  spr(87,108,48,2,3)
- elseif pos == 't' then
-  spr(89,108,48,2,3)
- elseif pos == 'o' then
-  spr(91,108,52,2,2)
- end
+	rectfill(104,40,128,80,5)
+	rect(104,40,127,80,7)
+	print('next:',107,34,0)
+	if pos == 'i' then
+		spr(64,112,44,1,4)
+	elseif pos == 'j' then
+		spr(81,108,48,2,3)
+	elseif pos == 'l' then
+		spr(83,108,48,2,3)
+	elseif pos == 'z' then
+		spr(85,108,48,2,3)
+	elseif pos == 's' then
+		spr(87,108,48,2,3)
+	elseif pos == 't' then
+		spr(89,108,48,2,3)
+	elseif pos == 'o' then
+		spr(91,108,52,2,2)
+	end
 end
 __gfx__
 00000000111111116666666677777777777777777777777777777777777777777777777777777777777777770000000000000000000000000000000000000000
@@ -597,3 +597,4 @@ __music__
 00 0a42430c
 00 0942430c
 02 0b42430c
+

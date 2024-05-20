@@ -2,216 +2,216 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 function _init()
- cls()
- total = 0
- n = 10
- grid = make_grid()
- px = 1
- py = 1
- mistakes = 0
+	cls()
+	total = 0
+	n = 10
+	grid = make_grid()
+	px = 1
+	py = 1
+	mistakes = 0
 end
 
 function _update()
- controls()
+	controls()
 end
 
 function _draw()
- draw_grid()
- if total > 0 then
-  draw_pointer(px,py)
- end
+	draw_grid()
+	if total > 0 then
+		draw_pointer(px,py)
+	end
 end
 -->8
 function make_cell()
- //makes a cell and determines
- //whether it's marked or not
- local cell = {}
- cell.value = flr(rnd(2))
- cell.revealed = false
- cell.mistake = false
- return cell
+	//makes a cell and determines
+	//whether it's marked or not
+	local cell = {}
+	cell.value = flr(rnd(2))
+	cell.revealed = false
+	cell.mistake = false
+	return cell
 end
 
 function make_grid()
- //makes grid of cells
- total = 0
- local grid = {}
- for i = 1, n do
-  grid[i] = {}
-  for j = 1, n do
-   local cell = make_cell()
-   grid[i][j] = cell
-   total += cell.value
-  end
- end
+	//makes grid of cells
+	total = 0
+	local grid = {}
+	for i = 1, n do
+		grid[i] = {}
+		for j = 1, n do
+			local cell = make_cell()
+			grid[i][j] = cell
+			total += cell.value
+		end
+	end
 
- // make sure grid has good
- // amount of cells
- if total < 40 or total > 60 then
-  grid = make_grid()
- end
- return grid
+	// make sure grid has good
+	// amount of cells
+	if total < 40 or total > 60 then
+		grid = make_grid()
+	end
+	return grid
 end
 -->8
 function controls()
- //player controls for movement
- //and revealing cells
- if btnp(0) then
-  move_horz(-1)
- elseif btnp(1) then
-  move_horz(1)
- elseif btnp(2) then
-  move_vert(-1)
- elseif btnp(3) then
-  move_vert(1)
- end
+	//player controls for movement
+	//and revealing cells
+	if btnp(0) then
+		move_horz(-1)
+	elseif btnp(1) then
+		move_horz(1)
+	elseif btnp(2) then
+		move_vert(-1)
+	elseif btnp(3) then
+		move_vert(1)
+	end
 
- local cell = grid[px][py]
- if btn(4) then
-  reveal_cell(cell,1)
- elseif btn(5) then
-  reveal_cell(cell,0)
- end
+	local cell = grid[px][py]
+	if btn(4) then
+		reveal_cell(cell,1)
+	elseif btn(5) then
+		reveal_cell(cell,0)
+	end
 end
 
 function move_horz(dx)
- local x = px+dx
- if x <= n and x>=1 then
-  px = x
- end
+	local x = px+dx
+	if x <= n and x>=1 then
+		px = x
+	end
 end
 
 function move_vert(dy)
- local y = py+dy
- if y <= n and y>=1 then
-  py = y
- end
+	local y = py+dy
+	if y <= n and y>=1 then
+		py = y
+	end
 end
 
 function reveal_cell(cell,value)
- //opens a cell, either marking
- //or clearing based on value
- if not cell.revealed then
-  cell.revealed = true
-  if cell.value != value then
-   cell.mistake = true
-   mistakes += 1
-  end
-  if cell.value == 1 then
-   total -= 1
-   if total == 0 then
-    reveal_all()
-   end
-  end
- end
+	//opens a cell, either marking
+	//or clearing based on value
+	if not cell.revealed then
+		cell.revealed = true
+		if cell.value != value then
+			cell.mistake = true
+			mistakes += 1
+		end
+		if cell.value == 1 then
+			total -= 1
+			if total == 0 then
+				reveal_all()
+			end
+		end
+	end
 end
 
 function reveal_all()
- for i = 1, n do
-  for j = 1, n do
-   grid[i][j].revealed = true
-  end
- end
+	for i = 1, n do
+		for j = 1, n do
+			grid[i][j].revealed = true
+		end
+	end
 end
 -->8
 function coords(p)
- //translates value to partial
- //position on grid
- return 7*p + 48
+	//translates value to partial
+	//position on grid
+	return 7*p + 48
 end
 
 function draw_cell(x,y)
- //draws cells on grid
- local cell = grid[x][y]
- x = coords(x)
- y = coords(y)
- //dictates how cell is drawn
- if cell.revealed then
-  local c = 1 + cell.value * 10
-  rectfill(x,y,x+4,y+4,c)
-  if cell.mistake then
-   circfill(x+2,y+2,0,8)
-  end
- end
- rect(x,y,x+4,y+4,5)
+	//draws cells on grid
+	local cell = grid[x][y]
+	x = coords(x)
+	y = coords(y)
+	//dictates how cell is drawn
+	if cell.revealed then
+		local c = 1 + cell.value * 10
+		rectfill(x,y,x+4,y+4,c)
+		if cell.mistake then
+			circfill(x+2,y+2,0,8)
+		end
+	end
+	rect(x,y,x+4,y+4,5)
 end
 
 function draw_grid()
- //draws grid and info text
- rectfill(0,0,128,128,7)
- rect(0,0,52,52,5)
- rect(52,52,128,128,5)
- print("⬆️",14,4,5)
- print("⬅️⬇️➡️",6,10,5)
- print("to move",4,16,5)
- print("🅾️ to mark",4,22,5)
- print("❎ to clear",4,28,5)
- print("remaining:"..total,4,34,5)
- print("mistakes:"..mistakes,4,40,5)
- draw_nums()
- for i = 1, n do
-  for j = 1, n do
-   draw_cell(i,j)
-  end
- end
+	//draws grid and info text
+	rectfill(0,0,128,128,7)
+	rect(0,0,52,52,5)
+	rect(52,52,128,128,5)
+	print("⬆️",14,4,5)
+	print("⬅️⬇️➡️",6,10,5)
+	print("to move",4,16,5)
+	print("🅾️ to mark",4,22,5)
+	print("❎ to clear",4,28,5)
+	print("remaining:"..total,4,34,5)
+	print("mistakes:"..mistakes,4,40,5)
+	draw_nums()
+	for i = 1, n do
+		for j = 1, n do
+			draw_cell(i,j)
+		end
+	end
 end
 
 function draw_pointer(x,y)
- //draws pointer position
- x = coords(x)
- y = coords(y)
- rect(0,y-1,128,y+5,6)
- rect(x-1,0,x+5,128,6)
- rect(x,y,x+4,y+4,9)
+	//draws pointer position
+	x = coords(x)
+	y = coords(y)
+	rect(0,y-1,128,y+5,6)
+	rect(x-1,0,x+5,128,6)
+	rect(x,y,x+4,y+4,9)
 end
 
 function draw_nums()
- for i = 1, n do
-  local row = count_nums(i, true)
-  local col = count_nums(i, false)
-  for j = 1, #row do
-   print(row[j],49-j*7,48+i*7,5)
-  end
-  for j = 1, #col do
-   print(col[j],49+7*i,53-j*7,5)
-  end
- end
+	for i = 1, n do
+		local row = count_nums(i, true)
+		local col = count_nums(i, false)
+		for j = 1, #row do
+			print(row[j],49-j*7,48+i*7,5)
+		end
+		for j = 1, #col do
+			print(col[j],49+7*i,53-j*7,5)
+		end
+	end
 end
 -->8
 function count_nums(l,isrow)
- //counts marked cells in line
- local r = l
- local c = l
+	//counts marked cells in line
+	local r = l
+	local c = l
 
- local sr = 1
- local sc = 1
- if isrow then
-  sr = 0
-  c = 0
- else
-  sc = 0
-  r = 0
- end
- local cnt = 0
- local p = 1
- local nums = {}
- for i = n, 1, -1 do
-  local ir = i*sr+r
-  local ic = i*sc+c
-  local v = grid[ic][ir].value
-  cnt += v
-  if v == 0 then
-   if cnt > 0 then
-    nums[p] = cnt
-    p+=1
-   end
-   cnt = 0
-  end
- end
- if cnt != 0 then
-  nums[p] = cnt
- end
- return nums
+	local sr = 1
+	local sc = 1
+	if isrow then
+		sr = 0
+		c = 0
+	else
+		sc = 0
+		r = 0
+	end
+	local cnt = 0
+	local p = 1
+	local nums = {}
+	for i = n, 1, -1 do
+		local ir = i*sr+r
+		local ic = i*sc+c
+		local v = grid[ic][ir].value
+		cnt += v
+		if v == 0 then
+			if cnt > 0 then
+				nums[p] = cnt
+				p+=1
+			end
+			cnt = 0
+		end
+	end
+	if cnt != 0 then
+		nums[p] = cnt
+	end
+	return nums
 end
 __label__
 55555555555555555555555555555555555555555555555555555766666667777777777777777777777777777777777777777777777777777777777777777777
@@ -342,3 +342,4 @@ __label__
 77777777777777777777777777777777777777777777777777775767777767777777777777777777777777777777777777777777777777777777777777777777
 77777777777777777777777777777777777777777777777777775767777767777777777777777777777777777777777777777777777777777777777777777777
 77777777777777777777777777777777777777777777777777775767777767777777777777777777777777777777777777777777777777777777777777777777
+

@@ -2,575 +2,575 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 function _init()
- cls()
- score = 0
- px = 1 //player x coordinate
- py = 1 //player y coordinate
- ps = nil //player stored cell
- pm = nil //moved cell
- size = 12 //size of grid
- grid = make_grid()
- specials = {}
- bombs = {}
- wilds = {}
- lightnings = {}
- init_grid()
- game_active = true
+	cls()
+	score = 0
+	px = 1 //player x coordinate
+	py = 1 //player y coordinate
+	ps = nil //player stored cell
+	pm = nil //moved cell
+	size = 12 //size of grid
+	grid = make_grid()
+	specials = {}
+	bombs = {}
+	wilds = {}
+	lightnings = {}
+	init_grid()
+	game_active = true
 end
 
 function _update()
- controls()
+	controls()
 end
 
 function _draw()
- draw_grid()
- draw_pointer()
+	draw_grid()
+	draw_pointer()
 end
 
 function wait(t)
- //waits for t frames
- for i = 0, t do
-  flip()
- end
+	//waits for t frames
+	for i = 0, t do
+		flip()
+	end
 end
 -->8
 function make_cell(x,y)
- //creates a cell of a
- //random color at the
- //specified position
- local c = {}
- c.x = x
- c.y = y
- c.color = ceil(rnd(7))
- c.clear = false //color != 10
- c.special = false //color > 16
+	//creates a cell of a
+	//random color at the
+	//specified position
+	local c = {}
+	c.x = x
+	c.y = y
+	c.color = ceil(rnd(7))
+	c.clear = false //color != 10
+	c.special = false //color > 16
 
- make_plain(c)
- return c
+	make_plain(c)
+	return c
 end
 
 function make_plain(cell)
- //removes special effects
- //from cells
- cell.color %= 8
- function cell:clear_cell()
-  cell.clear = true
- end
+	//removes special effects
+	//from cells
+	cell.color %= 8
+	function cell:clear_cell()
+		cell.clear = true
+	end
 end
 
 function make_bomb(cell)
- //converts cell to bomb
- //of same color
- cell.clear = false
- cell.special = true
- cell.color = cell.color%16+16
- function cell:clear_cell()
-  //blows up surrounding cells
-  cell.clear = true
-  local c = cell.x
-  local r = cell.y
-  if game_active then
-   local x = (c-1) * 9 + 1
-   local y = (r-1) * 9 + 6
-   sfx(2)
-   //animation
-   for i = 1, 3 do
-    spr(60+4*i,x,y,i,i)
-    wait(1)
-    draw_grid()
-   end
-   wait(1)
-   for i = -1, 1 do
-    for j = -1, 1 do
-     local dc = c+i
-     local dr = r+j
-     if in_bounds(dc,dr) then
-      clear_cell(grid[dc][dr])
-     end
-    end
-   end
-  end
-  make_plain(cell)
- end
+	//converts cell to bomb
+	//of same color
+	cell.clear = false
+	cell.special = true
+	cell.color = cell.color%16+16
+	function cell:clear_cell()
+		//blows up surrounding cells
+		cell.clear = true
+		local c = cell.x
+		local r = cell.y
+		if game_active then
+			local x = (c-1) * 9 + 1
+			local y = (r-1) * 9 + 6
+			sfx(2)
+			//animation
+			for i = 1, 3 do
+				spr(60+4*i,x,y,i,i)
+				wait(1)
+				draw_grid()
+			end
+			wait(1)
+			for i = -1, 1 do
+				for j = -1, 1 do
+					local dc = c+i
+					local dr = r+j
+					if in_bounds(dc,dr) then
+						clear_cell(grid[dc][dr])
+					end
+				end
+			end
+		end
+		make_plain(cell)
+	end
 end
 
 function make_lightning(cell)
- //converts cell to lightning
- //cell of same color
- cell.clear = false
- cell.special = true
- cell.color = cell.color%16+32
- function cell:clear_cell()
-  //blows up surrounding cells
-  cell.clear = true
-  local c = cell.x
-  local r = cell.y
-  if game_active then
-   sfx(5)
-   //animation
-   spr(40,c*9+1,r*9+6)
-   for i = 1, 12, 2 do
-    spr(40,(c-i)*9+1,r*9+6)
-    spr(40,(c+i)*9+1,r*9+6)
-    spr(40,c*9+1,(r-i)*9+6)
-    spr(40,c*9+1,(r+i)*9+6)
-    wait(1)
-    draw_grid()
-   end
+	//converts cell to lightning
+	//cell of same color
+	cell.clear = false
+	cell.special = true
+	cell.color = cell.color%16+32
+	function cell:clear_cell()
+		//blows up surrounding cells
+		cell.clear = true
+		local c = cell.x
+		local r = cell.y
+		if game_active then
+			sfx(5)
+			//animation
+			spr(40,c*9+1,r*9+6)
+			for i = 1, 12, 2 do
+				spr(40,(c-i)*9+1,r*9+6)
+				spr(40,(c+i)*9+1,r*9+6)
+				spr(40,c*9+1,(r-i)*9+6)
+				spr(40,c*9+1,(r+i)*9+6)
+				wait(1)
+				draw_grid()
+			end
 
-   for i = 1, size do
-    clear_cell(grid[i][r])
-    clear_cell(grid[c][i])
-   end
-  end
-  make_plain(cell)
- end
+			for i = 1, size do
+				clear_cell(grid[i][r])
+				clear_cell(grid[c][i])
+			end
+		end
+		make_plain(cell)
+	end
 end
 
 function make_wild(cell)
- //converts cell to wildcard
- cell.clear = false
- cell.wild = true
- cell.special = true
- cell.color = 0
- function cell:clear_cell()
-  c2 = make_cell(-1,-1)
-  wildcard(cell, c2)
- end
+	//converts cell to wildcard
+	cell.clear = false
+	cell.wild = true
+	cell.special = true
+	cell.color = 0
+	function cell:clear_cell()
+		c2 = make_cell(-1,-1)
+		wildcard(cell, c2)
+	end
 end
 
 function make_grid()
- //initializes a grid of cells
- local grid = {}
- for i = 1, size do
-  grid[i] = {}
-  for j = 1, size do
-   grid[i][j] = make_cell(i,j)
-  end
- end
- return grid
+	//initializes a grid of cells
+	local grid = {}
+	for i = 1, size do
+		grid[i] = {}
+		for j = 1, size do
+			grid[i][j] = make_cell(i,j)
+		end
+	end
+	return grid
 end
 
 function init_grid()
- //initializes the grid
- //at the start of the game
- removedwild = false
- while clear_cells()!=0 do end
- for i = 1, size do
-  for j = 1, size do
-   make_plain(grid[i][j])
-   if grid[i][j].color==0 then
-    grid[i][j].color = 1
-    removedwild = true
-   end
-  end
- end
+	//initializes the grid
+	//at the start of the game
+	removedwild = false
+	while clear_cells()!=0 do end
+	for i = 1, size do
+		for j = 1, size do
+			make_plain(grid[i][j])
+			if grid[i][j].color==0 then
+				grid[i][j].color = 1
+				removedwild = true
+			end
+		end
+	end
 
- if removedwild then
-  init_grid()
- end
+	if removedwild then
+		init_grid()
+	end
 end
 
 function shuffle()
- //shuffles the board while
- //keeping current tiles
- print("shuffle!",90,2,6)
- wait(10)
- for c = 1, size do
-  for r = 1, size do
-   local x = ceil(rnd(size))
-   local y = ceil(rnd(size))
-   swap(grid[c][r],grid[x][y])
-  end
- end
- draw_grid()
- wait(10)
- update_grid()
+	//shuffles the board while
+	//keeping current tiles
+	print("shuffle!",90,2,6)
+	wait(10)
+	for c = 1, size do
+		for r = 1, size do
+			local x = ceil(rnd(size))
+			local y = ceil(rnd(size))
+			swap(grid[c][r],grid[x][y])
+		end
+	end
+	draw_grid()
+	wait(10)
+	update_grid()
 end
 
 function draw_grid()
- //displays the board
- rectfill(0,0,128,128,1)
- rectfill(9,14,117,122,15)
- for i = 1, size do
-  for j = 1, size do
-   draw_cell(grid[i][j],i,j)
-  end
- end
- print("score: "..score,9,2,6)
+	//displays the board
+	rectfill(0,0,128,128,1)
+	rectfill(9,14,117,122,15)
+	for i = 1, size do
+		for j = 1, size do
+			draw_cell(grid[i][j],i,j)
+		end
+	end
+	print("score: "..score,9,2,6)
 end
 
 function update_grid()
- //updates grid display and
- //returns # of changed cells
+	//updates grid display and
+	//returns # of changed cells
 
- local num = clear_cells()
- local p = 0 //cells cleared
- local c = 0 //level of chain
- while num != 0 do
-  c += 1
-  p += num
-  draw_grid()
-  print("chain: "..c.." x "..p,
-  32,8,6)
-  //waits so player can see
-  //update during chain
-  wait(10)
-  num = clear_cells()
- end
- //+1 point per cell cleared
- //+1 multiplier per chain
- score += p * c
- return p
+	local num = clear_cells()
+	local p = 0 //cells cleared
+	local c = 0 //level of chain
+	while num != 0 do
+		c += 1
+		p += num
+		draw_grid()
+		print("chain: "..c.." x "..p,
+		32,8,6)
+		//waits so player can see
+		//update during chain
+		wait(10)
+		num = clear_cells()
+	end
+	//+1 point per cell cleared
+	//+1 multiplier per chain
+	score += p * c
+	return p
 end
 
 function draw_cell(cell)
- //displays one cell
- if not cell.clear then
-  local x = cell.x*9+1
-  local y = cell.y*9+6
-  spr(cell.color,x,y)
- end
+	//displays one cell
+	if not cell.clear then
+		local x = cell.x*9+1
+		local y = cell.y*9+6
+		spr(cell.color,x,y)
+	end
 end
 -->8
 function controls()
- //moving the pointer and
- //controlling swaps
- if btnp(0) then
-  move_pointer(-1,0)
- elseif btnp(1) then
-  move_pointer(1,0)
- elseif btnp(2) then
-  move_pointer(0,-1)
- elseif btnp(3) then
-  move_pointer(0,1)
- end
- if btn(4) and btn(5) then
-  //testing purposes only
-  //make_wild(grid[px][py])
-  //make_bomb(grid[px][py])
-  //make_lightning(grid[px][py])
-  //shuffle()
- elseif btnp(4) or btnp(5) then
-  swap_action()
- end
+	//moving the pointer and
+	//controlling swaps
+	if btnp(0) then
+		move_pointer(-1,0)
+	elseif btnp(1) then
+		move_pointer(1,0)
+	elseif btnp(2) then
+		move_pointer(0,-1)
+	elseif btnp(3) then
+		move_pointer(0,1)
+	end
+	if btn(4) and btn(5) then
+		//testing purposes only
+		//make_wild(grid[px][py])
+		//make_bomb(grid[px][py])
+		//make_lightning(grid[px][py])
+		//shuffle()
+	elseif btnp(4) or btnp(5) then
+		swap_action()
+	end
 end
 
 function in_bounds(x,y)
-  return x>=1 and x <= size and
-         y>=1 and y <= size
+		return x>=1 and x <= size and
+		       y>=1 and y <= size
 end
 
 function move_pointer(dx,dy)
- //moves the pointer
- local x = px + dx
- local y = py + dy
+	//moves the pointer
+	local x = px + dx
+	local y = py + dy
 
- //keeps in bounds
- if valid_move(x,y) then
-  px = x
-  py = y
-  sfx(0)
- end
+	//keeps in bounds
+	if valid_move(x,y) then
+		px = x
+		py = y
+		sfx(0)
+	end
 end
 
 function valid_move(x,y)
- //checks to see if pointer
- //movement is valid
- local valid = in_bounds(x,y)
+	//checks to see if pointer
+	//movement is valid
+	local valid = in_bounds(x,y)
 
- //restricts movement to 1
- //square if cell selected
- if valid and ps then
-  local hx = ps.x
-  local hy = ps.y
-  return
-   abs(hx-x) <=1 and hy == y or
-   abs(hy-y) <=1 and hx == x
- else
-  return valid
- end
+	//restricts movement to 1
+	//square if cell selected
+	if valid and ps then
+		local hx = ps.x
+		local hy = ps.y
+		return
+			abs(hx-x) <=1 and hy == y or
+			abs(hy-y) <=1 and hx == x
+	else
+		return valid
+	end
 end
 
 function draw_pointer()
- //shows the pointer
- local x = px*9+1
- local y = py*9+6
- spr(8,x,y)
- if ps then
-  local hx = ps.x*9+1
-  local hy = ps.y*9+6
-  spr(9,hx,hy)
- end
+	//shows the pointer
+	local x = px*9+1
+	local y = py*9+6
+	spr(8,x,y)
+	if ps then
+		local hx = ps.x*9+1
+		local hy = ps.y*9+6
+		spr(9,hx,hy)
+	end
 end
 
 function swap_action()
- //player initiated
- //cell swap
- local c = grid[px][py]
- if ps == nil then
-  //stores a cell
-  sfx(0)
-  ps = c
- else
-  //swaps selected cell
-  if not (ps.x == c.x
-     and ps.y == c.y) then
-   pm = c
-   pc = ps.color
-   cc = c.color
-   if max(pc, cc) == 0 then
-    //double wildcard
-    clear_all()
-   elseif min(pc, cc) == 0 then
-    //wildcard
-    draw_grid()
-    wildcard(ps, c)
-    sfx(1)
-    wait(5)
-    update_grid()
-   else
-    swap(ps, c)
-    sfx(0)
-    draw_grid()
-    wait(5)
-    if update_grid() == 0 then
-    //invalid move
-    sfx(0)
-    swap(ps, c)
-    end
-   end
-  else
-   sfx(0)
-  end
-  ps = nil
-  pm = nil
- end
+	//player initiated
+	//cell swap
+	local c = grid[px][py]
+	if ps == nil then
+		//stores a cell
+		sfx(0)
+		ps = c
+	else
+		//swaps selected cell
+		if not (ps.x == c.x
+		   and ps.y == c.y) then
+			pm = c
+			pc = ps.color
+			cc = c.color
+			if max(pc, cc) == 0 then
+				//double wildcard
+				clear_all()
+			elseif min(pc, cc) == 0 then
+				//wildcard
+				draw_grid()
+				wildcard(ps, c)
+				sfx(1)
+				wait(5)
+				update_grid()
+			else
+				swap(ps, c)
+				sfx(0)
+				draw_grid()
+				wait(5)
+				if update_grid() == 0 then
+				//invalid move
+				sfx(0)
+				swap(ps, c)
+				end
+			end
+		else
+			sfx(0)
+		end
+		ps = nil
+		pm = nil
+	end
 end
 
 function swap(c1, c2)
- //swaps two cells in the grid
- //and updates their x/y coords
- local x1, x2 = c1.x, c2.x
- local y1, y2 = c1.y, c2.y
- grid[x1][y1], grid[x2][y2] =
- grid[x2][y2], grid[x1][y1]
- c1.x, c2.x = x2, x1
- c1.y, c2.y = y2, y1
+	//swaps two cells in the grid
+	//and updates their x/y coords
+	local x1, x2 = c1.x, c2.x
+	local y1, y2 = c1.y, c2.y
+	grid[x1][y1], grid[x2][y2] =
+	grid[x2][y2], grid[x1][y1]
+	c1.x, c2.x = x2, x1
+	c1.y, c2.y = y2, y1
 end
 -->8
 function match(c1, c2)
- //checks if two cells are
- //considered a match
- //match = same color, not wild
- c = fget(c1)&fget(c2)
- return c != 0 and c != 128
+	//checks if two cells are
+	//considered a match
+	//match = same color, not wild
+	c = fget(c1)&fget(c2)
+	return c != 0 and c != 128
 end
 
 function clear_cell(c)
- //clears normal cells, adds
- //special cells to table
- //to be detonated separately
- if c.special then
-  add(specials, c)
- else
-  c.clear_cell()
- end
+	//clears normal cells, adds
+	//special cells to table
+	//to be detonated separately
+	if c.special then
+		add(specials, c)
+	else
+		c.clear_cell()
+	end
 end
 
 function detonate()
- //detonates special cells
- for c in all(specials) do
-  c.clear_cell()
- end
- specials = {}
+	//detonates special cells
+	for c in all(specials) do
+		c.clear_cell()
+	end
+	specials = {}
 end
 
 function set_specials()
- //adding special gems from
- //matches, with higher level
- //gems taking priority
+	//adding special gems from
+	//matches, with higher level
+	//gems taking priority
 
- foreach(bombs, make_bomb)
- bombs = {}
- foreach(lightnings, make_lightning)
- lightnings = {}
- foreach(wilds, make_wild)
- wilds = {}
+	foreach(bombs, make_bomb)
+	bombs = {}
+	foreach(lightnings, make_lightning)
+	lightnings = {}
+	foreach(wilds, make_wild)
+	wilds = {}
 end
 
 function clear_cells()
- //checks for matches and
- //clears all cells
- local cl = false
- for i = 1, size do
-  cl = check_lines(i) or cl
- end
+	//checks for matches and
+	//clears all cells
+	local cl = false
+	for i = 1, size do
+		cl = check_lines(i) or cl
+	end
 
- cleared =
- #bombs + #lightnings + #wilds
+	cleared =
+	#bombs + #lightnings + #wilds
 
- detonate()
- set_specials()
- //allows for player to see
- //cleared cells
- if game_active and cl then
-  sfx(1)
-  draw_grid()
-  wait(5)
- end
+	detonate()
+	set_specials()
+	//allows for player to see
+	//cleared cells
+	if game_active and cl then
+		sfx(1)
+		draw_grid()
+		wait(5)
+	end
 
- for c = 1, size do
-  for r = 1, size do
-   if grid[c][r].clear then
-    //swaps cleared cell to top
-    //and replaces it - "drop"
-    cleared += 1
-    for j = r, 2, -1 do
-     local c1 = grid[c][j]
-     local c2 = grid[c][j-1]
-     swap(c1,c2)
-    end
-    grid[c][1] = make_cell(c,1)
-   end
-  end
- end
- return cleared
+	for c = 1, size do
+		for r = 1, size do
+			if grid[c][r].clear then
+				//swaps cleared cell to top
+				//and replaces it - "drop"
+				cleared += 1
+				for j = r, 2, -1 do
+					local c1 = grid[c][j]
+					local c2 = grid[c][j-1]
+					swap(c1,c2)
+				end
+				grid[c][1] = make_cell(c,1)
+			end
+		end
+	end
+	return cleared
 end
 
 function check_lines(l)
- //checks for 3 or more
- //matches in a line
- local cleared = false
+	//checks for 3 or more
+	//matches in a line
+	local cleared = false
 
- for isrow = 0, 1 do
-  local s = 1 //start index
-  local e = 1 //end index
-  local cl = -1 //stored color
+	for isrow = 0, 1 do
+		local s = 1 //start index
+		local e = 1 //end index
+		local cl = -1 //stored color
 
-  //gets nth cell within a line
-  local function get_cell(n)
-   if isrow == 0 then
-    return grid[l][n]
-   else
-    return grid[n][l]
-   end
-  end
+		//gets nth cell within a line
+		local function get_cell(n)
+			if isrow == 0 then
+				return grid[l][n]
+			else
+				return grid[n][l]
+			end
+		end
 
-  for i = 1, size do
-   local cell = get_cell(i)
-   local m = match(cell.color,cl)
-   if m then
-    e += 1
-   end
-   if not m or i == size then
-    //marks given col from
-    //start index to end index
-    local cnt = e-s
-    if cnt >= 2 then
-     cleared = true
-     // get middle of match for
-     // setting special cells
-     local sp = s+flr(cnt/2)
-     local special = get_cell(sp)
-     for j = s, e do
-      local jcell = get_cell(j)
-      // priority for moved cells
-      // to become special
-      if jcell == ps or
-         jcell == pm then
-       special = jcell
-      end
+		for i = 1, size do
+			local cell = get_cell(i)
+			local m = match(cell.color,cl)
+			if m then
+				e += 1
+			end
+			if not m or i == size then
+				//marks given col from
+				//start index to end index
+				local cnt = e-s
+				if cnt >= 2 then
+					cleared = true
+					// get middle of match for
+					// setting special cells
+					local sp = s+flr(cnt/2)
+					local special = get_cell(sp)
+					for j = s, e do
+						local jcell = get_cell(j)
+						// priority for moved cells
+						// to become special
+						if jcell == ps or
+									jcell == pm then
+							special = jcell
+						end
 
-      // detect intersection
-      // for lightnings
-      if jcell.clear then
-       add(lightnings, jcell)
-      else
-       clear_cell(jcell)
-      end
-     end
+						// detect intersection
+						// for lightnings
+						if jcell.clear then
+							add(lightnings, jcell)
+						else
+							clear_cell(jcell)
+						end
+					end
 
-     // generate special cells
-     // based on match length
-     if cnt == 3 then
-      add(bombs, special)
-     elseif cnt > 3 then
-      add(wilds, special)
-     end
-    end
-    cl = cell.color
-    s = i
-    e = s
-   end
-  end
- end
- return cleared
+					// generate special cells
+					// based on match length
+					if cnt == 3 then
+						add(bombs, special)
+					elseif cnt > 3 then
+						add(wilds, special)
+					end
+				end
+				cl = cell.color
+				s = i
+				e = s
+			end
+		end
+	end
+	return cleared
 end
 -->8
 function wildcard(c1,c2)
- //clears all cells matching
- //a given color
+	//clears all cells matching
+	//a given color
 
- //ensure c1 is wild
- if c2.color == 0 then
-  c1, c2 = c2, c1
- end
+	//ensure c1 is wild
+	if c2.color == 0 then
+		c1, c2 = c2, c1
+	end
 
- //clear c1
- c1.clear = true
- make_plain(c1)
+	//clear c1
+	c1.clear = true
+	make_plain(c1)
 
- //clear all colors matching c2
- local c = c2.color
- local cells = {}
- for i = 1, size do
-  for j = 1, size do
-   local cell = grid[i][j]
-   if match(cell.color,c) then
-    cell.color-=cell.color%16
-    add(cells, cell)
-    draw_cell(cell)
-   end
-  end
- end
+	//clear all colors matching c2
+	local c = c2.color
+	local cells = {}
+	for i = 1, size do
+		for j = 1, size do
+			local cell = grid[i][j]
+			if match(cell.color,c) then
+				cell.color-=cell.color%16
+				add(cells, cell)
+				draw_cell(cell)
+			end
+		end
+	end
 
- sfx(4)
- wait(10)
- foreach(cells, clear_cell)
- detonate()
- draw_grid()
+	sfx(4)
+	wait(10)
+	foreach(cells, clear_cell)
+	detonate()
+	draw_grid()
 end
 
 function clear_all()
- //double wildcards -
- //clears whole screen
- for i = 1, size do
-  for j = 1, size do
-   grid[i][j].clear = true;
-  end
- end
- sfx(3)
- print("screen clear!",38,8,6)
- for i = 0,10 do
-  local cs = {8,9,10,11,12,14}
-  local dx = i*9
-  //animation
-  for j = 1,6 do
-   local y1 = -4+j*18
-   local y2 = 14+j*18
+	//double wildcards -
+	//clears whole screen
+	for i = 1, size do
+		for j = 1, size do
+			grid[i][j].clear = true;
+		end
+	end
+	sfx(3)
+	print("screen clear!",38,8,6)
+	for i = 0,10 do
+		local cs = {8,9,10,11,12,14}
+		local dx = i*9
+		//animation
+		for j = 1,6 do
+			local y1 = -4+j*18
+			local y2 = 14+j*18
 
-   local ln = j % 2==1
-   local x1 = ln and 9 or 117
-   local x2 = ln and 27+dx or 99-dx
-   rectfill(x1,y1,x2,y2,cs[j])
-  end
-  wait(1)
- end
- draw_grid()
- sfx(1)
- wait(5)
- update_grid()
+			local ln = j % 2==1
+			local x1 = ln and 9 or 117
+			local x2 = ln and 27+dx or 99-dx
+			rectfill(x1,y1,x2,y2,cs[j])
+		end
+		wait(1)
+	end
+	draw_grid()
+	sfx(1)
+	wait(5)
+	update_grid()
 end
 __gfx__
 00055000000550000005500000055000000550000005500000055000000550005555555522222222000550000000000000000000000000000000000000000000

@@ -2,403 +2,403 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 function _init()
- cls()
+	cls()
 
- // grid size and # of mines
- m,n,mines = 18,14,40
+	// grid size and # of mines
+	m,n,mines = 18,14,40
 
- // cells to open
- remaining = m*n - mines
+	// cells to open
+	remaining = m*n - mines
 
- grid = make_grid()
+	grid = make_grid()
 
- // player position
- px,py = 1,1
+	// player position
+	px,py = 1,1
 
- t = 0
- state = init_state()
+	t = 0
+	state = init_state()
 end
 
 function _update()
- controls()
- state.update()
+	controls()
+	state.update()
 end
 
 function _draw()
- draw_grid()
- state.draw()
+	draw_grid()
+	state.draw()
 end
 -->8
 function make_cell(mine)
- //makes a cell and determines
- //whether it's marked or not
- local cell = {}
- cell.spr = 20
- cell.mine = mine
- cell.flagged = false
- cell.opened = false
- return cell
+	//makes a cell and determines
+	//whether it's marked or not
+	local cell = {}
+	cell.spr = 20
+	cell.mine = mine
+	cell.flagged = false
+	cell.opened = false
+	return cell
 end
 
 function shuffle(t)
- for i = 1, #t do
-  local j = ceil(rnd(i))
-  t[i],t[j] = t[j],t[i]
- end
+	for i = 1, #t do
+		local j = ceil(rnd(i))
+		t[i],t[j] = t[j],t[i]
+	end
 end
 
 function set_mines()
- local t={}
- for i=1, m*n do
-  t[i] = i<=mines
- end
+	local t={}
+	for i=1, m*n do
+		t[i] = i<=mines
+	end
 
- shuffle(t)
- return t
+	shuffle(t)
+	return t
 end
 
 function make_grid()
- //makes grid of cells
- local ms,grid = set_mines(),{}
- for i = 1, m do
-  grid[i] = {}
-  for j = 1, n do
-   grid[i][j] = make_cell(deli(ms))
-  end
- end
- return grid
+	//makes grid of cells
+	local ms,grid = set_mines(),{}
+	for i = 1, m do
+		grid[i] = {}
+		for j = 1, n do
+			grid[i][j] = make_cell(deli(ms))
+		end
+	end
+	return grid
 end
 -->8
 function controls()
- //player controls for movement
- //and revealing cells
- if btnp(0) then
-  move_horz(-1)
- elseif btnp(1) then
-  move_horz(1)
- elseif btnp(2) then
-  move_vert(-1)
- elseif btnp(3) then
-  move_vert(1)
- end
+	//player controls for movement
+	//and revealing cells
+	if btnp(0) then
+		move_horz(-1)
+	elseif btnp(1) then
+		move_horz(1)
+	elseif btnp(2) then
+		move_vert(-1)
+	elseif btnp(3) then
+		move_vert(1)
+	end
 
- if btnp(4) then
-  state.z()
- elseif btnp(5) then
-  state.o()
- end
+	if btnp(4) then
+		state.z()
+	elseif btnp(5) then
+		state.o()
+	end
 end
 
 // standard o button:
 // flag or reveal adjacent
 function o()
- if grid[px][py].opened then
-  open_adjacent()
- else
-  flag_cell()
- end
+	if grid[px][py].opened then
+		open_adjacent()
+	else
+		flag_cell()
+	end
 end
 
 function move_horz(dx)
- if in_bounds_x(px+dx) then
-  px += dx
- end
+	if in_bounds_x(px+dx) then
+		px += dx
+	end
 end
 
 function move_vert(dy)
- if in_bounds_y(py+dy) then
-  py += dy
- end
+	if in_bounds_y(py+dy) then
+		py += dy
+	end
 end
 
 function in_range(s,e,v)
- return s <= v and v <= e
+	return s <= v and v <= e
 end
 
 function in_bounds_x(x)
- return in_range(1,m,x)
+	return in_range(1,m,x)
 end
 
 function in_bounds_y(y)
- return in_range(1,n,y)
+	return in_range(1,n,y)
 end
 
 function in_bounds(x,y)
- return in_bounds_x(x) and
-        in_bounds_y(y)
+	return in_bounds_x(x) and
+								in_bounds_y(y)
 end
 
 // wrappers for cell functions.
 // only perform function if
 // position is in bounds.
 function cell_do(x,y,f)
- if in_bounds(x,y) then
-  f(x,y)
- end
+	if in_bounds(x,y) then
+		f(x,y)
+	end
 end
 
 function cell_do_area(a,f)
- local x1,x2,y1,y2 = unpack(a)
- for i=x1,x2 do
-  for j=y1,y2 do
-   cell_do(i,j,f)
-  end
- end
+	local x1,x2,y1,y2 = unpack(a)
+	for i=x1,x2 do
+		for j=y1,y2 do
+			cell_do(i,j,f)
+		end
+	end
 end
 
 function cell_do_all(f)
- cell_do_area({1,m,1,n},f)
+	cell_do_area({1,m,1,n},f)
 end
 
 // guarantees first open
 // will be a cell w/ no
 // surrounding mines
 function opening_move()
- local cnt,empty = 0,{}
+	local cnt,empty = 0,{}
 
- cell_do_all(
- function(i,j)
-  local cell = grid[i][j]
-  if in_range(px-1,px+1,i) and
-     in_range(py-1,py+1,j) then
-   // remove any mines in
-   // immediate area
-   if cell.mine then
-    cell.mine = false
-    cnt+=1
-   end
-  else
-   if not cell.mine then
-    // record all other
-    // empty cells
-    add(empty, cell)
-   end
-  end
- end
- )
+	cell_do_all(
+	function(i,j)
+		local cell = grid[i][j]
+		if in_range(px-1,px+1,i) and
+		   in_range(py-1,py+1,j) then
+			// remove any mines in
+			// immediate area
+			if cell.mine then
+				cell.mine = false
+				cnt+=1
+			end
+		else
+			if not cell.mine then
+				// record all other
+				// empty cells
+				add(empty, cell)
+			end
+		end
+	end
+	)
 
- // add back mines in
- // other empty cells
- shuffle(empty)
- for i=1, cnt do
-  deli(empty).mine = true
- end
+	// add back mines in
+	// other empty cells
+	shuffle(empty)
+	for i=1, cnt do
+		deli(empty).mine = true
+	end
 
- cell_do(px,py,open_cell)
+	cell_do(px,py,open_cell)
 end
 
 function open_cell(x,y)
- local cell = grid[x][y]
+	local cell = grid[x][y]
 
- // don't open flagged cells
- // or already open cells
- if cell.flagged or
-    cell.opened then
-  return
- end
+	// don't open flagged cells
+	// or already open cells
+	if cell.flagged or
+	   cell.opened then
+		return
+	end
 
- cell.opened = true
+	cell.opened = true
 
- if cell.mine then
-  end_game(false)
-  // mark opened mine
-  cell.spr = 19
- else
-  // find # of surrounding mines
-  local cnt,a = 0,{x-1,x+1,y-1,y+1}
+	if cell.mine then
+		end_game(false)
+		// mark opened mine
+		cell.spr = 19
+	else
+		// find # of surrounding mines
+		local cnt,a = 0,{x-1,x+1,y-1,y+1}
 
-  cell_do_area(a,
-  function(i,j)
-   if grid[i][j].mine then
-    cnt += 1
-   end
-  end
-  )
-  cell.spr=cnt
+		cell_do_area(a,
+		function(i,j)
+			if grid[i][j].mine then
+				cnt += 1
+			end
+		end
+		)
+		cell.spr=cnt
 
-  // open surrounding cells if
-  // there's no mines
-  if cnt == 0 then
-   cell_do_area(a,open_cell)
-  end
+		// open surrounding cells if
+		// there's no mines
+		if cnt == 0 then
+			cell_do_area(a,open_cell)
+		end
 
-  remaining -= 1
-  if remaining == 0 then
-   end_game(true)
-  end
- end
+		remaining -= 1
+		if remaining == 0 then
+			end_game(true)
+		end
+	end
 end
 
 function open_adjacent()
- local cnt,a = 0,{px-1,px+1,py-1,py+1}
+	local cnt,a = 0,{px-1,px+1,py-1,py+1}
 
- cell_do_area(a,
- function(i,j)
-  if grid[i][j].flagged then
-   cnt += 1
-  end
- end
- )
+	cell_do_area(a,
+	function(i,j)
+		if grid[i][j].flagged then
+			cnt += 1
+		end
+	end
+	)
 
- if cnt == grid[px][py].spr then
-  cell_do_area(a,open_cell)
- end
+	if cnt == grid[px][py].spr then
+		cell_do_area(a,open_cell)
+	end
 end
 
 function flag_cell()
- local cell = grid[px][py]
+	local cell = grid[px][py]
 
- // don't flag opened cells
- if cell.opened then
-  return
- end
+	// don't flag opened cells
+	if cell.opened then
+		return
+	end
 
- // toggle flag
- local f = cell.flagged
- cell.spr = f and 20 or 16
- mines += f and 1 or -1
- cell.flagged = not f
+	// toggle flag
+	local f = cell.flagged
+	cell.spr = f and 20 or 16
+	mines += f and 1 or -1
+	cell.flagged = not f
 end
 
 function end_game(win)
- // reveal all mine locations
- cell_do_all(
- function(x,y)
-  local cell = grid[x][y]
-  if cell.mine and
-     not cell.flagged then
-   // flag mines if game won,
-   // show mines if game lost
-   cell.spr = win and 16 or 18
-  elseif cell.flagged and
-         not cell.mine then
-   // mark incorrect flags
-   cell.spr = 17
-  end
- end
- )
+	// reveal all mine locations
+	cell_do_all(
+	function(x,y)
+		local cell = grid[x][y]
+		if cell.mine and
+		   not cell.flagged then
+			// flag mines if game won,
+			// show mines if game lost
+			cell.spr = win and 16 or 18
+		elseif cell.flagged and
+		       not cell.mine then
+			// mark incorrect flags
+			cell.spr = 17
+		end
+	end
+	)
 
- if win then
-  mines = 0
- end
+	if win then
+		mines = 0
+	end
 
- state = end_state()
+	state = end_state()
 end
 -->8
 function coords(x,y)
- //translates value to partial
- //position on grid
- return (x-1)*7,y*7+18
+	//translates value to partial
+	//position on grid
+	return (x-1)*7,y*7+18
 end
 
 function draw_stats()
- rectfill(0,0,126,24,7)
- line(35,0,35,24,5)
- line(91,0,91,24,5)
- print("mines:"..mines,94,5,5)
- print("time:"..flr(t), 94,16,5)
+	rectfill(0,0,126,24,7)
+	line(35,0,35,24,5)
+	line(91,0,91,24,5)
+	print("mines:"..mines,94,5,5)
+	print("time:"..flr(t), 94,16,5)
 end
 
 function draw_grid()
- //draws grid and info text
- rectfill(0,0,126,128,7)
- draw_stats()
- print("⬆️",13,4,5)
- print("⬅️⬇️➡️",5,10,5)
- print("to move",3,16,5)
- print("🅾️ to open",38,2,5)
- print("❎ to flag or",38,9,5)
- print("open adjacent",38,16,5)
+	//draws grid and info text
+	rectfill(0,0,126,128,7)
+	draw_stats()
+	print("⬆️",13,4,5)
+	print("⬅️⬇️➡️",5,10,5)
+	print("to move",3,16,5)
+	print("🅾️ to open",38,2,5)
+	print("❎ to flag or",38,9,5)
+	print("open adjacent",38,16,5)
 
- cell_do_all(
- function(x,y)
-  //draws cells on grid
-  local sx,sy = coords(x,y)
-  spr(grid[x][y].spr,sx,sy)
- end
- )
+	cell_do_all(
+	function(x,y)
+		//draws cells on grid
+		local sx,sy = coords(x,y)
+		spr(grid[x][y].spr,sx,sy)
+	end
+	)
 end
 
 function draw_pointer()
- //draws pointer position
- local x,y = coords(px,py)
- rect(x,y,x+7,y+7,9)
+	//draws pointer position
+	local x,y = coords(px,py)
+	rect(x,y,x+7,y+7,9)
 end
 
 -->8
 function init_state()
- // before start of game
- local s = {}
+	// before start of game
+	local s = {}
 
- function s.update() end
+	function s.update() end
 
- function s.draw()
-  draw_pointer()
- end
+	function s.draw()
+		draw_pointer()
+	end
 
- function s.z()
-  state = play_state()
-  opening_move()
- end
+	function s.z()
+		state = play_state()
+		opening_move()
+	end
 
- function s.o()
-  o()
- end
+	function s.o()
+		o()
+	end
 
- return s
+	return s
 end
 
 function play_state()
- // during main gameplay
- local s = {}
+	// during main gameplay
+	local s = {}
 
- function s.update()
-  t+=1/30
- end
+	function s.update()
+		t+=1/30
+	end
 
- function s.draw()
-  draw_pointer()
- end
+	function s.draw()
+		draw_pointer()
+	end
 
- function s.z()
-  cell_do(px,py, open_cell)
- end
+	function s.z()
+		cell_do(px,py, open_cell)
+	end
 
- function s.o()
-  o()
- end
+	function s.o()
+		o()
+	end
 
- return s
+	return s
 end
 
 function end_state()
- // game is over
- local s = {}
+	// game is over
+	local s = {}
 
- function s.update() end
+	function s.update() end
 
- function s.draw()
-  draw_stats()
-  if remaining == 0 then
-   print("you",10,6,5)
-   print("win",10,13,5)
-  else
-   print("game",10,6,5)
-   print("over",10,13,5)
-  end
-  print("🅾️ or ❎",48,6,5)
-  print("to restart",44,13,5)
- end
+	function s.draw()
+		draw_stats()
+		if remaining == 0 then
+			print("you",10,6,5)
+			print("win",10,13,5)
+		else
+			print("game",10,6,5)
+			print("over",10,13,5)
+		end
+		print("🅾️ or ❎",48,6,5)
+		print("to restart",44,13,5)
+	end
 
- function s.z()
-  _init()
- end
+	function s.z()
+		_init()
+	end
 
- function s.o()
-  _init()
- end
+	function s.o()
+		_init()
+	end
 
- return s
+	return s
 end
 __gfx__
 55555555555555555555555555555555555555555555555555555555555555555555555500000000000000000000000000000000000000000000000000000000
@@ -546,3 +546,4 @@ __label__
 77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777770
 77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777770
 77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777770
+

@@ -2,734 +2,734 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 function _init()
- cls()
- //player controls
- px = 1 //player x coordinate
- py = 1 //player y coordinate
- ps = nil //player stored cell
+	cls()
+	//player controls
+	px = 1 //player x coordinate
+	py = 1 //player y coordinate
+	ps = nil //player stored cell
 
- //player stats
- //energies + max capacities
- //{hp,r,b,g,shield,gold}
- caps = init_caps()
- stats = init_stats()
- tmp = init_stats()
+	//player stats
+	//energies + max capacities
+	//{hp,r,b,g,shield,gold}
+	caps = init_caps()
+	stats = init_stats()
+	tmp = init_stats()
 
- //player skills
- skills = init_skills()
- pskill = 1
- ctrl = grid_controls()
+	//player skills
+	skills = init_skills()
+	pskill = 1
+	ctrl = grid_controls()
 
- //grid
- size = 7 //size of grid
- grid = {}
+	//grid
+	size = 7 //size of grid
+	grid = {}
 
- //trackers
- gameactive = false
- ti = 0
+	//trackers
+	gameactive = false
+	ti = 0
 
- //template gems
- gems = init_gems()
+	//template gems
+	gems = init_gems()
 
- //screen
- screen = init_screen()
+	//screen
+	screen = init_screen()
 
- //enemy
- local r = flr(rnd(3))*4
- e = enemy(50,3,5,64+r)
- start_fight(e)
+	//enemy
+	local r = flr(rnd(3))*4
+	e = enemy(50,3,5,64+r)
+	start_fight(e)
 end
 
 function _update()
- if gameactive then
-  controls()
-  timer()
- else
-  end_fight()
- end
+	if gameactive then
+		controls()
+		timer()
+	else
+		end_fight()
+	end
 end
 
 function _draw()
- if gameactive then
-  screen.draw_screen()
-  ctrl.draw_pointer()
- end
+	if gameactive then
+		screen.draw_screen()
+		ctrl.draw_pointer()
+	end
 end
 
 function wait(t)
- //waits for t frames
- for i = 0, t do
-  flip()
-  timer()
- end
+	//waits for t frames
+	for i = 0, t do
+		flip()
+		timer()
+	end
 end
 
 function round(i)
- local f = flr(i)
- if i - f >= .5 then
-  return ceil(i)
- end
- return f
+	local f = flr(i)
+	if i - f >= .5 then
+		return ceil(i)
+	end
+	return f
 end
 
 function timer()
- ti += 1/30
- e.act()
+	ti += 1/30
+	e.act()
 end
 
 function start_fight(enemy)
- ti = 0
- init_grid()
- ctrl = grid_controls()
- e = enemy
- gameactive = true
+	ti = 0
+	init_grid()
+	ctrl = grid_controls()
+	e = enemy
+	gameactive = true
 end
 
 function end_fight()
- rectfill(18,78,63,104,1)
- rect(18,78,63,104,7)
- local g = stats[5]
- if e.hp == 0 then
-  print("victory!",26,89,7)
- else
-  print("defeat...",24,89,7)
-  g = 0
- end
- wait(30)
- local r = flr(rnd(2))*4
- start_fight(enemy(50,3,5,64+r))
- stats[5] = g
+	rectfill(18,78,63,104,1)
+	rect(18,78,63,104,7)
+	local g = stats[5]
+	if e.hp == 0 then
+		print("victory!",26,89,7)
+	else
+		print("defeat...",24,89,7)
+		g = 0
+	end
+	wait(30)
+	local r = flr(rnd(2))*4
+	start_fight(enemy(50,3,5,64+r))
+	stats[5] = g
 end
 -->8
 function init_screen()
- local t = {}
+	local t = {}
 
- function t.draw_screen(d)
-  draw_grid()
-  draw_enemy()
-  draw_stats()
-  if d != nil then
-   //optional delay after draw
-   wait(d)
-  end
- end
- return t
+	function t.draw_screen(d)
+		draw_grid()
+		draw_enemy()
+		draw_stats()
+		if d != nil then
+			//optional delay after draw
+			wait(d)
+		end
+	end
+	return t
 end
 
 function make_cell(x,y,cl)
- //creates a cell at the
- //specified position
- local c = {}
- c.x = x
- c.y = y
- c.val = 1
- if cl == nil then
-  //if color not specified,
-  //assign random color
-  cl = ceil(rnd(5))
- end
- c.color = cl
- c.clear = false
- function c.clear_cell()
-  c.clear = true
-  gems[c.color].clear_cell()
- end
- return c
+	//creates a cell at the
+	//specified position
+	local c = {}
+	c.x = x
+	c.y = y
+	c.val = 1
+	if cl == nil then
+		//if color not specified,
+		//assign random color
+		cl = ceil(rnd(5))
+	end
+	c.color = cl
+	c.clear = false
+	function c.clear_cell()
+		c.clear = true
+		gems[c.color].clear_cell()
+	end
+	return c
 end
 
 function make_grid()
- //initializes a grid of cells
- local grid = {}
- for i = 1, size do
-  grid[i] = {}
-  for j = 1, size do
-   grid[i][j] = make_cell(i,j)
-  end
- end
- return grid
+	//initializes a grid of cells
+	local grid = {}
+	for i = 1, size do
+		grid[i] = {}
+		for j = 1, size do
+			grid[i][j] = make_cell(i,j)
+		end
+	end
+	return grid
 end
 
 function init_grid()
- //initializes the grid
- //at the start of the game
- grid = make_grid()
- while clear_cells()!=0 do end
- stats=init_stats()
+	//initializes the grid
+	//at the start of the game
+	grid = make_grid()
+	while clear_cells()!=0 do end
+	stats=init_stats()
 end
 
 function shuffle()
- //shuffles the board while
- //keeping current tiles
- for c = 1, size do
-  for r = 1, size do
-   local x = ceil(rnd(size))
-   local y = ceil(rnd(size))
-   swap(grid[c][r],grid[x][y])
-  end
- end
- screen.draw_screen()
- update_grid()
+	//shuffles the board while
+	//keeping current tiles
+	for c = 1, size do
+		for r = 1, size do
+			local x = ceil(rnd(size))
+			local y = ceil(rnd(size))
+			swap(grid[c][r],grid[x][y])
+		end
+	end
+	screen.draw_screen()
+	update_grid()
 end
 
 function draw_grid()
- //displays the board
- rectfill(0,0,128,128,1)
- rectfill(9,6,117,122,15)
- rectfill(9,49,117,122,13)
- rect(9,59,72,122,6)
- for i = 1, size do
-  for j = 1, size do
-   draw_cell(grid[i][j],i,j)
-  end
- end
+	//displays the board
+	rectfill(0,0,128,128,1)
+	rectfill(9,6,117,122,15)
+	rectfill(9,49,117,122,13)
+	rect(9,59,72,122,6)
+	for i = 1, size do
+		for j = 1, size do
+			draw_cell(grid[i][j],i,j)
+		end
+	end
 end
 
 function update_grid()
- //updates grid display and
- //returns # of changed cells
- local num = clear_cells()
- local chain = 0
- while gameactive and num != 0 do
-  chain += 1
-  screen.draw_screen(5)
-  num = clear_cells()
- end
- return chain
+	//updates grid display and
+	//returns # of changed cells
+	local num = clear_cells()
+	local chain = 0
+	while gameactive and num != 0 do
+		chain += 1
+		screen.draw_screen(5)
+		num = clear_cells()
+	end
+	return chain
 end
 
 function draw_cell(cell)
- //displays one cell
- if not cell.clear then
-  local x = cell.x*9+1
-  local y = cell.y*9+51
-  spr(cell.color,x,y)
- end
+	//displays one cell
+	if not cell.clear then
+		local x = cell.x*9+1
+		local y = cell.y*9+51
+		spr(cell.color,x,y)
+	end
 end
 -->8
 function controls()
- if btnp(0) then
-  ctrl.left()
- elseif btnp(1) then
-  ctrl.right()
- elseif btnp(2) then
-  ctrl.up()
- elseif btnp(3) then
-  ctrl.down()
- end
+	if btnp(0) then
+		ctrl.left()
+	elseif btnp(1) then
+		ctrl.right()
+	elseif btnp(2) then
+		ctrl.up()
+	elseif btnp(3) then
+		ctrl.down()
+	end
 
- if btnp(4) then
-  ctrl.z()
- elseif btnp(5) then
-  ctrl.x()
- end
+	if btnp(4) then
+		ctrl.z()
+	elseif btnp(5) then
+		ctrl.x()
+	end
 end
 
 function grid_controls()
- local t = {}
- function t.left()
-  move_pointer(-1,0)
- end
+	local t = {}
+	function t.left()
+		move_pointer(-1,0)
+	end
 
- function t.right()
-  move_pointer(1,0)
- end
+	function t.right()
+		move_pointer(1,0)
+	end
 
- function t.up()
-  move_pointer(0,-1)
- end
+	function t.up()
+		move_pointer(0,-1)
+	end
 
- function t.down()
-  move_pointer(0,1)
- end
+	function t.down()
+		move_pointer(0,1)
+	end
 
- function t.z()
-  swap_action()
- end
+	function t.z()
+		swap_action()
+	end
 
- function t.x()
-  ps = nil
-  ctrl = menu_controls()
-  sfx(0)
- end
+	function t.x()
+		ps = nil
+		ctrl = menu_controls()
+		sfx(0)
+	end
 
- function t.draw_pointer()
-  local x = px*9+1
-  local y = py*9+51
-  spr(8,x,y)
-  if ps then
-   local hx = ps.x*9+1
-   local hy = ps.y*9+51
-   spr(9,hx,hy)
-  end
- end
- return t
+	function t.draw_pointer()
+		local x = px*9+1
+		local y = py*9+51
+		spr(8,x,y)
+		if ps then
+			local hx = ps.x*9+1
+			local hy = ps.y*9+51
+			spr(9,hx,hy)
+		end
+	end
+	return t
 end
 
 function menu_controls()
- local t = {}
- function t.left()
+	local t = {}
+	function t.left()
 
- end
+	end
 
- function t.right()
+	function t.right()
 
- end
+	end
 
- function t.up()
-  if pskill > 1 then
-   pskill-=1
-   sfx(0)
-  end
- end
+	function t.up()
+		if pskill > 1 then
+			pskill-=1
+			sfx(0)
+		end
+	end
 
- function t.down()
-  if pskill < #skills then
-   pskill+=1
-   sfx(0)
-  end
- end
+	function t.down()
+		if pskill < #skills then
+			pskill+=1
+			sfx(0)
+		end
+	end
 
- function t.z()
-  use_skill(skills[pskill])
- end
+	function t.z()
+		use_skill(skills[pskill])
+	end
 
- function t.x()
-  ctrl = grid_controls()
-  sfx(0)
- end
+	function t.x()
+		ctrl = grid_controls()
+		sfx(0)
+	end
 
- function t.draw_pointer()
-  draw_effects(skills[pskill])
-  spr(9,74,78+(pskill*9))
- end
- return t
+	function t.draw_pointer()
+		draw_effects(skills[pskill])
+		spr(9,74,78+(pskill*9))
+	end
+	return t
 end
 
 function move_pointer(dx,dy)
- //moves the pointer
- local x = px + dx
- local y = py + dy
+	//moves the pointer
+	local x = px + dx
+	local y = py + dy
 
- //keeps in bounds
- if valid_move(x,y) then
-  px = x
-  py = y
-  sfx(0)
- end
+	//keeps in bounds
+	if valid_move(x,y) then
+		px = x
+		py = y
+		sfx(0)
+	end
 end
 
 function valid_move(x,y)
- //checks to see if pointer
- //movement is valid
- local in_bounds =
-  x>=1 and x <= size and
-  y>=1 and y <= size
- //restricts movement to 1
- //square if cell selected
- if in_bounds and ps then
-  local hx = ps.x
-  local hy = ps.y
-  return
-   abs(hx-x) <=1 and hy == y or
-   abs(hy-y) <=1 and hx == x
- else
-  return in_bounds
- end
+	//checks to see if pointer
+	//movement is valid
+	local in_bounds =
+		x>=1 and x <= size and
+		y>=1 and y <= size
+	//restricts movement to 1
+	//square if cell selected
+	if in_bounds and ps then
+		local hx = ps.x
+		local hy = ps.y
+		return
+			abs(hx-x) <=1 and hy == y or
+			abs(hy-y) <=1 and hx == x
+	else
+		return in_bounds
+	end
 end
 
 function swap_action()
- //player initiated
- //cell swap
- sfx(0)
- local c = grid[px][py]
- if ps == nil then
-  //stores a cell
-  ps = c
- else
-  //swaps selected cell
-  if not (ps.x == c.x
-     and ps.y == c.y) then
-   swap(ps, c)
-   screen.draw_screen(5)
-   if update_grid() == 0 and
-      gameactive then
-    //invalid move
-    sfx(3)
-    swap(ps, c)
-   end
-  end
-  ps = nil
- end
+	//player initiated
+	//cell swap
+	sfx(0)
+	local c = grid[px][py]
+	if ps == nil then
+		//stores a cell
+		ps = c
+	else
+		//swaps selected cell
+		if not (ps.x == c.x
+		   and ps.y == c.y) then
+			swap(ps, c)
+			screen.draw_screen(5)
+			if update_grid() == 0 and
+			   gameactive then
+				//invalid move
+				sfx(3)
+				swap(ps, c)
+			end
+		end
+		ps = nil
+	end
 end
 
 function swap(c1, c2)
- //swaps two cells in the grid
- //and updates their x/y coords
- local x1, x2 = c1.x, c2.x
- local y1, y2 = c1.y, c2.y
- grid[x1][y1], grid[x2][y2] =
- grid[x2][y2], grid[x1][y1]
- c1.x, c2.x = x2, x1
- c1.y, c2.y = y2, y1
+	//swaps two cells in the grid
+	//and updates their x/y coords
+	local x1, x2 = c1.x, c2.x
+	local y1, y2 = c1.y, c2.y
+	grid[x1][y1], grid[x2][y2] =
+	grid[x2][y2], grid[x1][y1]
+	c1.x, c2.x = x2, x1
+	c1.y, c2.y = y2, y1
 end
 -->8
 function match(c1, c2)
- //checks if two cells are
- //considered a match
- return fget(c1)==fget(c2)
+	//checks if two cells are
+	//considered a match
+	return fget(c1)==fget(c2)
 end
 
 function clear_cells()
- //checks for matches and
- //clears all cells
- local cl = false
- for i = 1, size do
-  cl = check_lines(i) or cl
- end
+	//checks for matches and
+	//clears all cells
+	local cl = false
+	for i = 1, size do
+		cl = check_lines(i) or cl
+	end
 
- //allows for player to see
- //cleared cells
- if gameactive and cl then
-  sfx(1)
-  update_stats()
-  screen.draw_screen(5)
- end
+	//allows for player to see
+	//cleared cells
+	if gameactive and cl then
+		sfx(1)
+		update_stats()
+		screen.draw_screen(5)
+	end
 
- //counts how many cells
- //were cleared
- cleared = 0
+	//counts how many cells
+	//were cleared
+	cleared = 0
 
- for c = 1, size do
-  for r = 1, size do
-   if grid[c][r].clear then
-    //swaps cleared cell to top
-    //and replaces it - "drop"
-    cleared += 1
-    for j = r, 2, -1 do
-     swap(grid[c][j],
-          grid[c][j-1])
-    end
-    grid[c][1] = make_cell(c,1)
-   end
-  end
- end
- return cleared
+	for c = 1, size do
+		for r = 1, size do
+			if grid[c][r].clear then
+				//swaps cleared cell to top
+				//and replaces it - "drop"
+				cleared += 1
+				for j = r, 2, -1 do
+					swap(grid[c][j],
+					     grid[c][j-1])
+				end
+				grid[c][1] = make_cell(c,1)
+			end
+		end
+	end
+	return cleared
 end
 
 function check_lines(l)
- //checks for 3 or more
- //matches in a line
- local cleared = false
+	//checks for 3 or more
+	//matches in a line
+	local cleared = false
 
- for isrow = 0, 1 do
-  local s = 1 //start index
-  local e = 1 //end index
-  local cl = -1 //stored color
+	for isrow = 0, 1 do
+		local s = 1 //start index
+		local e = 1 //end index
+		local cl = -1 //stored color
 
-  //gets nth cell within a line
-  local function get_cell(n)
-   if isrow == 0 then
-    return grid[l][n]
-   else
-    return grid[n][l]
-   end
-  end
+		//gets nth cell within a line
+		local function get_cell(n)
+			if isrow == 0 then
+				return grid[l][n]
+			else
+				return grid[n][l]
+			end
+		end
 
-  for i = 1, size do
-   local cell = get_cell(i)
-   local m = match(cell.color,cl)
-   if m then
-    e += 1
-   end
-   if not m or i == size then
-    //marks given col from
-    //start index to end index
-    local cnt = e-s
-    if cnt >= 2 then
-     cleared = true
-     for j = s, e do
-      get_cell(j).clear_cell()
-     end
+		for i = 1, size do
+			local cell = get_cell(i)
+			local m = match(cell.color,cl)
+			if m then
+				e += 1
+			end
+			if not m or i == size then
+				//marks given col from
+				//start index to end index
+				local cnt = e-s
+				if cnt >= 2 then
+					cleared = true
+					for j = s, e do
+						get_cell(j).clear_cell()
+					end
 
-     //apply multiplier
-     for i = 1, #tmp do
-      local ml = ((cnt-2)*.5)+1
-      local s = tmp[i]*max(ml,1)
-      stats[i]+=round(s)
-      tmp[i] = 0
-     end
-    end
-    cl = cell.color
-    s = i
-    e = s
-   end
-  end
- end
- return cleared
+					//apply multiplier
+					for i = 1, #tmp do
+						local ml = ((cnt-2)*.5)+1
+						local s = tmp[i]*max(ml,1)
+						stats[i]+=round(s)
+						tmp[i] = 0
+					end
+				end
+				cl = cell.color
+				s = i
+				e = s
+			end
+		end
+	end
+	return cleared
 end
 -->8
 function init_stats()
- local t = {0,0,0,caps[4],0}
- t[0] = caps[0]
- return t
+	local t = {0,0,0,caps[4],0}
+	t[0] = caps[0]
+	return t
 end
 
 function init_caps()
- //starting capacities
- local t = {20,20,20,10,999}
- t[0] = 50
- return t
+	//starting capacities
+	local t = {20,20,20,10,999}
+	t[0] = 50
+	return t
 end
 
 function update_stats()
- //keeps stats in bounds
- for i = 0, 4 do
-  local s = stats[i]
-  s = max(0,min(caps[i],s))
-  stats[i]=s
- end
+	//keeps stats in bounds
+	for i = 0, 4 do
+		local s = stats[i]
+		s = max(0,min(caps[i],s))
+		stats[i]=s
+	end
 
- if stats[0] == 0 then
-  gameactive = false
- end
+	if stats[0] == 0 then
+		gameactive = false
+	end
 end
 
 function draw_stats()
- for i = 1, 3 do
-  //energies
-  local y = i*9
-  spr(i,74,51+y)
-  print(frac(stats[i],caps[i]),
-        83,53+y,1)
- end
+	for i = 1, 3 do
+		//energies
+		local y = i*9
+		spr(i,74,51+y)
+		print(frac(stats[i],caps[i]),
+		      83,53+y,1)
+	end
 
- //health
- spr(0,10,50)
- print(frac(stats[0],caps[0]),
-       21,52,1)
+	//health
+	spr(0,10,50)
+	print(frac(stats[0],caps[0]),
+	      21,52,1)
 
- //shield
- spr(4,55,50)
- print(frac(stats[4],caps[4]),
-       66,52,1)
+	//shield
+	spr(4,55,50)
+	print(frac(stats[4],caps[4]),
+	      66,52,1)
 
- //gold
- spr(5,91,50)
- print(stats[5],102,52,1)
+	//gold
+	spr(5,91,50)
+	print(stats[5],102,52,1)
 
- draw_skills()
+	draw_skills()
 end
 
 function frac(a,b)
- return a.."/"..b
+	return a.."/"..b
 end
 -->8
 function draw_enemy()
- spr(32,10,7)
- print(frac(e.hp,e.maxhp),
-       20,9,1)
+	spr(32,10,7)
+	print(frac(e.hp,e.maxhp),
+	      20,9,1)
 
- spr(16,50,7)
- print(round(e.power*.75)..
-       "-"..
-       round(e.power*1.25),
-       60,9,1)
+	spr(16,50,7)
+	print(round(e.power*.75)..
+	      "-"..
+	      round(e.power*1.25),
+	      60,9,1)
 
- //warning
- if flr(ti+1)%e.delay == 0 and
-    e.hp > 0 then
-  spr(6,43,27)
-  spr(6,85,27)
- end
+	//warning
+	if flr(ti+1)%e.delay == 0 and
+	   e.hp > 0 then
+		spr(6,43,27)
+		spr(6,85,27)
+	end
 
- //enemy sprite
- local r = flr(ti) % 2 == 0
- spr(e.spr,52,16,4,4,r,e.hp==0)
+	//enemy sprite
+	local r = flr(ti) % 2 == 0
+	spr(e.spr,52,16,4,4,r,e.hp==0)
 end
 
 function update_enemy()
- //update enemy stats
- e.hp = max(0,min(e.hp,e.maxhp))
- screen.draw_screen()
- if e.hp == 0 then
-  gameactive = false
- end
+	//update enemy stats
+	e.hp = max(0,min(e.hp,e.maxhp))
+	screen.draw_screen()
+	if e.hp == 0 then
+		gameactive = false
+	end
 end
 
 function enemy(h,p,d,s)
- local t = {}
- t.maxhp = h
- t.hp = t.maxhp
- t.power = p
- t.delay = d
- t.cooldown=true
- t.spr = s
+	local t = {}
+	t.maxhp = h
+	t.hp = t.maxhp
+	t.power = p
+	t.delay = d
+	t.cooldown=true
+	t.spr = s
 
- function t.act()
-  if not gameactive then
-   return
-  end
-  if flr(ti) % d == 0 then
-   t.next()
-   t.cooldown = true
-  else
-   t.cooldown = false
-  end
- end
+	function t.act()
+		if not gameactive then
+			return
+		end
+		if flr(ti) % d == 0 then
+			t.next()
+			t.cooldown = true
+		else
+			t.cooldown = false
+		end
+	end
 
- function t.next()
-  //chooses next move
-  if t.cooldown then return end
-  if rnd(1) < .75 then
-   t.fight()
-  else
-   t.heal()
-  end
-  screen.draw_screen()
- end
+	function t.next()
+		//chooses next move
+		if t.cooldown then return end
+		if rnd(1) < .75 then
+			t.fight()
+		else
+			t.heal()
+		end
+		screen.draw_screen()
+	end
 
- function t.fight()
-  //standard attack
-  local p = variance(t.power)
-  if stats[4] > 0 then
-   local s = stats[4]
-   stats[4] = max(0,stats[4]-p)
-   p -= s-stats[4]
-  end
-  stats[0] -= p
-  sfx(2)
-  update_stats()
- end
+	function t.fight()
+		//standard attack
+		local p = variance(t.power)
+		if stats[4] > 0 then
+			local s = stats[4]
+			stats[4] = max(0,stats[4]-p)
+			p -= s-stats[4]
+		end
+		stats[0] -= p
+		sfx(2)
+		update_stats()
+	end
 
- function t.heal()
-  //heal if below max hp,
-  //otherwise attack
-  if t.hp < t.maxhp then
-   t.hp += variance(t.maxhp/10)
-   update_enemy()
-   sfx(6)
-  else
-   t.fight()
-  end
- end
+	function t.heal()
+		//heal if below max hp,
+		//otherwise attack
+		if t.hp < t.maxhp then
+			t.hp += variance(t.maxhp/10)
+			update_enemy()
+			sfx(6)
+		else
+			t.fight()
+		end
+	end
 
- return t
+	return t
 end
 
 function variance(x)
- return round(x*(rnd(.5)+.75))
+	return round(x*(rnd(.5)+.75))
 end
 -->8
 function draw_effects(s)
- //skill damage/healing
- if s.attack > 0 then
-  print("-"..s.attack,10,16,8)
- end
- if s.heal > 0 then
-  print("+"..s.heal,10,43,3)
- end
+	//skill damage/healing
+	if s.attack > 0 then
+		print("-"..s.attack,10,16,8)
+	end
+	if s.heal > 0 then
+		print("+"..s.heal,10,43,3)
+	end
 
- //costs
- for i = 1, 3 do
-  if s.cost[i] > 0 then
-   print("-"..s.cost[i],
-         103,53+(i*9),2)
-  end
- end
+	//costs
+	for i = 1, 3 do
+		if s.cost[i] > 0 then
+			print("-"..s.cost[i],
+			      103,53+(i*9),2)
+		end
+	end
 end
 
 function draw_skills()
- //skill icons/descriptions
- for i = 1, #skills do
-  local y = 78+(i*9)
-  spr(skills[i].spr,74,y)
-  print(skills[i].name,84,y+2,1)
- end
+	//skill icons/descriptions
+	for i = 1, #skills do
+		local y = 78+(i*9)
+		spr(skills[i].spr,74,y)
+		print(skills[i].name,84,y+2,1)
+	end
 end
 
 function init_skills()
- //starting set of skills
- local t = {}
- add(t,skill("strike",16,4,
-              5,0,{5,0,0}))
- add(t,skill("cast",17,5,
-              5,0,{0,5,0}))
- add(t,skill("heal",18,6,
-              0,5,{0,0,5}))
- add(t,skill("absorb",19,7,
-              3,3,{0,4,3}))
- return t
+	//starting set of skills
+	local t = {}
+	add(t,skill("strike",16,4,
+	             5,0,{5,0,0}))
+	add(t,skill("cast",17,5,
+	             5,0,{0,5,0}))
+	add(t,skill("heal",18,6,
+	             0,5,{0,0,5}))
+	add(t,skill("absorb",19,7,
+	             3,3,{0,4,3}))
+	return t
 end
 
 function skill(n,s,x,a,h,c)
- local t = {}
- t.name = n
- t.spr = s
- t.attack = a
- t.heal = h
- t.cost = c
- t.sfx=x
- return t
+	local t = {}
+	t.name = n
+	t.spr = s
+	t.attack = a
+	t.heal = h
+	t.cost = c
+	t.sfx=x
+	return t
 end
 
 function use_skill(s)
- //check if skill can be used
- local valid = true
- for i = 1, 3 do
-  valid = valid and
-          stats[i] >= s.cost[i]
- end
+	//check if skill can be used
+	local valid = true
+	for i = 1, 3 do
+		valid = valid and
+		        stats[i] >= s.cost[i]
+	end
 
- if valid then
-  //use skill
-  e.hp -= s.attack
-  stats[0] += s.heal
-  for i = 1, 3 do
-   stats[i] -= s.cost[i]
-  end
-  sfx(s.sfx)
-  update_stats()
-  update_enemy()
- else
-  sfx(3)
- end
+	if valid then
+		//use skill
+		e.hp -= s.attack
+		stats[0] += s.heal
+		for i = 1, 3 do
+			stats[i] -= s.cost[i]
+		end
+		sfx(s.sfx)
+		update_stats()
+		update_enemy()
+	else
+		sfx(3)
+	end
 end
 -->8
 function init_gems()
- //template gems
- local t = {}
+	//template gems
+	local t = {}
 
- local red = make_cell(-1,-1,1)
- function red.clear_cell()
-  tmp[red.color]+=red.val
- end
- add(t,red)
+	local red = make_cell(-1,-1,1)
+	function red.clear_cell()
+		tmp[red.color]+=red.val
+	end
+	add(t,red)
 
- local blue = make_cell(-1,-1,2)
- function blue.clear_cell()
-  tmp[blue.color]+=blue.val
- end
- add(t,blue)
+	local blue = make_cell(-1,-1,2)
+	function blue.clear_cell()
+		tmp[blue.color]+=blue.val
+	end
+	add(t,blue)
 
- local green = make_cell(-1,-1,3)
- function green.clear_cell()
-  tmp[green.color]+=green.val
- end
- add(t,green)
+	local green = make_cell(-1,-1,3)
+	function green.clear_cell()
+		tmp[green.color]+=green.val
+	end
+	add(t,green)
 
- local gray = make_cell(-1,-1,4)
- function gray.clear_cell()
-  tmp[gray.color]+=gray.val
- end
- add(t,gray)
+	local gray = make_cell(-1,-1,4)
+	function gray.clear_cell()
+		tmp[gray.color]+=gray.val
+	end
+	add(t,gray)
 
- local gold = make_cell(-1,-1,5)
- function gold.clear_cell()
-  tmp[gold.color]+=gold.val
- end
- add(t,gold)
+	local gold = make_cell(-1,-1,5)
+	function gold.clear_cell()
+		tmp[gold.color]+=gold.val
+	end
+	add(t,gold)
 
- return t
+	return t
 end
 __gfx__
 0000000000555500005555000055550005555550005555000009900000000000670000762e0000e2000000000000000000000000000000000000000000000000
@@ -1020,3 +1020,4 @@ __sfx__
 001000001b0001a0001a0001f000250002800028000290002700026000240001f0001c0001700013000120001300014000150001600017000190001b0001d0001e00020000000000000000000000000000000000
 __music__
 00 41434344
+
