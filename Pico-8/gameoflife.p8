@@ -14,7 +14,7 @@ function _init()
 
 	t = 0
 	dur = 10
-	stage = 0
+	gen = 0
 	state = edit_state()
 end
 
@@ -86,13 +86,13 @@ function controls()
 	//player controls for movement
 	//and revealing cells
 	if btnp(0) then
-		move_horz(-1)
+		state.left()
 	elseif btnp(1) then
-		move_horz(1)
+		state.right()
 	elseif btnp(2) then
-		move_vert(-1)
+		state.down()
 	elseif btnp(3) then
-		move_vert(1)
+		state.up()
 	end
 
 	if btnp(4) then
@@ -174,7 +174,9 @@ function draw_stats()
 	rectfill(0,0,126,24,7)
 	line(35,0,35,24,5)
 	line(91,0,91,24,5)
-	print("stage:"..stage,94,1,5)
+	print("gen:"..gen,94,1,5)
+	print("gen/s:",94,8,5)
+	print(30/dur,94,15,5)
 end
 
 function draw_grid()
@@ -215,6 +217,22 @@ function edit_state()
 		draw_pointer()
 	end
 
+	function s.left()
+		move_horz(-1)
+	end
+
+	function s.right()
+		move_horz(1)
+	end
+
+	function s.up()
+		move_vert(1)
+	end
+
+	function s.down()
+		move_vert(-1)
+	end
+
 	function s.z()
 		grid[px][py].toggle()
 	end
@@ -234,7 +252,7 @@ function play_state()
 		local old = t
 		t+=1
 		if t == dur then
-			stage+=1
+			gen+=1
 			t = 0
 			cell_do_all(
 			function(x,y)
@@ -251,6 +269,28 @@ function play_state()
 	end
 
 	function s.draw()
+		
+	end
+
+	function s.left()
+		if (dur < 30) then
+			dur += 1
+			t = 0
+		end
+	end
+
+	function s.right()
+		if (dur > 1) then
+			dur -= 1
+			t = 0
+		end
+	end
+
+	function s.up()
+		
+	end
+
+	function s.down()
 		
 	end
 
