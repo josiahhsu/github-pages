@@ -10,7 +10,7 @@ function _init()
 	grid = make_grid()
 
 	// player position
-	px,py = 1,1
+	px,py = 0,0
 
 	t = 0
 	dur = 10
@@ -47,9 +47,8 @@ function make_cell(x,y)
 		local x,y,cnt=cell.x,cell.y,0
 		for i = x-1,x+1 do
 			for j = y-1,y+1 do
-				if in_bounds(i,j) and
-				   not (i == x and j == y) and
-				   grid[i][j].live then
+				if not (i == x and j == y) and
+				   grid[i%m][j%n].live then
 					cnt += 1
 				end
 			end
@@ -73,9 +72,9 @@ end
 function make_grid()
 	//makes grid of cells
 	local grid = {}
-	for i = 1, m do
+	for i = 0,m-1 do
 		grid[i] = {}
-		for j = 1, n do
+		for j = 0,n-1 do
 			grid[i][j] = make_cell(i,j)
 		end
 	end
@@ -113,61 +112,26 @@ function o()
 end
 
 function move_horz(dx)
-	if in_bounds_x(px+dx) then
-		px += dx
-	end
+	px = (px+dx)%m
 end
 
 function move_vert(dy)
-	if in_bounds_y(py+dy) then
-		py += dy
-	end
-end
-
-function in_range(s,e,v)
-	return s <= v and v <= e
-end
-
-function in_bounds_x(x)
-	return in_range(1,m,x)
-end
-
-function in_bounds_y(y)
-	return in_range(1,n,y)
-end
-
-function in_bounds(x,y)
-	return in_bounds_x(x) and
-	       in_bounds_y(y)
-end
-
-// wrappers for cell functions.
-// only perform function if
-// position is in bounds.
-function cell_do(x,y,f)
-	if in_bounds(x,y) then
-		f(x,y)
-	end
-end
-
-function cell_do_area(a,f)
-	local x1,x2,y1,y2 = unpack(a)
-	for i=x1,x2 do
-		for j=y1,y2 do
-			cell_do(i,j,f)
-		end
-	end
+	py = (py+dy)%n
 end
 
 function cell_do_all(f)
-	cell_do_area({1,m,1,n},f)
+	for i=0,m-1 do
+		for j=0,n-1 do
+			f(i,j)
+		end
+	end
 end
 
 -->8
 function coords(x,y)
 	//translates value to partial
 	//position on grid
-	return (x-1)*7,y*7+18
+	return x*7,(y+1)*7+18
 end
 
 function draw_stats()
