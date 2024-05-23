@@ -40,7 +40,7 @@ function make_cell(x,y)
 	cell.nextspr = 0
 	
 	function cell:toggle()
-		cell.spr = (cell.spr+1)%2
+		cell.spr = tonum(cell.spr==0)
 	end
 	
 	function cell:update()
