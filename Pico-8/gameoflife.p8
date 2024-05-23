@@ -34,13 +34,13 @@ function make_cell(x,y)
 	local cell = {}
 	cell.x = x
 	cell.y = y
+	
+	// 0 = dead, 1 = live
 	cell.spr = 0
-	cell.live = false
-	cell.nextlive = false
+	cell.nextspr = 0
 	
 	function cell:toggle()
-		cell.live = not cell.live
-		cell.spr = cell.live and 1 or 0
+		cell.spr = (cell.spr+1)%2
 	end
 	
 	function cell:update()
@@ -48,23 +48,19 @@ function make_cell(x,y)
 		for i = x-1,x+1 do
 			for j = y-1,y+1 do
 				if not (i == x and j == y) and
-				   grid[i%m][j%n].live then
+				   grid[i%m][j%n].spr == 1 then
 					cnt += 1
 				end
 			end
 		end
 		
-		if (cell.live and cnt == 2)
-		   or cnt == 3 then
-			cell.nextlive = true
-		else
-			cell.nextlive = false
-		end
+		cell.nextspr = 
+		 tonum((cell.spr == 1 and cnt == 2)
+		       or cnt == 3)
 	end
 	
 	function cell:transition()
-		cell.live = cell.nextlive
-		cell.spr = cell.live and 1 or 0
+		cell.spr = cell.nextspr
 	end
 	return cell
 end
@@ -250,14 +246,14 @@ function play_state()
 	function s.draw() end
 
 	function s.left()
-		if (dur < 30) then
+		if dur < 30 then
 			dur += 1
 			t = 0
 		end
 	end
 
 	function s.right()
-		if (dur > 1) then
+		if dur > 1 then
 			dur -= 1
 			t = 0
 		end
