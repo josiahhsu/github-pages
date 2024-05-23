@@ -179,26 +179,20 @@ function draw_nums()
 end
 -->8
 function count_nums(l,isrow)
-	//counts marked cells in line
-	local r = l
-	local c = l
-
-	local sr = 1
-	local sc = 1
-	if isrow then
-		sr = 0
-		c = 0
-	else
-		sc = 0
-		r = 0
+	//gets nth cell within a line
+	local function get_cell(n)
+		if isrow then
+			return grid[n][l]
+		else
+			return grid[l][n]
+		end
 	end
+	
 	local cnt = 0
 	local p = 1
 	local nums = {}
 	for i = n, 1, -1 do
-		local ir = i*sr+r
-		local ic = i*sc+c
-		local v = grid[ic][ir].value
+		local v = get_cell(i).value
 		cnt += v
 		if v == 0 then
 			if cnt > 0 then
