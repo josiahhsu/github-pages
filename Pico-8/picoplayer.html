@@ -6,6 +6,13 @@
     <script type="text/javascript">
         // Cartridge that will be loaded is based off the passed in URL parameter.
         const cartname = new URL(window.location.href).searchParams.get("cart");
+        const cartsrc = `${cartname}.js`;
+
+        var http = new XMLHttpRequest();
+        http.open('HEAD', cartsrc, false);
+        http.send();
+        if (http.status == 404)
+            window.location.replace("../404.html");
 
         // Default shell for PICO-8 0.2.2 (includes @weeble's gamepad mod 1.0)
         // This file is available under a CC0 license https://creativecommons.org/share-your-work/public-domain/cc0/
@@ -636,7 +643,7 @@
 
             }
             e.type = "application/javascript";
-            e.src = `${cartname}.js`;
+            e.src = cartsrc;
             e.id = "e_script";
 
             document.body.appendChild(e); // load and run
