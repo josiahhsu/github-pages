@@ -1,4 +1,4 @@
 # github-pages
-This is intended to be a central hub for all of my projects.
-Originally this repository actually contained every individual project, but I've recently restructured such that each project gets its own repo.
-The only projects left here are the Pico-8 games, which I would've grouped together in the same repo anyways.
+This repository acts as the central hub for all of my web-based projects.
+While many projects live in other repos, this one houses the main homepage that links to their respective sites.
+It's also where I've placed all of my Pico-8 projects, which I prefer to keep grouped together.
