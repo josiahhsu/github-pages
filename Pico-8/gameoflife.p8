@@ -91,9 +91,9 @@ function controls()
 	end
 
 	if btnp(4) then
-		state.z()
-	elseif btnp(5) then
 		state.o()
+	elseif btnp(5) then
+		state.x()
 	end
 end
 
@@ -198,11 +198,11 @@ function edit_state()
 		move_vert(-1)
 	end
 
-	function s.z()
+	function s.o()
 		grid[px][py].toggle()
 	end
 
-	function s.o()
+	function s.x()
 		state = play_state()
 	end
 
@@ -263,13 +263,13 @@ function play_state()
 
 	function s.down() end
 
-	function s.z()
+	function s.o()
 		grid = make_grid()
 		gen = 0
 		state = edit_state()
 	end
 
-	function s.o()
+	function s.x()
 		state = edit_state()
 	end
 

@@ -83,15 +83,15 @@ function controls()
 	end
 
 	if btnp(4) then
-		state.z()
-	elseif btnp(5) then
 		state.o()
+	elseif btnp(5) then
+		state.x()
 	end
 end
 
-// standard o button:
+// standard x button:
 // flag or reveal adjacent
-function o()
+function x()
 	if grid[px][py].opened then
 		open_adjacent()
 	else
@@ -336,13 +336,13 @@ function init_state()
 		draw_pointer()
 	end
 
-	function s.z()
+	function s.o()
 		state = play_state()
 		opening_move()
 	end
 
-	function s.o()
-		o()
+	function s.x()
+		x()
 	end
 
 	return s
@@ -360,12 +360,12 @@ function play_state()
 		draw_pointer()
 	end
 
-	function s.z()
+	function s.o()
 		cell_do(px,py, open_cell)
 	end
 
-	function s.o()
-		o()
+	function s.x()
+		x()
 	end
 
 	return s
@@ -390,11 +390,11 @@ function end_state()
 		print("to restart",44,13,5)
 	end
 
-	function s.z()
+	function s.o()
 		_init()
 	end
 
-	function s.o()
+	function s.x()
 		_init()
 	end
 

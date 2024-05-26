@@ -218,7 +218,7 @@ function controls()
 	end
 
 	if btnp(4) then
-		ctrl.z()
+		ctrl.o()
 	elseif btnp(5) then
 		ctrl.x()
 	end
@@ -242,7 +242,7 @@ function grid_controls()
 		move_pointer(0,1)
 	end
 
-	function t.z()
+	function t.o()
 		swap_action()
 	end
 
@@ -289,7 +289,7 @@ function menu_controls()
 		end
 	end
 
-	function t.z()
+	function t.o()
 		use_skill(skills[pskill])
 	end
 
