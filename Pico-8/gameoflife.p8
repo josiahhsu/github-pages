@@ -97,16 +97,6 @@ function controls()
 	end
 end
 
-// standard o button:
-// flag or reveal adjacent
-function o()
-	if grid[px][py].opened then
-		open_adjacent()
-	else
-		flag_cell()
-	end
-end
-
 function move_horz(dx)
 	px = (px+dx)%m
 end
