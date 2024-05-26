@@ -452,11 +452,11 @@ function check_lines(l)
 					end
 
 					//apply multiplier
-					for i = 1, #tmp do
+					for j = 1, #tmp do
 						local ml = ((cnt-2)*.5)+1
-						local s = tmp[i]*max(ml,1)
-						stats[i]+=round(s)
-						tmp[i] = 0
+						local s = tmp[j]*max(ml,1)
+						stats[j]+=round(s)
+						tmp[j] = 0
 					end
 				end
 				cl = cell.color
