@@ -32,8 +32,6 @@ function make_cell(x,y)
 	//makes a cell and determines
 	//whether it's marked or not
 	local cell = {}
-	cell.x = x
-	cell.y = y
 	
 	// 0 = dead, 1 = live
 	cell.spr = 0
@@ -44,7 +42,7 @@ function make_cell(x,y)
 	end
 	
 	function cell:update()
-		local x,y,cnt=cell.x,cell.y,0
+		local cnt = 0
 		for i = x-1,x+1 do
 			for j = y-1,y+1 do
 				if not (i == x and j == y) and
