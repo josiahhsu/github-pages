@@ -137,6 +137,10 @@ function cell_do(x,y,f)
 	end
 end
 
+function cell_do_adj(x,y,f)
+	cell_do_area({x-1,x+1,y-1,y+1},f)
+end
+
 function cell_do_area(a,f)
 	local x1,x2,y1,y2 = unpack(a)
 	for i=x1,x2 do
@@ -205,9 +209,9 @@ function open_cell(x,y)
 		cell.spr = 19
 	else
 		// find # of surrounding mines
-		local cnt,a = 0,{x-1,x+1,y-1,y+1}
-
-		cell_do_area(a,
+		local cnt = 0
+		
+		cell_do_adj(x,y,
 		function(i,j)
 			if grid[i][j].mine then
 				cnt += 1
@@ -219,7 +223,7 @@ function open_cell(x,y)
 		// open surrounding cells if
 		// there's no mines
 		if cnt == 0 then
-			cell_do_area(a,open_cell)
+			cell_do_adj(x,y,open_cell)
 		end
 
 		remaining -= 1
@@ -230,9 +234,9 @@ function open_cell(x,y)
 end
 
 function open_adjacent()
-	local cnt,a = 0,{px-1,px+1,py-1,py+1}
+	local cnt = 0
 
-	cell_do_area(a,
+	cell_do_adj(px,py,
 	function(i,j)
 		if grid[i][j].flagged then
 			cnt += 1
@@ -241,7 +245,7 @@ function open_adjacent()
 	)
 
 	if cnt == grid[px][py].spr then
-		cell_do_area(a,open_cell)
+		cell_do_adj(px,py,open_cell)
 	end
 end
 
