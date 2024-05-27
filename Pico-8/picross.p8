@@ -175,7 +175,7 @@ end
 function count_nums(l,isrow)
 	local cnt,nums = 0,{}
 	
-	function addnz(v)
+	local function addnz(v)
 		if cnt > 0 then
 			add(nums,cnt,1)
 			cnt = 0
