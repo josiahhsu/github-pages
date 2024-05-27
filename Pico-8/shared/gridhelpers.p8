@@ -16,6 +16,15 @@ function get_cell(x,y)
 	return _grid[x][y]
 end
 
+function set_cell(x,y,cell)
+	_grid[x][y] = cell
+end
+
+function swap_cells(x1,y1,x2,y2)
+	_grid[x1][y1], _grid[x2][y2] =
+	_grid[x2][y2], _grid[x1][y1]
+end
+
 function in_range(s,e,v)
 	return s <= v and v <= e
 end
