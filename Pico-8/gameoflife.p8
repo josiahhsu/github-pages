@@ -1,11 +1,14 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
+#include shared/cellhelpers.p8
+
 function _init()
 	cls()
 
 	// grid size and # of mines
 	m,n = 18,14
+	set_bounds(m,n,false)
 
 	grid = make_grid()
 
@@ -43,14 +46,14 @@ function make_cell(x,y)
 	
 	function cell:update()
 		local cnt = 0
-		for i = x-1,x+1 do
-			for j = y-1,y+1 do
-				if not (i == x and j == y) and
-				   grid[mod(i,m)][mod(j,n)].spr == 1 then
-					cnt += 1
-				end
+		cell_do_adj(x,y,
+		function(i,j)
+			if not (i == x and j == y) and
+			   grid[mod(i,m)][mod(j,n)].spr == 1 then
+				cnt += 1
 			end
 		end
+		)
 		
 		cell.nextspr = 
 		 tonum((cell.spr == 1 and cnt == 2)
@@ -111,14 +114,6 @@ end
 
 function move_vert(dy)
 	py = mod(py+dy,n)
-end
-
-function cell_do_all(f)
-	for i=1,m do
-		for j=1,n do
-			f(i,j)
-		end
-	end
 end
 
 -->8
@@ -243,18 +238,19 @@ function play_state()
 
 	function s.draw() end
 
-	function s.left()
-		if dur < 30 then
-			dur += 1
+	function update_dur(dv)
+		if in_range(1,30,dur+dv) then
+			dur += dv
 			t = 0
 		end
 	end
 
+	function s.left()
+		update_dur(1)
+	end
+
 	function s.right()
-		if dur > 1 then
-			dur -= 1
-			t = 0
-		end
+		update_dur(-1)
 	end
 
 	function s.up() end
@@ -263,8 +259,8 @@ function play_state()
 
 	function s.o()
 		grid = make_grid()
-		gen = 0
 		state = edit_state()
+		gen = 0
 	end
 
 	function s.x()

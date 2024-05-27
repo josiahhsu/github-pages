@@ -1,11 +1,14 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
+#include shared/cellhelpers.p8
+
 function _init()
 	cls()
 
 	// grid size and # of mines
 	m,n,mines = 18,14,40
+	set_bounds(m,n,true)
 
 	// cells to open
 	remaining = m*n - mines
@@ -106,45 +109,6 @@ function move_vert(dy)
 	if in_bounds_y(py+dy) then
 		py += dy
 	end
-end
-
-function in_range(s,e,v)
-	return s <= v and v <= e
-end
-
-function in_bounds_x(x)
-	return in_range(1,m,x)
-end
-
-function in_bounds_y(y)
-	return in_range(1,n,y)
-end
-
-// wrappers for cell functions.
-// only perform function if
-// position is in bounds.
-function cell_do(x,y,f)
-	if in_bounds_x(x) and
-	   in_bounds_y(y) then
-		f(x,y)
-	end
-end
-
-function cell_do_area(x1,x2,
-                      y1,y2,f)
-	for i=x1,x2 do
-		for j=y1,y2 do
-			cell_do(i,j,f)
-		end
-	end
-end
-
-function cell_do_adj(x,y,f)
-	cell_do_area(x-1,x+1,y-1,y+1,f)
-end
-
-function cell_do_all(f)
-	cell_do_area(1,m,1,n,f)
 end
 
 // guarantees first open

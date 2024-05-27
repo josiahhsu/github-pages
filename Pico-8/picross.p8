@@ -1,10 +1,13 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
+#include shared/cellhelpers.p8
+
 function _init()
 	cls()
 	total = 0
 	n = 10
+	set_bounds(n,n,true)
 	grid = make_grid()
 	px,py = 1,1
 	mistakes = 0
@@ -37,12 +40,15 @@ function make_grid()
 	local grid = {}
 	for i = 1, n do
 		grid[i] = {}
-		for j = 1, n do
-			local cell = make_cell()
-			grid[i][j] = cell
-			total += cell.value
-		end
 	end
+	
+	cell_do_all(
+	function(x,y)
+		local cell = make_cell()
+		grid[x][y] = cell
+		total += cell.value
+	end
+	)
 
 	// make sure grid has good
 	// amount of cells
@@ -74,16 +80,14 @@ function controls()
 end
 
 function move_horz(dx)
-	local x = px+dx
-	if x <= n and x>=1 then
-		px = x
+	if in_bounds_x(px+dx) then
+		px += dx
 	end
 end
 
 function move_vert(dy)
-	local y = py+dy
-	if y <= n and y>=1 then
-		py = y
+	if in_bounds_y(py+dy) then
+		py += dy
 	end
 end
 
@@ -99,16 +103,12 @@ function reveal_cell(cell,value)
 		if cell.value == 1 then
 			total -= 1
 			if total == 0 then
-				reveal_all()
+				cell_do_all(
+				function(x,y)
+					grid[x][y].revealed = true
+				end
+				)
 			end
-		end
-	end
-end
-
-function reveal_all()
-	for i = 1, n do
-		for j = 1, n do
-			grid[i][j].revealed = true
 		end
 	end
 end
