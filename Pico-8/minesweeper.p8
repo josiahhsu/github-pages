@@ -120,16 +120,12 @@ function in_bounds_y(y)
 	return in_range(1,n,y)
 end
 
-function in_bounds(x,y)
-	return in_bounds_x(x) and
-	       in_bounds_y(y)
-end
-
 // wrappers for cell functions.
 // only perform function if
 // position is in bounds.
 function cell_do(x,y,f)
-	if in_bounds(x,y) then
+	if in_bounds_x(x) and
+	   in_bounds_y(y) then
 		f(x,y)
 	end
 end
