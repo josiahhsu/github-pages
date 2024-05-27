@@ -82,11 +82,7 @@ function make_bomb(cell)
 				draw_grid()
 			end
 			wait(1)
-			cell_do_adj(c,r, 
-			function(i,j)
-				clear_cell(get_cell(i,j))
-			end
-			)
+			cell_do_adj(c,r,clear)
 		end
 		make_plain(cell)
 	end
@@ -116,10 +112,8 @@ function make_lightning(cell)
 				draw_grid()
 			end
 
-			for i = 1, size do
-				clear_cell(get_cell(i,r))
-				clear_cell(get_cell(c,i))
-			end
+			cell_do_lane(r,true,clear)
+			cell_do_lane(c,false,clear)
 		end
 		make_plain(cell)
 	end
@@ -154,15 +148,16 @@ function init_grid()
 	//at the start of the game
 	removedwild = false
 	while clear_cells()!=0 do end
-	for i = 1, size do
-		for j = 1, size do
-			make_plain(get_cell(i,j))
-			if get_cell(i,j).color==0 then
-				get_cell(i,j).color = 1
-				removedwild = true
-			end
+	
+	cell_do_all(
+	function(x,y)
+		make_plain(get_cell(x,y))
+		if get_cell(x,y).color==0 then
+			get_cell(x,y).color = 1
+			removedwild = true
 		end
 	end
+	)
 
 	if removedwild then
 		init_grid()
@@ -191,11 +186,7 @@ function draw_grid()
 	//displays the board
 	rectfill(0,0,128,128,1)
 	rectfill(9,14,117,122,15)
-	for i = 1, size do
-		for j = 1, size do
-			draw_cell(get_cell(i,j),i,j)
-		end
-	end
+	cell_do_all(draw_cell)
 	print("score: "..score,9,2,6)
 end
 
@@ -223,8 +214,9 @@ function update_grid()
 	return p
 end
 
-function draw_cell(cell)
+function draw_cell(x,y)
 	//displays one cell
+	local cell = get_cell(x,y)
 	if not cell.clear then
 		local x = cell.x*9+1
 		local y = cell.y*9+6
@@ -361,6 +353,10 @@ function match(c1, c2)
 	return c != 0 and c != 128
 end
 
+function clear(x,y)
+	clear_cell(get_cell(x,y))
+end
+
 function clear_cell(c)
 	//clears normal cells, adds
 	//special cells to table
@@ -413,22 +409,23 @@ function clear_cells()
 		draw_grid()
 		wait(5)
 	end
-
-	for c = 1, size do
-		for r = 1, size do
-			if get_cell(c,r).clear then
-				//swaps cleared cell to top
-				//and replaces it - "drop"
-				cleared += 1
-				for j = r, 2, -1 do
-					local c1 = get_cell(c,j)
-					local c2 = get_cell(c,j-1)
-					swap(c1,c2)
-				end
-				set_cell(c,1,make_cell(c,1))
+	
+	cell_do_all(
+	function(x,y)
+		if get_cell(x,y).clear then
+			//swaps cleared cell to top
+			//and replaces it - "drop"
+			cleared += 1
+			for j = y, 2, -1 do
+				local c1 = get_cell(x,j)
+				local c2 = get_cell(x,j-1)
+				swap(c1,c2)
 			end
+			set_cell(x,1,make_cell(x,1))
 		end
 	end
+	)
+	
 	return cleared
 end
 
@@ -522,16 +519,16 @@ function wildcard(c1,c2)
 	//clear all colors matching c2
 	local c = c2.color
 	local cells = {}
-	for i = 1, size do
-		for j = 1, size do
-			local cell = get_cell(i,j)
-			if match(cell.color,c) then
-				cell.color-=cell.color%16
-				add(cells, cell)
-				draw_cell(cell)
-			end
+	cell_do_all(
+	function(x,y)
+		local cell = get_cell(x,y)
+		if match(cell.color,c) then
+			cell.color-=cell.color%16
+			add(cells, cell)
+			draw_cell(x,y)
 		end
 	end
+	)
 
 	sfx(4)
 	wait(10)
@@ -543,11 +540,12 @@ end
 function clear_all()
 	//double wildcards -
 	//clears whole screen
-	for i = 1, size do
-		for j = 1, size do
-			get_cell(i,j).clear = true;
-		end
+	cell_do_all(
+	function(x,y)
+		get_cell(x,y).clear = true;
 	end
+	)
+	
 	sfx(3)
 	print("screen clear!",38,8,6)
 	for i = 0,10 do
