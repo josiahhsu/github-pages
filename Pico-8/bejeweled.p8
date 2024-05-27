@@ -82,16 +82,11 @@ function make_bomb(cell)
 				draw_grid()
 			end
 			wait(1)
-			for i = -1, 1 do
-				for j = -1, 1 do
-					local dc = c+i
-					local dr = r+j
-					if in_bounds_x(dc) and
-					   in_bounds_y(dr) then
-						clear_cell(get_cell(dc,dr))
-					end
-				end
+			cell_do_adj(c,r, 
+			function(i,j)
+				clear_cell(get_cell(i,j))
 			end
+			)
 		end
 		make_plain(cell)
 	end
