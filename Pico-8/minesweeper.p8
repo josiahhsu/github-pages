@@ -47,23 +47,20 @@ function shuffle(t)
 	end
 end
 
-function set_mines()
-	local t={}
-	for i=1, m*n do
-		t[i] = i<=mines
-	end
-
-	shuffle(t)
-	return t
-end
-
 function make_grid()
-	//makes grid of cells
-	local ms,grid = set_mines(),{}
+	// create array of cells and
+	// populate with mines
+	local cells,grid = {},{}
+	for i=1, m*n do
+		cells[i] = make_cell(i<=mines)
+	end
+	shuffle(cells)
+
+	// transform array into grid
 	for i = 1, m do
 		grid[i] = {}
 		for j = 1, n do
-			grid[i][j] = make_cell(deli(ms))
+			grid[i][j] = deli(cells)
 		end
 	end
 	return grid
