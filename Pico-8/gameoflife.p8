@@ -10,7 +10,7 @@ function _init()
 	grid = make_grid()
 
 	// player position
-	px,py = 0,0
+	px,py = 1,1
 
 	t = 0
 	dur = 10
@@ -46,7 +46,7 @@ function make_cell(x,y)
 		for i = x-1,x+1 do
 			for j = y-1,y+1 do
 				if not (i == x and j == y) and
-				   grid[i%m][j%n].spr == 1 then
+				   grid[mod(i,m)][mod(j,n)].spr == 1 then
 					cnt += 1
 				end
 			end
@@ -66,7 +66,7 @@ end
 function make_grid()
 	// init grid
 	local grid = {}
-	for i = 0,m-1 do
+	for i = 1,m do
 		grid[i] = {}
 	end
 	
@@ -99,17 +99,23 @@ function controls()
 	end
 end
 
+// mod but adjusted for
+// 1-based indexing
+function mod(v,d)
+	return (v-1)%d+1
+end
+
 function move_horz(dx)
-	px = (px+dx)%m
+	px = mod(px+dx,m)
 end
 
 function move_vert(dy)
-	py = (py+dy)%n
+	py = mod(py+dy,n)
 end
 
 function cell_do_all(f)
-	for i=0,m-1 do
-		for j=0,n-1 do
+	for i=1,m do
+		for j=1,n do
 			f(i,j)
 		end
 	end
@@ -119,7 +125,7 @@ end
 function coords(x,y)
 	//translates value to partial
 	//position on grid
-	return x*7,(y+1)*7+18
+	return (x-1)*7,y*7+18
 end
 
 function draw_stats()
