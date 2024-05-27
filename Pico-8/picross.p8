@@ -173,29 +173,30 @@ function draw_nums()
 end
 -->8
 function count_nums(l,isrow)
-	//gets nth cell within a line
-	local function get(n)
-		if isrow then
-			return get_cell(n,l)
-		else
-			return get_cell(l,n)
-		end
-	end
-	
 	local cnt,nums = 0,{}
-	for i = 1,n do
-		local v = get(i).value
-		cnt += v
-		if v == 0 then
-			if cnt > 0 then
-				add(nums,cnt,1)
-			end
+	
+	function addnz(v)
+		if cnt > 0 then
+			add(nums,cnt,1)
 			cnt = 0
 		end
 	end
-	if cnt != 0 then
-		add(nums,cnt,1)
+	
+	function do_count(x,y)
+		local v = get_cell(x,y).value
+		cnt += v
+		if v == 0 then
+			addnz(v)
+		end
 	end
+	
+	if isrow then
+		cell_do_area(1,n,l,l,do_count)
+	else
+		cell_do_area(l,l,1,n,do_count)
+	end
+	
+	addnz(v)
 	return nums
 end
 __label__
