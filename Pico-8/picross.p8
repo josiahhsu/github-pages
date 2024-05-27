@@ -6,8 +6,7 @@ function _init()
 	total = 0
 	n = 10
 	grid = make_grid()
-	px = 1
-	py = 1
+	px,py = 1,1
 	mistakes = 0
 end
 
@@ -123,8 +122,7 @@ end
 function draw_cell(x,y)
 	//draws cells on grid
 	local cell = grid[x][y]
-	x = coords(x)
-	y = coords(y)
+	x,y = coords(x),coords(y)
 	//dictates how cell is drawn
 	if cell.revealed then
 		local c = 1 + cell.value * 10
@@ -158,8 +156,7 @@ end
 
 function draw_pointer(x,y)
 	//draws pointer position
-	x = coords(x)
-	y = coords(y)
+	x,y = coords(x),coords(y)
 	rect(0,y-1,128,y+5,6)
 	rect(x-1,0,x+5,128,6)
 	rect(x,y,x+4,y+4,9)
@@ -167,11 +164,12 @@ end
 
 function draw_nums()
 	for i = 1, n do
-		local row = count_nums(i, true)
-		local col = count_nums(i, false)
+		local row = count_nums(i,true)
 		for j = 1, #row do
 			print(row[j],49-j*7,48+i*7,5)
 		end
+		
+		local col = count_nums(i,false)
 		for j = 1, #col do
 			print(col[j],49+7*i,53-j*7,5)
 		end
@@ -188,9 +186,7 @@ function count_nums(l,isrow)
 		end
 	end
 	
-	local cnt = 0
-	local p = 1
-	local nums = {}
+	local cnt,p,nums = 0,1,{}
 	for i = n, 1, -1 do
 		local v = get_cell(i).value
 		cnt += v
