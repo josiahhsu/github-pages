@@ -49,6 +49,14 @@ function cell_do_area(x1,x2,
 	end
 end
 
+function cell_do_lane(l,isrow,f)
+	if isrow then
+		cell_do_area(1,_bx,l,l,f)
+	else
+		cell_do_area(l,l,1,_bx,f)
+	end
+end
+
 function cell_do_adj(x,y,f)
 	cell_do_area(x-1,x+1,y-1,y+1,f)
 end

@@ -182,19 +182,14 @@ function count_nums(l,isrow)
 		end
 	end
 	
-	function do_count(x,y)
+	cell_do_lane(l,isrow,
+	function(x,y)
 		local v = get_cell(x,y).value
 		cnt += v
 		if v == 0 then
 			addnz(v)
 		end
-	end
-	
-	if isrow then
-		cell_do_area(1,n,l,l,do_count)
-	else
-		cell_do_area(l,l,1,n,do_count)
-	end
+	end)
 	
 	addnz(v)
 	return nums
