@@ -435,8 +435,7 @@ function check_lines(l)
 	local cleared = false
 	
 	for isrow = 0, 1 do
-		local s = 1 //start index
-		local e = 1 //end index
+		local cells = {}
 		local cl = -1 //stored color
 		
 		//gets nth cell within a line
@@ -451,15 +450,15 @@ function check_lines(l)
 		local function check_match()
 			//marks given col from
 			//start index to end index
-			local cnt = e-s
-			if cnt >= 2 then
+			local cnt = #cells
+			if cnt >= 3 then
 				cleared = true
 				// get middle of match for
 				// setting special cells
-				local sp = s+flr(cnt/2)
-				local special = get(sp)
-				for j = s, e do
-					local jcell = get(j)
+				local sp = flr(cnt/2)
+				local special = cells[sp]
+				for j = 1, cnt do
+					local jcell = cells[j]
 					// priority for moved cells
 					// to become special
 					if jcell == ps or
@@ -478,9 +477,9 @@ function check_lines(l)
 				
 				// generate special cells
 				// based on match length
-				if cnt == 3 then
+				if cnt == 4 then
 					add(bombs, special)
-				elseif cnt > 3 then
+				elseif cnt > 4 then
 					add(wilds, special)
 				end
 			end
@@ -488,14 +487,12 @@ function check_lines(l)
 		
 		for i = 1, size do
 			local cell = get(i)
-			if match(cell.color,cl) then
-				e += 1
-			else
+			if not match(cell.color,cl) then
 				check_match()
+				cells = {}
 				cl = cell.color
-				s = i
-				e = s
 			end
+			add(cells,cell)
 		end
 		// check at end
 		check_match()
