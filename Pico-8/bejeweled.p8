@@ -438,15 +438,6 @@ function check_lines(l)
 		local cells = {}
 		local cl = -1 //stored color
 		
-		//gets nth cell within a line
-		local function get(n)
-			if isrow == 0 then
-				return get_cell(l,n)
-			else
-				return get_cell(n,l)
-			end
-		end
-		
 		local function check_match()
 			//marks given col from
 			//start index to end index
@@ -462,7 +453,7 @@ function check_lines(l)
 					// priority for moved cells
 					// to become special
 					if jcell == ps or
-								jcell == pm then
+					   jcell == pm then
 						special = jcell
 					end
 					
@@ -485,8 +476,9 @@ function check_lines(l)
 			end
 		end
 		
-		for i = 1, size do
-			local cell = get(i)
+		cell_do_lane(l,isrow==0,
+		function(x,y)
+			local cell = get_cell(x,y)
 			if not match(cell.color,cl) then
 				check_match()
 				cells = {}
@@ -494,6 +486,7 @@ function check_lines(l)
 			end
 			add(cells,cell)
 		end
+		)
 		// check at end
 		check_match()
 	end
