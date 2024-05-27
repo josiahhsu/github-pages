@@ -182,20 +182,19 @@ function count_nums(l,isrow)
 		end
 	end
 	
-	local cnt,p,nums = 0,1,{}
-	for i = n, 1, -1 do
+	local cnt,nums = 0,{}
+	for i = 1,n do
 		local v = get(i).value
 		cnt += v
 		if v == 0 then
 			if cnt > 0 then
-				nums[p] = cnt
-				p+=1
+				add(nums,cnt,1)
 			end
 			cnt = 0
 		end
 	end
 	if cnt != 0 then
-		nums[p] = cnt
+		add(nums,cnt,1)
 	end
 	return nums
 end
