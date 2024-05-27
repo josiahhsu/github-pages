@@ -161,14 +161,14 @@ end
 function shuffle()
 	//shuffles the board while
 	//keeping current tiles
-	for c = 1, size do
-		for r = 1, size do
-			local x = ceil(rnd(size))
-			local y = ceil(rnd(size))
-			swap(get_cell(c,r),
-			     get_cell(x,y))
-		end
+	cell_do_all(
+	function(x,y)
+		local x2 = ceil(rnd(size))
+		local y2 = ceil(rnd(size))
+		swap(get_cell(x,y),
+		     get_cell(x2,y2))
 	end
+	)
 	screen.draw_screen()
 	update_grid()
 end
@@ -179,11 +179,7 @@ function draw_grid()
 	rectfill(9,6,117,122,15)
 	rectfill(9,49,117,122,13)
 	rect(9,59,72,122,6)
-	for i = 1, size do
-		for j = 1, size do
-			draw_cell(get_cell(i,j),i,j)
-		end
-	end
+	cell_do_all(draw_cell)
 end
 
 function update_grid()
@@ -199,8 +195,9 @@ function update_grid()
 	return chain
 end
 
-function draw_cell(cell)
+function draw_cell(x,y)
 	//displays one cell
+	local cell = get_cell(x,y)
 	if not cell.clear then
 		local x = cell.x*9+1
 		local y = cell.y*9+51
@@ -400,21 +397,20 @@ function clear_cells()
 	//were cleared
 	cleared = 0
 
-	for c = 1, size do
-		for r = 1, size do
-			if get_cell(c,r).clear then
-				//swaps cleared cell to top
-				//and replaces it - "drop"
-				cleared += 1
-				for j = r, 2, -1 do
-					
-					swap(get_cell(c,j),
-					     get_cell(c,j-1))
-				end
-				set_cell(c,1,make_cell(c,1))
+	cell_do_all(
+	function(x,y)
+		if get_cell(x,y).clear then
+			//swaps cleared cell to top
+			//and replaces it - "drop"
+			cleared += 1
+			for j = y, 2, -1 do
+				swap(get_cell(x,j),
+				     get_cell(x,j-1))
 			end
+			set_cell(x,1,make_cell(x,1))
 		end
 	end
+	)
 	return cleared
 end
 
@@ -422,50 +418,45 @@ function check_lines(l)
 	//checks for 3 or more
 	//matches in a line
 	local cleared = false
-
+	
 	for isrow = 0, 1 do
-		local s = 1 //start index
-		local e = 1 //end index
+		local cells = {}
 		local cl = -1 //stored color
-
-		//gets nth cell within a line
-		local function get(n)
-			if isrow == 0 then
-				return get_cell(l,n)
-			else
-				return get_cell(n,l)
-			end
-		end
-
-		for i = 1, size do
-			local cell = get(i)
-			local m = match(cell.color,cl)
-			if m then
-				e += 1
-			end
-			if not m or i == size then
-				//marks given col from
-				//start index to end index
-				local cnt = e-s
-				if cnt >= 2 then
-					cleared = true
-					for j = s, e do
-						get(j).clear_cell()
-					end
-
-					//apply multiplier
-					for j = 1, #tmp do
-						local ml = ((cnt-2)*.5)+1
-						local s = tmp[j]*max(ml,1)
-						stats[j]+=round(s)
-						tmp[j] = 0
-					end
+		
+		local function check_match()
+			//marks given col from
+			//start index to end index
+			local cnt = #cells
+			if cnt >= 3 then
+				cleared = true
+				for j = 1, cnt do
+					cells[j].clear_cell()
 				end
-				cl = cell.color
-				s = i
-				e = s
+				
+				//apply multiplier
+				for j = 1, #tmp do
+					local ml = ((cnt-3)*.5)+1
+					local s = tmp[j]*max(ml,1)
+					stats[j]+=round(s)
+					tmp[j] = 0
+				end
 			end
 		end
+		
+		cell_do_lane(l,isrow==0,
+		function(x,y)
+			local cell = get_cell(x,y)
+			local m = match(cell.color,cl)
+			if not match(cell.color,cl) then
+				check_match()
+				cells = {}
+				cl = cell.color
+			end
+			add(cells,cell)
+		end
+		)
+		//check at end
+		check_match()
 	end
 	return cleared
 end
