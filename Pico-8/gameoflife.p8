@@ -1,16 +1,14 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
-#include shared/cellhelpers.p8
+#include shared/gridhelpers.p8
 
 function _init()
 	cls()
 
 	// grid size and # of mines
 	m,n = 18,14
-	set_bounds(m,n,false)
-
-	grid = make_grid()
+	set_grid(make_grid(),false)
 
 	// player position
 	px,py = 1,1
@@ -49,7 +47,8 @@ function make_cell(x,y)
 		cell_do_adj(x,y,
 		function(i,j)
 			if not (i == x and j == y) and
-			   grid[mod(i,m)][mod(j,n)].spr == 1 then
+			   get_cell(mod(i,m),
+			            mod(j,n)).spr == 1 then
 				cnt += 1
 			end
 		end
@@ -71,14 +70,11 @@ function make_grid()
 	local grid = {}
 	for i = 1,m do
 		grid[i] = {}
+		for j = 1,n do
+			grid[i][j] = make_cell(i,j)
+		end
 	end
 	
-	// populate grid with cells
-	cell_do_all(
-	function(x,y)
-		grid[x][y] = make_cell(x,y)
-	end
-	)
 	return grid
 end
 -->8
@@ -143,7 +139,7 @@ function draw_grid()
 	function(x,y)
 		//draws cells on grid
 		local sx,sy = coords(x,y)
-		spr(grid[x][y].spr,sx,sy)
+		spr(get_cell(x,y).spr,sx,sy)
 	end
 	)
 end
@@ -192,7 +188,7 @@ function edit_state()
 	end
 
 	function s.o()
-		grid[px][py].toggle()
+		get_cell(px,py).toggle()
 	end
 
 	function s.x()
@@ -214,13 +210,13 @@ function play_state()
 			t = 0
 			cell_do_all(
 			function(x,y)
-				grid[x][y].update()
+				get_cell(x,y).update()
 			end
 			)
 			
 			cell_do_all(
 			function(x,y)
-				grid[x][y].transition()
+				get_cell(x,y).transition()
 			end
 			)
 		end

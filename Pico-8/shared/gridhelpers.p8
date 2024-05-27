@@ -4,10 +4,16 @@ __lua__
 // defines boundaries to check.
 // set_bounds must be called.
 
-_bx,_by,_enforce=nil,nil,nil
+_grid,_bx,_by,_enforce =
+ nil,nil,nil,nil
 
-function set_bounds(x,y,enforce)
-	_bx,_by,_enforce=x,y,enforce
+function set_grid(grid,enforce)
+	_grid,_bx,_by,_enforce =
+	 grid, #grid, #grid[1],enforce
+end
+
+function get_cell(x,y)
+	return _grid[x][y]
 end
 
 function in_range(s,e,v)

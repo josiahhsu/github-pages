@@ -1,19 +1,17 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
-#include shared/cellhelpers.p8
+#include shared/gridhelpers.p8
 
 function _init()
 	cls()
 
 	// grid size and # of mines
 	m,n,mines = 18,14,40
-	set_bounds(m,n,true)
+	set_grid(make_grid(),true)
 
 	// cells to open
 	remaining = m*n - mines
-
-	grid = make_grid()
 
 	// player position
 	px,py = 1,1
@@ -92,7 +90,7 @@ end
 // standard x button:
 // flag or reveal adjacent
 function x()
-	if grid[px][py].opened then
+	if get_cell(px,py).opened then
 		open_adjacent()
 	else
 		flag_cell()
@@ -119,7 +117,7 @@ function opening_move()
 
 	cell_do_all(
 	function(i,j)
-		local cell = grid[i][j]
+		local cell = get_cell(i,j)
 		if in_range(px-1,px+1,i) and
 		   in_range(py-1,py+1,j) then
 			// remove any mines in
@@ -149,7 +147,7 @@ function opening_move()
 end
 
 function open_cell(x,y)
-	local cell = grid[x][y]
+	local cell = get_cell(x,y)
 
 	// don't open flagged cells
 	// or already open cells
@@ -170,7 +168,7 @@ function open_cell(x,y)
 		
 		cell_do_adj(x,y,
 		function(i,j)
-			if grid[i][j].mine then
+			if get_cell(i,j).mine then
 				cnt += 1
 			end
 		end
@@ -195,19 +193,19 @@ function open_adjacent()
 
 	cell_do_adj(px,py,
 	function(i,j)
-		if grid[i][j].flagged then
+		if get_cell(i,j).flagged then
 			cnt += 1
 		end
 	end
 	)
 
-	if cnt == grid[px][py].spr then
+	if cnt == get_cell(px,py).spr then
 		cell_do_adj(px,py,open_cell)
 	end
 end
 
 function flag_cell()
-	local cell = grid[px][py]
+	local cell = get_cell(px,py)
 
 	// don't flag opened cells
 	if cell.opened then
@@ -225,7 +223,7 @@ function end_game(win)
 	// reveal all mine locations
 	cell_do_all(
 	function(x,y)
-		local cell = grid[x][y]
+		local cell = get_cell(x,y)
 		if cell.mine and
 		   not cell.flagged then
 			// flag mines if game won,
@@ -275,7 +273,7 @@ function draw_grid()
 	function(x,y)
 		//draws cells on grid
 		local sx,sy = coords(x,y)
-		spr(grid[x][y].spr,sx,sy)
+		spr(get_cell(x,y).spr,sx,sy)
 	end
 	)
 end

@@ -1,14 +1,13 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
-#include shared/cellhelpers.p8
+#include shared/gridhelpers.p8
 
 function _init()
 	cls()
 	total = 0
 	n = 10
-	set_bounds(n,n,true)
-	grid = make_grid()
+	set_grid(make_grid(),true)
 	px,py = 1,1
 	mistakes = 0
 end
@@ -40,15 +39,12 @@ function make_grid()
 	local grid = {}
 	for i = 1, n do
 		grid[i] = {}
+		for j = 1, n do
+			local cell = make_cell()
+			grid[i][j] = cell
+			total += cell.value
+		end
 	end
-	
-	cell_do_all(
-	function(x,y)
-		local cell = make_cell()
-		grid[x][y] = cell
-		total += cell.value
-	end
-	)
 
 	// make sure grid has good
 	// amount of cells
@@ -71,7 +67,7 @@ function controls()
 		move_vert(1)
 	end
 
-	local cell = grid[px][py]
+	local cell = get_cell(px,py)
 	if btn(4) then
 		reveal_cell(cell,1)
 	elseif btn(5) then
@@ -105,7 +101,7 @@ function reveal_cell(cell,value)
 			if total == 0 then
 				cell_do_all(
 				function(x,y)
-					grid[x][y].revealed = true
+					get_cell(x,y).revealed = true
 				end
 				)
 			end
@@ -121,7 +117,7 @@ end
 
 function draw_cell(x,y)
 	//draws cells on grid
-	local cell = grid[x][y]
+	local cell = get_cell(x,y)
 	x,y = coords(x),coords(y)
 	//dictates how cell is drawn
 	if cell.revealed then
@@ -178,17 +174,17 @@ end
 -->8
 function count_nums(l,isrow)
 	//gets nth cell within a line
-	local function get_cell(n)
+	local function get(n)
 		if isrow then
-			return grid[n][l]
+			return get_cell(n,l)
 		else
-			return grid[l][n]
+			return get_cell(l,n)
 		end
 	end
 	
 	local cnt,p,nums = 0,1,{}
 	for i = n, 1, -1 do
-		local v = get_cell(i).value
+		local v = get(i).value
 		cnt += v
 		if v == 0 then
 			if cnt > 0 then
