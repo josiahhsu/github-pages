@@ -134,12 +134,8 @@ function cell_do(x,y,f)
 	end
 end
 
-function cell_do_adj(x,y,f)
-	cell_do_area({x-1,x+1,y-1,y+1},f)
-end
-
-function cell_do_area(a,f)
-	local x1,x2,y1,y2 = unpack(a)
+function cell_do_area(x1,x2,
+                      y1,y2,f)
 	for i=x1,x2 do
 		for j=y1,y2 do
 			cell_do(i,j,f)
@@ -147,8 +143,12 @@ function cell_do_area(a,f)
 	end
 end
 
+function cell_do_adj(x,y,f)
+	cell_do_area(x-1,x+1,y-1,y+1,f)
+end
+
 function cell_do_all(f)
-	cell_do_area({1,m,1,n},f)
+	cell_do_area(1,m,1,n,f)
 end
 
 // guarantees first open
