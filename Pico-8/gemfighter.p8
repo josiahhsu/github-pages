@@ -1,6 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
+#include shared/gridhelpers.p8
+
 function _init()
 	cls()
 	//player controls
@@ -22,7 +24,6 @@ function _init()
 
 	//grid
 	size = 7 //size of grid
-	grid = {}
 
 	//trackers
 	gameactive = false
@@ -152,7 +153,7 @@ end
 function init_grid()
 	//initializes the grid
 	//at the start of the game
-	grid = make_grid()
+	set_grid(make_grid(),true)
 	while clear_cells()!=0 do end
 	stats=init_stats()
 end
@@ -164,7 +165,8 @@ function shuffle()
 		for r = 1, size do
 			local x = ceil(rnd(size))
 			local y = ceil(rnd(size))
-			swap(grid[c][r],grid[x][y])
+			swap(get_cell(c,r),
+			     get_cell(x,y))
 		end
 	end
 	screen.draw_screen()
@@ -179,7 +181,7 @@ function draw_grid()
 	rect(9,59,72,122,6)
 	for i = 1, size do
 		for j = 1, size do
-			draw_cell(grid[i][j],i,j)
+			draw_cell(get_cell(i,j),i,j)
 		end
 	end
 end
@@ -322,8 +324,8 @@ function valid_move(x,y)
 	//checks to see if pointer
 	//movement is valid
 	local in_bounds =
-		x>=1 and x <= size and
-		y>=1 and y <= size
+		in_bounds_x(x) and
+		in_bounds_y(y)
 	//restricts movement to 1
 	//square if cell selected
 	if in_bounds and ps then
@@ -341,7 +343,7 @@ function swap_action()
 	//player initiated
 	//cell swap
 	sfx(0)
-	local c = grid[px][py]
+	local c = get_cell(px,py)
 	if ps == nil then
 		//stores a cell
 		ps = c
@@ -367,8 +369,7 @@ function swap(c1, c2)
 	//and updates their x/y coords
 	local x1, x2 = c1.x, c2.x
 	local y1, y2 = c1.y, c2.y
-	grid[x1][y1], grid[x2][y2] =
-	grid[x2][y2], grid[x1][y1]
+	swap_cells(x1,y1,x2,y2)
 	c1.x, c2.x = x2, x1
 	c1.y, c2.y = y2, y1
 end
@@ -401,15 +402,16 @@ function clear_cells()
 
 	for c = 1, size do
 		for r = 1, size do
-			if grid[c][r].clear then
+			if get_cell(c,r).clear then
 				//swaps cleared cell to top
 				//and replaces it - "drop"
 				cleared += 1
 				for j = r, 2, -1 do
-					swap(grid[c][j],
-					     grid[c][j-1])
+					
+					swap(get_cell(c,j),
+					     get_cell(c,j-1))
 				end
-				grid[c][1] = make_cell(c,1)
+				set_cell(c,1,make_cell(c,1))
 			end
 		end
 	end
@@ -427,16 +429,16 @@ function check_lines(l)
 		local cl = -1 //stored color
 
 		//gets nth cell within a line
-		local function get_cell(n)
+		local function get(n)
 			if isrow == 0 then
-				return grid[l][n]
+				return get_cell(l,n)
 			else
-				return grid[n][l]
+				return get_cell(n,l)
 			end
 		end
 
 		for i = 1, size do
-			local cell = get_cell(i)
+			local cell = get(i)
 			local m = match(cell.color,cl)
 			if m then
 				e += 1
@@ -448,7 +450,7 @@ function check_lines(l)
 				if cnt >= 2 then
 					cleared = true
 					for j = s, e do
-						get_cell(j).clear_cell()
+						get(j).clear_cell()
 					end
 
 					//apply multiplier
