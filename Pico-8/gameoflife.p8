@@ -64,14 +64,18 @@ function make_cell(x,y)
 end
 
 function make_grid()
-	//makes grid of cells
+	// init grid
 	local grid = {}
 	for i = 0,m-1 do
 		grid[i] = {}
-		for j = 0,n-1 do
-			grid[i][j] = make_cell(i,j)
-		end
 	end
+	
+	// populate grid with cells
+	cell_do_all(
+	function(x,y)
+		grid[x][y] = make_cell(x,y)
+	end
+	)
 	return grid
 end
 -->8
