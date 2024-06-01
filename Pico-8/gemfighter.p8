@@ -2,7 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 #include shared/gridhelpers.p8
-#include shared/math.p8
+#include shared/math.p8:0
 
 function _init()
 	cls()
