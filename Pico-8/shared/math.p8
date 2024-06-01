@@ -3,10 +3,7 @@ version 41
 __lua__
 function round(v)
 	local f = flr(v)
-	if v - f >= .5 then
-		return ceil(v)
-	end
-	return f
+	return v-f < 0.5 and f or ceil(v)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
