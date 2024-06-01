@@ -446,7 +446,7 @@ function check_lines(l)
 				cleared = true
 				// get middle of match for
 				// setting special cells
-				local sp = flr(cnt/2)
+				local sp = cnt\2+1
 				local special = cells[sp]
 				for j = 1, cnt do
 					local jcell = cells[j]
