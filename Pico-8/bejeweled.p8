@@ -250,14 +250,9 @@ function controls()
 end
 
 function move_pointer(dx,dy)
-	//moves the pointer
-	local x = px + dx
-	local y = py + dy
-
-	//keeps in bounds
-	if valid_move(x,y) then
-		px = x
-		py = y
+	if valid_move(px+dx,py+dy) then
+		px += dx
+		py += dy
 		sfx(0)
 	end
 end
