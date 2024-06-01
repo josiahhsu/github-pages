@@ -113,13 +113,13 @@ end
 function clear_blocks()
 	//checks if row is full
 	for r = 0,14 do
-		local cnt = 0
+		// treat as full until
+		// the first empty cell
+		local full = true
 		for c = 3,12 do
-			if is_solid(c,r) then
-				cnt += 1
-			end
+			full = full and is_solid(c,r)
 		end
-		if cnt == 10 then
+		if full then
 		//shift rows down
 			sfx(1)
 			lines += 1
