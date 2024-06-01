@@ -22,7 +22,7 @@ end
 
 function swap_cells(x1,y1,x2,y2)
 	_grid[x1][y1],_grid[x2][y2] =
-	_grid[x2][y2],_grid[x1][y1]
+	get_cell(x2,y2),get_cell(x1,y1)
 end
 
 function in_range(s,e,v)
