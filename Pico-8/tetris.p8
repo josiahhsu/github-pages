@@ -11,7 +11,7 @@ function _init()
 	interval = 30
 	bag = make_bag()
 	pos = choose_piece()
-	piece = make_piece()
+	piece = get_piece()
 	game_over = false
 end
 
@@ -88,7 +88,7 @@ function lock_blocks()
 	end
 	sfx(0)
 	clear_blocks()
-	piece = make_piece()
+	piece = get_piece()
 end
 
 function is_solid(x,y)
@@ -164,7 +164,7 @@ function hard_drop()
 	lock_blocks()
 end
 -->8
-function make_piece()
+function get_piece()
 	if pos == 'i' then
 		p = make_i()
 	elseif pos == 't' then
@@ -264,74 +264,83 @@ function round(x)
 end
 
 -->8
-function make_i()
-	p = {make_block(8,0),
-	     make_block(8,1),
-	     make_block(8,-2),
-	     make_block(8,-1)}
-	set_color(p,3)
-	return p
-end
-
-function make_j()
-	p = {make_block(8,0),
-	     make_block(7,1),
-	     make_block(8,-1),
-	     make_block(8,1)}
-	set_color(p,4)
-	return p
-end
-
-function make_l()
-	p = {make_block(8,0),
-	     make_block(9,1),
-	     make_block(8,-1),
-	     make_block(8,1)}
-	set_color(p,5)
-	return p
-end
-
-function make_z()
-p = {make_block(7,0),
-	    make_block(7,1),
-	    make_block(8,0),
-	    make_block(8,-1)}
-	set_color(p,6)
-	return p
-end
-
-function make_s()
-	p = {make_block(8,0),
-	     make_block(8,1),
-	     make_block(7,0),
-	     make_block(7,-1)}
-	set_color(p,7)
-	return p
-end
-
-function make_t()
-	p = {make_block(8,0),
-	     make_block(8,1),
-	     make_block(7,0),
-	     make_block(8,-1)}
-	set_color(p,8)
-	return p
-end
-
-function make_o()
-	p = {make_block(8,0),
-	     make_block(9,0),
-	     make_block(8,1),
-	     make_block(9,1)}
-	set_color(p,9)
-	return p
-end
-
 function set_color(p,c)
-	//sets color of blocks
+	//sets color of all blocks
+	//in a piece
 	for i in all(p) do
 		i.spr = c
 	end
+end
+
+function make_piece(ax,ay,
+                    bx,by,
+                    cx,cy,
+                    dx,dy,
+                    c)
+	// a,b,c,d are the four
+	// blocks that make a piece.
+	local p = {make_block(ax,ay),
+	           make_block(bx,by),
+	           make_block(cx,cy),
+	           make_block(dx,dy)}
+	set_color(p,c)
+	return p
+end
+
+function make_i()
+	return make_piece(8,0,
+	                  8,1,
+	                  8,-2,
+	                  8,-1,
+	                  3)
+end
+
+function make_j()
+	return make_piece(8,0,
+	                  7,1,
+	                  8,-1,
+	                  8,1,
+	                  4)
+end
+
+function make_l()
+	return make_piece(8,0,
+	                  9,1,
+	                  8,-1,
+	                  8,1,
+	                  5)
+end
+
+function make_z()
+	return make_piece(7,0,
+	                  7,1,
+	                  8,0,
+	                  8,-1,
+	                  6)
+end
+
+function make_s()
+	return make_piece(8,0,
+	                  8,1,
+	                  7,0,
+	                  7,-1,
+	                  7)
+end
+
+function make_t()
+	return make_piece(8,0,
+	                  8,1,
+	                  7,0,
+	                  8,-1,
+	                  8)
+end
+
+function make_o()
+	return make_piece(8,0,
+	                  9,0,
+	                  8,1,
+	                  9,1,
+	                  9)
 end
 
 function draw_next()
