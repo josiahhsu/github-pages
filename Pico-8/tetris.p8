@@ -20,14 +20,16 @@ function _update()
 		t += 1
 		controls()
 		if t % interval == 0 then
-			drop_blocks() end
+			drop_blocks()
+		end
 	end
 end
 
 function _draw()
 	map(0,0,0,0,16,16)
 	for b in all(blocks) do
-		spr(b.spr,b.x,b.y) end
+		spr(b.spr,b.x,b.y)
+	end
 	draw_next()
 	print('lines:',105,1,0)
 	print(lines,105,9)
@@ -81,12 +83,8 @@ function lock_blocks()
 	piece = make_piece()
 end
 
-function check_block(x,y)
-	//returns true if
-	//block is in wall
-	if fget(mget(x,y)) == 1 then
-		return true end
-	return false
+function is_solid(x,y)
+	return fget(mget(x,y)) == 1
 end
 
 function check_piece(bx,by)
@@ -95,8 +93,9 @@ function check_piece(bx,by)
 	for b in all(blocks) do
 		local x = b.x/8 + bx
 		local y = b.y/8 + by
-		if check_block(x,y) then
-			return false end
+		if is_solid(x,y) then
+			return false
+		end
 	end
 	return true
 end
@@ -106,8 +105,9 @@ function clear_blocks()
 	for r = 0,14 do
 		local cnt = 0
 		for c = 3,12 do
-			if fget(mget(c,r)) == 1 then
-				cnt += 1 end
+			if is_solid(c,r) then
+				cnt += 1
+			end
 		end
 		if cnt == 10 then
 		//shift rows down
@@ -115,7 +115,8 @@ function clear_blocks()
 			lines += 1
 			for i = r,1,-1 do
 				for j = 3, 12 do
-					mset(j,i,mget(j,i-1)) end
+					mset(j,i,mget(j,i-1))
+				end
 			end
 			//adjust interval
 			//every 25 lines
@@ -131,17 +132,23 @@ end
 -->8
 function controls()
 	if btnp(0) then //left
-		move_blocks(-1) end
+		move_blocks(-1)
+	end
 	if btnp(1) then //right
-		move_blocks(1) end
-	if btnp(2) then //hard droo
-		hard_drop() end
+		move_blocks(1)
+	end
+	if btnp(2) then //hard drop
+		hard_drop()
+	end
 	if btn(3) then //down
-		drop_blocks() end
+		drop_blocks()
+	end
 	if btnp(4) then //c-clockwise
-		rotate(.25) end
+		rotate(.25)
+	end
 	if btnp(5) then //clockwise
-		rotate(-.25) end
+		rotate(-.25)
+	end
 end
 
 function hard_drop()
@@ -177,8 +184,9 @@ function make_piece()
 		sfx(3)
 		for r = 0,14 do
 			for c = 3, 12 do
-				if fget(mget(c,r)) == 1 then
-					mset(c,r,10) end
+				if check_block(c,r) then
+					mset(c,r,10)
+				end
 			end
 		end
 		game_over = true
@@ -190,7 +198,8 @@ end
 function choose_piece()
 	//refresh bag if empty
 	if #bag == 0 then
-		bag = make_bag() end
+		bag = make_bag()
+	end
 
 	//selects next piece from bag
 	return bag[ceil(rnd(#bag))]
@@ -206,9 +215,7 @@ function rotate(d)
 	//rotates based on direction
 	if can_rotate(d) then
 		for b in all(blocks) do
-			local coords = r_coords(b,d)
-			b.x = coords[1]
-			b.y = coords[2]
+			b.x, b.y = unpack(r_coords(b,d))
 		end
 	end
 end
@@ -217,12 +224,13 @@ function can_rotate(d)
 	for b in all(blocks) do
 		//prevents square rotation
 		if b.spr == 9 then
-			return false end
+			return false
+		end
 		//checks map coords
-		local x = r_coords(b,d)[1]/8
-		local y = r_coords(b,d)[2]/8
-		if check_block(x,y) then
-			return false end
+		local x,y = unpack(r_coords(b,d))
+		if is_solid(x/8,y/8) then
+			return false
+		end
 	end
 	return true
 end
@@ -244,7 +252,8 @@ end
 function round(x)
 	//rounding function
 	if x-flr(x) < ceil(x)-x then
-		return flr(x) end
+		return flr(x)
+	end
 	return ceil(x)
 end
 
