@@ -143,11 +143,7 @@ function draw_grid()
 	print("remaining:"..total,4,34,5)
 	print("mistakes:"..mistakes,4,40,5)
 	draw_nums()
-	for i = 1, n do
-		for j = 1, n do
-			draw_cell(i,j)
-		end
-	end
+	cell_do_all(draw_cell)
 end
 
 function draw_pointer(x,y)
