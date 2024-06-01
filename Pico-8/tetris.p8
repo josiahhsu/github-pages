@@ -218,7 +218,7 @@ function rotate(d)
 	//rotates based on direction
 	if can_rotate(d) then
 		for b in all(blocks) do
-			b.x, b.y = unpack(r_coords(b,d))
+			b.x, b.y = r_coords(b,d)
 		end
 	end
 end
@@ -230,7 +230,7 @@ function can_rotate(d)
 			return false
 		end
 		//checks map coords
-		local x,y = unpack(r_coords(b,d))
+		local x,y = r_coords(b,d)
 		if is_solid(x,y) then
 			return false
 		end
@@ -249,7 +249,7 @@ function r_coords(b,d)
 	local t = atan2(x,y)+d
 	local bx = round(r*cos(t))+cx
 	local by = round(r*sin(t))+cy
-	return {bx,by}
+	return bx,by
 end
 
 function round(i)

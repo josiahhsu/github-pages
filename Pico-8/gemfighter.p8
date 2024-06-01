@@ -196,14 +196,14 @@ function update_grid()
 end
 
 function coords(x,y)
-	return {x*9+1, y*9+51}
+	return x*9+1, y*9+51
 end
 
 function draw_cell(x,y)
 	//displays one cell
 	local cell = get_cell(x,y)
 	if not cell.clear then
-		spr(cell.color,unpack(coords(x,y)))
+		spr(cell.color,coords(x,y))
 	end
 end
 -->8
@@ -254,11 +254,9 @@ function grid_controls()
 	end
 
 	function t.draw_pointer()
-		spr(8,unpack(coords(px,py)))
+		spr(8,coords(px,py))
 		if ps then
-			local hx = ps.x*9+1
-			local hy = ps.y*9+51
-			spr(9,hx,hy)
+			spr(9,coords(ps.x,ps.y))
 		end
 	end
 	return t

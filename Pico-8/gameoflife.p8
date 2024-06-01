@@ -138,8 +138,7 @@ function draw_grid()
 	cell_do_all(
 	function(x,y)
 		//draws cells on grid
-		local sx,sy = coords(x,y)
-		spr(get_cell(x,y).spr,sx,sy)
+		spr(get_cell(x,y).spr,coords(x,y))
 	end
 	)
 end

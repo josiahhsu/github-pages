@@ -214,13 +214,15 @@ function update_grid()
 	return p
 end
 
+function coords(x,y)
+	return x*9+1,y*9+6
+end
+
 function draw_cell(x,y)
 	//displays one cell
 	local cell = get_cell(x,y)
 	if not cell.clear then
-		local x = cell.x*9+1
-		local y = cell.y*9+6
-		spr(cell.color,x,y)
+		spr(cell.color,coords(x,y))
 	end
 end
 -->8
@@ -281,13 +283,9 @@ end
 
 function draw_pointer()
 	//shows the pointer
-	local x = px*9+1
-	local y = py*9+6
-	spr(8,x,y)
+	spr(8,coords(px,py))
 	if ps then
-		local hx = ps.x*9+1
-		local hy = ps.y*9+6
-		spr(9,hx,hy)
+		spr(9,coords(ps.x,ps.y))
 	end
 end
 
