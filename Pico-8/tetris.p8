@@ -104,12 +104,12 @@ end
 function clear_blocks()
 	//checks if row is full
 	for r = 0,14 do
-		local count = 0
+		local cnt = 0
 		for c = 3,12 do
 			if fget(mget(c,r)) == 1 then
-				count += 1 end
+				cnt += 1 end
 		end
-		if count == 10 then
+		if cnt == 10 then
 		//shift rows down
 			sfx(1)
 			lines += 1
