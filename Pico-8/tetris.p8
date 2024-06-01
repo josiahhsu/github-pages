@@ -28,7 +28,7 @@ end
 function _draw()
 	map(0,1,0,0,16,16)
 	for b in all(blocks) do
-		spr(b.spr,b.x,b.y)
+		spr(b.spr,b.x*8,b.y*8)
 	end
 	draw_next()
 	print('lines:',105,1,0)
@@ -53,7 +53,7 @@ function move_blocks(bx)
 	if check_piece(bx,0) then
 		//moves in specified direction
 		for b in all(blocks) do
-			b.x = (b.x/8 + bx) * 8
+			b.x += bx
 		end
 	end
 end
@@ -62,7 +62,7 @@ function drop_blocks()
 	//checks if able to move down
 	if check_piece(0,1) then
 		for b in all(blocks) do
-			b.y = (b.y/8 + 1)*8
+			b.y += 1
 		end
 	else
 		lock_blocks()
@@ -83,9 +83,7 @@ function lock_blocks()
 	t = 0
 	//locks all blocks in place
 	for b in all(blocks) do
-		local x = b.x/8
-		local y = b.y/8
-		map_set(x,y,b.spr)
+		map_set(b.x,b.y,b.spr)
 		del(blocks, b)
 	end
 	sfx(0)
@@ -101,9 +99,7 @@ function check_piece(bx,by)
 	//returns true if pieces
 	//can move
 	for b in all(blocks) do
-		local x = b.x/8 + bx
-		local y = b.y/8 + by
-		if is_solid(x,y) then
+		if is_solid(b.x+bx,b.y+by) then
 			return false
 		end
 	end
@@ -238,7 +234,7 @@ function can_rotate(d)
 		end
 		//checks map coords
 		local x,y = unpack(r_coords(b,d))
-		if is_solid(x/8,y/8) then
+		if is_solid(x,y) then
 			return false
 		end
 	end
@@ -246,7 +242,7 @@ function can_rotate(d)
 end
 
 function r_coords(b,d)
-	//returns screen coords
+	//returns map coords
 	//of block after rotation
 	local cx = piece[1].x
 	local cy = piece[1].y
@@ -269,64 +265,64 @@ end
 
 -->8
 function make_i()
-	p = {make_block(64,0),
-	     make_block(64,8),
-	     make_block(64,-16),
-	     make_block(64,-8)}
+	p = {make_block(8,0),
+	     make_block(8,1),
+	     make_block(8,-2),
+	     make_block(8,-1)}
 	set_color(p,3)
 	return p
 end
 
 function make_j()
-	p = {make_block(64,0),
-	     make_block(56,8),
-	     make_block(64,-8),
-	     make_block(64,8)}
+	p = {make_block(8,0),
+	     make_block(7,1),
+	     make_block(8,-1),
+	     make_block(8,1)}
 	set_color(p,4)
 	return p
 end
 
 function make_l()
-	p = {make_block(64,0),
-	     make_block(72,8),
-	     make_block(64,-8),
-	     make_block(64,8)}
+	p = {make_block(8,0),
+	     make_block(9,1),
+	     make_block(8,-1),
+	     make_block(8,1)}
 	set_color(p,5)
 	return p
 end
 
 function make_z()
-p = {make_block(56,0),
-	    make_block(56,8),
-	    make_block(64,0),
-	    make_block(64,-8)}
+p = {make_block(7,0),
+	    make_block(7,1),
+	    make_block(8,0),
+	    make_block(8,-1)}
 	set_color(p,6)
 	return p
 end
 
 function make_s()
-	p = {make_block(64,0),
-	     make_block(64,8),
-	     make_block(56,0),
-	     make_block(56,-8)}
+	p = {make_block(8,0),
+	     make_block(8,1),
+	     make_block(7,0),
+	     make_block(7,-1)}
 	set_color(p,7)
 	return p
 end
 
 function make_t()
-	p = {make_block(64,0),
-	     make_block(64,8),
-	     make_block(56,0),
-	     make_block(64,-8)}
+	p = {make_block(8,0),
+	     make_block(8,1),
+	     make_block(7,0),
+	     make_block(8,-1)}
 	set_color(p,8)
 	return p
 end
 
 function make_o()
-	p = {make_block(64,0),
-	     make_block(72,0),
-	     make_block(64,8),
-	     make_block(72,8)}
+	p = {make_block(8,0),
+	     make_block(9,0),
+	     make_block(8,1),
+	     make_block(9,1)}
 	set_color(p,9)
 	return p
 end
