@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 #include shared/gridhelpers.p8
+#include shared/math.p8
 
 function _init()
 	cls()
@@ -63,14 +64,6 @@ function wait(t)
 		flip()
 		timer()
 	end
-end
-
-function round(i)
-	local f = flr(i)
-	if i - f >= .5 then
-		return ceil(i)
-	end
-	return f
 end
 
 function timer()

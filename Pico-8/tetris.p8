@@ -1,6 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
+#include shared/math.p8
+
 function _init()
 	cls()
 	music(0,1)
@@ -250,14 +252,6 @@ function r_coords(b,d)
 	local bx = round(r*cos(t))+cx
 	local by = round(r*sin(t))+cy
 	return bx,by
-end
-
-function round(i)
-	local f = flr(i)
-	if i - f >= .5 then
-		return ceil(i)
-	end
-	return f
 end
 
 -->8
