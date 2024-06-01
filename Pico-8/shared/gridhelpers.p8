@@ -30,21 +30,20 @@ function in_range(s,e,v)
 end
 
 function in_bounds_x(x)
-	return not _enforce or
-	       in_range(1,_bx,x)
+	return in_range(1,_bx,x)
 end
 
 function in_bounds_y(y)
-	return not _enforce or
-	       in_range(1,_by,y)
+	return in_range(1,_by,y)
 end
 -->8
 // wrappers for cell functions.
 // only perform function if
 // position is in bounds.
 function cell_do(x,y,f)
-	if in_bounds_x(x) and
-	   in_bounds_y(y) then
+	if not _enforce or
+	   (in_bounds_x(x) and
+	   in_bounds_y(y)) then
 		f(x,y)
 	end
 end
