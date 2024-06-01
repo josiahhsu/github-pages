@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 #include shared/gridhelpers.p8
+#include shared/math.p8:0
 
 function _init()
 	cls()
@@ -27,7 +28,7 @@ function make_cell()
 	//makes a cell and determines
 	//whether it's marked or not
 	local cell = {}
-	cell.value = flr(rnd(2))
+	cell.value = round(rnd(1))
 	cell.revealed = false
 	cell.mistake = false
 	return cell
