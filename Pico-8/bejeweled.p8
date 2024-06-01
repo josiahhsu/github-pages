@@ -72,8 +72,7 @@ function make_bomb(cell)
 		local c = cell.x
 		local r = cell.y
 		if game_active then
-			local x = (c-1) * 9 + 1
-			local y = (r-1) * 9 + 6
+			local x,y = coords(c-1,r-1)
 			sfx(2)
 			//animation
 			for i = 1, 3 do
@@ -102,12 +101,12 @@ function make_lightning(cell)
 		if game_active then
 			sfx(5)
 			//animation
-			spr(40,c*9+1,r*9+6)
+			spr(40,coords(c,r))
 			for i = 1, 12, 2 do
-				spr(40,(c-i)*9+1,r*9+6)
-				spr(40,(c+i)*9+1,r*9+6)
-				spr(40,c*9+1,(r-i)*9+6)
-				spr(40,c*9+1,(r+i)*9+6)
+				spr(40,coords(c-i,r))
+				spr(40,coords(c+i,r))
+				spr(40,coords(c,r-i))
+				spr(40,coords(c,r+i))
 				wait(1)
 				draw_grid()
 			end
