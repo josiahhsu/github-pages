@@ -252,12 +252,12 @@ function r_coords(b,d)
 	return {bx,by}
 end
 
-function round(x)
-	//rounding function
-	if x-flr(x) < ceil(x)-x then
-		return flr(x)
+function round(i)
+	local f = flr(i)
+	if i - f >= .5 then
+		return ceil(i)
 	end
-	return ceil(x)
+	return f
 end
 
 -->8
