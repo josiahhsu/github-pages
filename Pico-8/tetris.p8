@@ -194,8 +194,8 @@ function make_piece()
 		sfx(3)
 		for r = 0,14 do
 			for c = 3, 12 do
-				if check_block(c,r) then
-					mset(c,r,10)
+				if is_solid(c,r) then
+					map_set(c,r,10)
 				end
 			end
 		end
