@@ -9,7 +9,7 @@ _grid,_bx,_by,_enforce =
 
 function set_grid(grid,enforce)
 	_grid,_bx,_by,_enforce =
-	 grid, #grid, #grid[1],enforce
+	 grid,#grid,#grid[1],enforce
 end
 
 function get_cell(x,y)
@@ -21,8 +21,8 @@ function set_cell(x,y,cell)
 end
 
 function swap_cells(x1,y1,x2,y2)
-	_grid[x1][y1], _grid[x2][y2] =
-	_grid[x2][y2], _grid[x1][y1]
+	_grid[x1][y1],_grid[x2][y2] =
+	_grid[x2][y2],_grid[x1][y1]
 end
 
 function in_range(s,e,v)
@@ -61,7 +61,7 @@ function cell_do_lane(l,isrow,f)
 	if isrow then
 		cell_do_area(1,_bx,l,l,f)
 	else
-		cell_do_area(l,l,1,_bx,f)
+		cell_do_area(l,l,1,_by,f)
 	end
 end
 
