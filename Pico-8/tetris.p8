@@ -139,20 +139,17 @@ end
 function controls()
 	if btnp(0) then //left
 		move_blocks(-1)
-	end
-	if btnp(1) then //right
+	elseif btnp(1) then //right
 		move_blocks(1)
-	end
-	if btnp(2) then //hard drop
+	elseif btnp(2) then //hard drop
 		hard_drop()
-	end
-	if btn(3) then //down
+	elseif btn(3) then //down
 		drop_blocks()
 	end
+	
 	if btnp(4) then //c-clockwise
 		rotate(.25)
-	end
-	if btnp(5) then //clockwise
+	elseif btnp(5) then //clockwise
 		rotate(-.25)
 	end
 end
