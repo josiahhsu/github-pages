@@ -5,6 +5,10 @@ function round(v)
 	local f = flr(v)
 	return v-f < 0.5 and f or ceil(v)
 end
+
+function rand_int(i)
+	return ceil(rnd(i))
+end
 -->8
 // mod but adjusted for
 // 1-based indexing

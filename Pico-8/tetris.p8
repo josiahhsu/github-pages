@@ -207,7 +207,7 @@ function choose_piece()
 	end
 
 	//selects next piece from bag
-	return bag[ceil(rnd(#bag))]
+	return bag[rand_int(#bag)]
 end
 
 function make_bag()

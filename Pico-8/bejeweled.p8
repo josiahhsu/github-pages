@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 #include shared/gridhelpers.p8
+#include shared/math.p8:0
 
 function _init()
 	cls()
@@ -43,7 +44,7 @@ function make_cell(x,y)
 	local c = {}
 	c.x = x
 	c.y = y
-	c.color = ceil(rnd(7))
+	c.color = rand_int(7)
 	c.clear = false //color != 10
 	c.special = false //color > 16
 
@@ -170,8 +171,8 @@ function shuffle()
 	wait(10)
 	for c = 1, size do
 		for r = 1, size do
-			local x = ceil(rnd(size))
-			local y = ceil(rnd(size))
+			local x = rand_int(size)
+			local y = rand_int(size)
 			swap(get_cell(c,r),
 			     get_cell(x,y))
 		end

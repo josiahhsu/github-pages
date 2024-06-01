@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 #include shared/gridhelpers.p8
+#include shared/math.p8:0
 
 function _init()
 	cls()
@@ -43,7 +44,7 @@ end
 
 function shuffle(t)
 	for i = 1, #t do
-		local j = ceil(rnd(i))
+		local j = rand_int(i)
 		t[i],t[j] = t[j],t[i]
 	end
 end

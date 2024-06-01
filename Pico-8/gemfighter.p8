@@ -120,7 +120,7 @@ function make_cell(x,y,cl)
 	if cl == nil then
 		//if color not specified,
 		//assign random color
-		cl = ceil(rnd(5))
+		cl = rand_int(5)
 	end
 	c.color = cl
 	c.clear = false
@@ -156,8 +156,8 @@ function shuffle()
 	//keeping current tiles
 	cell_do_all(
 	function(x,y)
-		local x2 = ceil(rnd(size))
-		local y2 = ceil(rnd(size))
+		local x2 = rand_int(size)
+		local y2 = rand_int(size)
 		swap(get_cell(x,y),
 		     get_cell(x2,y2))
 	end
