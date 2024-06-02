@@ -230,22 +230,22 @@ end
 function controls()
 	//moving the pointer and
 	//controlling swaps
-	if btnp(0) then
+	if btnp(⬅️) then
 		move_pointer(-1,0)
-	elseif btnp(1) then
+	elseif btnp(➡️) then
 		move_pointer(1,0)
-	elseif btnp(2) then
+	elseif btnp(⬆️) then
 		move_pointer(0,-1)
-	elseif btnp(3) then
+	elseif btnp(⬇️) then
 		move_pointer(0,1)
 	end
-	if btn(4) and btn(5) then
+	if btn(🅾️) and btn(❎) then
 		//testing purposes only
 		//make_wild(get_cell(px,py))
 		//make_bomb(get_cell(px,py))
 		//make_lightning(get_cell(px,py))
 		//shuffle()
-	elseif btnp(4) or btnp(5) then
+	elseif btnp(🅾️) or btnp(❎) then
 		swap_action()
 	end
 end

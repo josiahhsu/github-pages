@@ -139,19 +139,19 @@ function clear_blocks()
 end
 -->8
 function controls()
-	if btnp(0) then //left
+	if btnp(⬅️) then //left
 		move_blocks(-1)
-	elseif btnp(1) then //right
+	elseif btnp(➡️) then //right
 		move_blocks(1)
-	elseif btnp(2) then //hard drop
+	elseif btnp(⬆️) then //hard drop
 		hard_drop()
-	elseif btn(3) then //down
+	elseif btn(⬇️) then //down
 		drop_blocks()
 	end
 	
-	if btnp(4) then //c-clockwise
+	if btnp(🅾️) then //c-clockwise
 		rotate(.25)
-	elseif btnp(5) then //clockwise
+	elseif btnp(❎) then //clockwise
 		rotate(-.25)
 	end
 end

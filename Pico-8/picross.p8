@@ -58,20 +58,20 @@ end
 function controls()
 	//player controls for movement
 	//and revealing cells
-	if btnp(0) then
+	if btnp(⬅️) then
 		move_horz(-1)
-	elseif btnp(1) then
+	elseif btnp(➡️) then
 		move_horz(1)
-	elseif btnp(2) then
+	elseif btnp(⬆️) then
 		move_vert(-1)
-	elseif btnp(3) then
+	elseif btnp(⬇️) then
 		move_vert(1)
 	end
 
 	local cell = get_cell(px,py)
-	if btn(4) then
+	if btn(🅾️) then
 		reveal_cell(cell,1)
-	elseif btn(5) then
+	elseif btn(❎) then
 		reveal_cell(cell,0)
 	end
 end

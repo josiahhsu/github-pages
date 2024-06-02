@@ -82,19 +82,19 @@ end
 function controls()
 	//player controls for movement
 	//and revealing cells
-	if btnp(0) then
+	if btnp(⬅️) then
 		state.left()
-	elseif btnp(1) then
+	elseif btnp(➡️) then
 		state.right()
-	elseif btnp(2) then
-		state.down()
-	elseif btnp(3) then
+	elseif btnp(⬆️) then
 		state.up()
+	elseif btnp(⬇️) then
+		state.down()
 	end
 
-	if btnp(4) then
+	if btnp(🅾️) then
 		state.o()
-	elseif btnp(5) then
+	elseif btnp(❎) then
 		state.x()
 	end
 end
@@ -174,11 +174,11 @@ function edit_state()
 	end
 
 	function s.up()
-		move_vert(1)
+		move_vert(-1)
 	end
 
 	function s.down()
-		move_vert(-1)
+		move_vert(1)
 	end
 
 	function s.o()

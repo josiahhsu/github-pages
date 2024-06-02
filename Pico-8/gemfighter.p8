@@ -201,19 +201,19 @@ function draw_cell(x,y)
 end
 -->8
 function controls()
-	if btnp(0) then
+	if btnp(⬅️) then
 		ctrl.left()
-	elseif btnp(1) then
+	elseif btnp(➡️) then
 		ctrl.right()
-	elseif btnp(2) then
+	elseif btnp(⬆️) then
 		ctrl.up()
-	elseif btnp(3) then
+	elseif btnp(⬇️) then
 		ctrl.down()
 	end
 
-	if btnp(4) then
+	if btnp(🅾️) then
 		ctrl.o()
-	elseif btnp(5) then
+	elseif btnp(❎) then
 		ctrl.x()
 	end
 end
