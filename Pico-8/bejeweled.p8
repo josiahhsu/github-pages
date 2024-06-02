@@ -56,6 +56,7 @@ function make_plain(cell)
 	//removes special effects
 	//from cells
 	cell.color %= 8
+	cell.special = false
 	function cell:clear_cell()
 		cell.clear = true
 	end
