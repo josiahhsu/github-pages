@@ -169,9 +169,7 @@ function open_cell(x,y)
 		
 		cell_do_adj(x,y,
 		function(i,j)
-			if get_cell(i,j).mine then
-				cnt += 1
-			end
+			cnt+=tonum(get_cell(i,j).mine)
 		end
 		)
 		cell.spr=cnt
@@ -194,9 +192,7 @@ function open_adjacent()
 
 	cell_do_adj(px,py,
 	function(i,j)
-		if get_cell(i,j).flagged then
-			cnt += 1
-		end
+		cnt+=tonum(get_cell(i,j).flagged)
 	end
 	)
 
