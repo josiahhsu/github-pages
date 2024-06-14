@@ -113,6 +113,7 @@ function draw_grid()
 	for i=0,8 do
 		spr(i,115,i*7+7)
 	end
+	print("oct\n "..po,115,66,7)
 	rect(115,pi*7+7,122,pi*7+14,9)
 	
 	cell_do_all(
@@ -192,14 +193,22 @@ function select_state()
 	function s.update() end
 
 	function s.draw()
-		print("⬆️\n⬇️",13,101,7)
-		print("to change instrument",30,104,7)
+		print("⬆️⬇️ to change instrument",13,101,7)
+		print("⬅️➡️ to change octave",13,108,7)
 		draw_pointer()
 	end
 	
-	function s.left() end
+	function s.left() 
+		if po > 0 then
+			po -= 1
+		end
+	end
 	
-	function s.right()end
+	function s.right()
+		if po < 4 then
+			po += 1
+		end
+	end
 	
 	function s.up()
 		if pi > 0 then
