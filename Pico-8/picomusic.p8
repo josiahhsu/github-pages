@@ -130,8 +130,12 @@ function draw_pointer()
 	rect(x,y,x+7,y+7,9)
 end
 
-function play(ins,note,oct)
-	print("\asfi"..ins..note..oct)
+function play(x,y)
+	local c = get_cell(x,y)
+	local i,n,o = c.spr,notes[y],c.oct
+	if i >= 0 then
+		print("\asfi"..i..n..o)
+	end
 end
 -->8
 function draw_state()
@@ -175,7 +179,7 @@ function note_state()
 		else
 			cell.spr = pi
 			cell.oct = po
-			play(pi,notes[py],po)
+			play(px,py)
 		end
 	end
 
@@ -220,14 +224,7 @@ function play_state()
 	
 	function s.update()
 		if t % tempo == 0 then
-		cell_do_lane(t\tempo,false,
-			function(x,y)
-				local c = get_cell(x,y)
-				if c.spr >= 0 then
-					play(c.spr,notes[y],c.oct)
-				end
-			end
-			)
+			cell_do_lane(t\tempo,false,play)
 		end
 		
 		t+=1
