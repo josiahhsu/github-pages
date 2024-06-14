@@ -18,7 +18,7 @@ function _init()
 	tempo = 5
 	
 	t = 0
-	state = edit_state()
+	state = note_state()
 end
 
 function _update()
@@ -57,22 +57,31 @@ function make_grid()
 end
 -->8
 function controls()
-	//player controls for movement
-	//and revealing cells
+	//player controls
+	if btn(❎) then
+		if btnp(⬅️) then
+			state = note_state()
+		elseif btnp(➡️) then
+			state = select_state()
+		elseif btnp(⬆️) then
+			t = tempo
+			state = play_state()
+		end
+		return
+	end
+	
 	if btnp(⬅️) then
-		move_horz(-1)
+		state.left()
 	elseif btnp(➡️) then
-		move_horz(1)
+		state.right()
 	elseif btnp(⬆️) then
-		move_vert(-1)
+		state.up()
 	elseif btnp(⬇️) then
-		move_vert(1)
+		state.down()
 	end
 
 	if btnp(🅾️) then
 		state.o()
-	elseif btnp(❎) then
-		state.x()
 	end
 end
 
@@ -96,6 +105,15 @@ end
 
 function draw_grid()
 	rectfill(0,0,126,128,1)
+	draw_state()
+	print("⬆️⬇️⬅️➡️+❎ "..
+	      "to change controls",
+	      1,120,7)
+	for i=0,8 do
+		spr(i,115,i*7+7)
+	end
+	rect(115,pi*7+7,122,pi*7+14,9)
+	
 	cell_do_all(
 	function(x,y)
 		//draws cells on grid
@@ -115,21 +133,40 @@ function play(ins,note,oct)
 	print("\asfi"..ins..note..oct)
 end
 -->8
-function edit_state()
-	// before start of game
-	local s = {}
+function draw_state()
+	print(state.name.." state",1,1,7)
+end
 
+function note_state()
+	local s = {}
+	s.name="note"
 	function s.update() end
 
 	function s.draw()
-		print("⬆️",13,104,7)
-		print("⬅️⬇️➡️",5,110,7)
-		print("to move",3,116,7)
-		print("🅾️ to place note",38,104,7)
-		print("❎ to play",38,111,7)
+		print("⬆️",13,101,7)
+		print("⬅️⬇️➡️",5,107,7)
+		print("to move",30,104,7)
+		print("🅾️ to place",73,101,7)
+		print("or erase note",70,107,7)
 		draw_pointer()
 	end
-
+	
+	function s.left()
+		move_horz(-1)
+	end
+	
+	function s.right()
+		move_horz(1)
+	end
+	
+	function s.up()
+		move_vert(-1)
+	end
+	
+	function s.down()
+		move_vert(1)
+	end
+	
 	function s.o()
 		local cell = get_cell(px,py)
 		if cell.spr == pi then
@@ -140,16 +177,44 @@ function edit_state()
 		end
 	end
 
-	function s.x()
-		t = tempo
-		state = play_state()
+	return s
+end
+
+function select_state()
+	local s = {}
+	s.name = "select"
+	function s.update() end
+
+	function s.draw()
+		print("⬆️\n⬇️",13,101,7)
+		print("to change instrument",30,104,7)
+		draw_pointer()
 	end
+	
+	function s.left() end
+	
+	function s.right()end
+	
+	function s.up()
+		if pi > 0 then
+			pi -=1
+		end
+	end
+	
+	function s.down()
+		if pi < 8 then
+			pi += 1
+		end
+	end
+	
+	function s.o() end
 
 	return s
 end
 
 function play_state()
 	local s = {}
+	s.name="play"
 	
 	function s.update()
 		if t % tempo == 0 then
@@ -166,21 +231,19 @@ function play_state()
 		t+=1
 		
 		if t == (m+1) * tempo then
-			state = edit_state()
+			state = note_state()
 		end
 	end
 	
 	function s.draw()
-		print("❎ to stop",38,111,7)
 		local offset = ((t\tempo)-1)*7
 		rect(2+offset,7,9+offset,98,9)
 	end
-
+	function s.left() end
+	function s.right() end
+	function s.up() end
+	function s.down() end
 	function s.o() end
-
-	function s.x()
-		state = edit_state()
-	end
 	
 	return s
 end
