@@ -9,8 +9,8 @@ function _init()
 	m,n = 16,13
 	set_grid(make_grid(),true)
 	
-	// player position and ins
-	px,py,pi = 1,1,0
+	// player x/y pos,ins,oct
+	px,py,pi,po = 1,1,0,1
 	
 	notes ={"b#","b","a#","a",
 	        "g#","g","f#","f",
@@ -35,6 +35,7 @@ function make_cell()
 	//makes a cell
 	local cell = {}
 	cell.spr = -1
+	cell.oct = -1
 	return cell
 end
 
@@ -173,7 +174,8 @@ function note_state()
 			cell.spr = -1
 		else
 			cell.spr = pi
-			play(pi,notes[py],1)
+			cell.oct = po
+			play(pi,notes[py],po)
 		end
 	end
 
@@ -220,9 +222,9 @@ function play_state()
 		if t % tempo == 0 then
 		cell_do_lane(t\tempo,false,
 			function(x,y)
-				local i = get_cell(x,y).spr
-				if i >= 0 then
-					play(i,notes[y],1)
+				local c = get_cell(x,y)
+				if c.spr >= 0 then
+					play(c.spr,notes[y],c.oct)
 				end
 			end
 			)
