@@ -214,7 +214,7 @@ function select_state()
 	end
 	
 	function s.down()
-		if pi < 8 then
+		if pi < 7 then
 			pi += 1
 		end
 	end
@@ -257,7 +257,7 @@ function play_state()
 		print("⬅️➡️ to change position",13,115,7)
 	end
 	function s.left()
-		if s.next > 0 then
+		if s.next > 1 then
 			s.next -= 1
 		end
 	end
