@@ -9,13 +9,11 @@ function _init()
 	m,n = 16,13
 	set_grid(make_grid(),true)
 	
-	// player x/y pos,ins,oct
-	px,py,pi,po = 1,1,0,1
+	px,py,ins,oct,spd = 1,1,0,1,5
 	
 	notes ={"b#","b","a#","a",
 	        "g#","g","f#","f",
 	        "e","d#","d","c#","c"}
-	speed = 5
 	
 	state = note_state()
 end
@@ -112,9 +110,9 @@ function draw_grid()
 	for i=0,8 do
 		spr(i,115,i*7+7)
 	end
-	print("oct\n "..po,115,66,7)
-	print("spd\n "..speed,115,80,7)
-	rect(115,pi*7+7,122,pi*7+14,9)
+	print("oct\n "..oct,115,66,7)
+	print("spd\n "..spd,115,80,7)
+	rect(115,ins*7+7,122,ins*7+14,9)
 	
 	cell_do_all(
 	function(x,y)
@@ -172,11 +170,11 @@ function note_state()
 	
 	function s.o()
 		local cell = get_cell(px,py)
-		if cell.spr == pi then
+		if cell.spr == ins then
 			cell.spr = -1
 		else
-			cell.spr = pi
-			cell.oct = po
+			cell.spr = ins
+			cell.oct = oct
 			play(px,py)
 		end
 	end
@@ -196,26 +194,26 @@ function select_state()
 	end
 	
 	function s.left() 
-		if po > 0 then
-			po -= 1
+		if oct > 0 then
+			oct -= 1
 		end
 	end
 	
 	function s.right()
-		if po < 4 then
-			po += 1
+		if oct < 4 then
+			oct += 1
 		end
 	end
 	
 	function s.up()
-		if pi > 0 then
-			pi -=1
+		if ins > 0 then
+			ins -=1
 		end
 	end
 	
 	function s.down()
-		if pi < 7 then
-			pi += 1
+		if ins < 7 then
+			ins += 1
 		end
 	end
 	
@@ -236,7 +234,7 @@ function play_state()
 			return
 		end
 		
-		if s.t % speed == 0 then
+		if s.t % spd == 0 then
 			cell_do_lane(s.next,false,play)
 			if s.next == m then
 				s.playing = false
@@ -267,13 +265,13 @@ function play_state()
 		end
 	end
 	function s.up()
-		if speed < 30 then
-			speed += 1
+		if spd < 30 then
+			spd += 1
 		end
 	end
 	function s.down()
-		if speed > 1 then
-			speed -= 1
+		if spd > 1 then
+			spd -= 1
 		end
 	end
 	function s.o()
