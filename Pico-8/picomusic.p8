@@ -31,7 +31,7 @@ end
 function make_cell()
 	//makes a cell
 	local cell = {}
-	cell.spr = -1
+	cell.ins = -1
 	cell.oct = -1
 	return cell
 end
@@ -118,7 +118,7 @@ function draw_grid()
 	function(x,y)
 		//draws cells on grid
 		spr(16, coords(x,y))
-		spr(get_cell(x,y).spr,coords(x,y))
+		spr(get_cell(x,y).ins,coords(x,y))
 	end
 	)
 end
@@ -131,7 +131,7 @@ end
 
 function play(x,y)
 	local c = get_cell(x,y)
-	local i,n,o = c.spr,notes[y],c.oct
+	local i,n,o = c.ins,notes[y],c.oct
 	if i >= 0 then
 		print("\asfi"..i..n..o)
 	end
@@ -170,10 +170,10 @@ function note_state()
 	
 	function s.o()
 		local cell = get_cell(px,py)
-		if cell.spr == ins then
-			cell.spr = -1
+		if cell.ins == ins then
+			cell.ins = -1
 		else
-			cell.spr = ins
+			cell.ins = ins
 			cell.oct = oct
 			play(px,py)
 		end
