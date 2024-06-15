@@ -234,12 +234,14 @@ function play_state()
 			return
 		end
 		
-		if s.t % spd == 0 then
+		if s.t == 0 then
 			cell_do_lane(s.next,false,play)
+		elseif s.t % spd == 0 then
 			if s.next == m then
 				s.playing = false
 			else
 				s.next+=1
+				cell_do_lane(s.next,false,play)
 			end
 		end
 		
@@ -256,11 +258,13 @@ function play_state()
 	end
 	function s.left()
 		if s.next > 1 then
+			s.t = 0
 			s.next -= 1
 		end
 	end
 	function s.right()
 		if s.next < m then
+			s.t = 0
 			s.next += 1
 		end
 	end
@@ -275,6 +279,7 @@ function play_state()
 		end
 	end
 	function s.o()
+		s.t = 0
 		s.playing = not s.playing
 	end
 	
