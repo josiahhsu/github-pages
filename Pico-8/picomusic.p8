@@ -15,9 +15,8 @@ function _init()
 	notes ={"b#","b","a#","a",
 	        "g#","g","f#","f",
 	        "e","d#","d","c#","c"}
-	tempo = 5
+	speed = 5
 	
-	t = 0
 	state = note_state()
 end
 
@@ -109,11 +108,12 @@ function draw_grid()
 	draw_state()
 	print("⬆️⬇️⬅️➡️+❎ "..
 	      "to change controls",
-	      1,120,7)
+	      1,122,7)
 	for i=0,8 do
 		spr(i,115,i*7+7)
 	end
 	print("oct\n "..po,115,66,7)
+	print("spd\n "..speed,115,80,7)
 	rect(115,pi*7+7,122,pi*7+14,9)
 	
 	cell_do_all(
@@ -149,11 +149,8 @@ function note_state()
 	function s.update() end
 
 	function s.draw()
-		print("⬆️",13,101,7)
-		print("⬅️⬇️➡️",5,107,7)
-		print("to move",30,104,7)
-		print("🅾️ to place",73,101,7)
-		print("or erase note",70,107,7)
+		print("⬆️⬇️⬅️➡️ to move",25,101,7)
+		print("🅾️ to place/erase note",13,108,7)
 		draw_pointer()
 	end
 	
@@ -229,29 +226,59 @@ end
 
 function play_state()
 	local s = {}
-	s.name="play"
+	s.name="playback"
+	s.t = 0
+	s.next = 1
+	s.playing = false
 	
 	function s.update()
-		if t % tempo == 0 then
-			cell_do_lane(t\tempo,false,play)
+		if not s.playing then
+			return
 		end
 		
-		t+=1
-		
-		if t == (m+1) * tempo then
-			state = note_state()
+		if s.t % speed == 0 then
+			cell_do_lane(s.next,false,play)
+			if s.next == m then
+				s.playing = false
+			else
+				s.next+=1
+			end
 		end
+		
+		s.t+=1
 	end
 	
 	function s.draw()
-		local offset = ((t\tempo)-1)*7
-		rect(2+offset,7,9+offset,98,9)
+		local offset = (s.next-1)*7
+		local col = s.playing and 8 or 9
+		rect(2+offset,7,9+offset,98,col)
+		print("🅾️ to start/stop",17,101,7)
+		print("⬆️⬇️ to change tempo",13,108,7)
+		print("⬅️➡️ to change position",13,115,7)
 	end
-	function s.left() end
-	function s.right() end
-	function s.up() end
-	function s.down() end
-	function s.o() end
+	function s.left()
+		if s.next > 0 then
+			s.next -= 1
+		end
+	end
+	function s.right()
+		if s.next < m then
+			s.next += 1
+		end
+	end
+	function s.up()
+		if speed < 30 then
+			speed += 1
+		end
+	end
+	function s.down()
+		if speed > 1 then
+			speed -= 1
+		end
+	end
+	function s.o()
+		s.playing = not s.playing
+	end
 	
 	return s
 end
@@ -403,7 +430,7 @@ __label__
 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111110
 
 __sfx__
-011200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+001700000000021000210002100021000210002100022000220002200022000000002200022000220002200000000000002200000000220002300000000230000000024000240002500000000250002500026000
 011200000010000100001000010000100001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 011200000020000200002000020000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 011200000030000300003000030000300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
