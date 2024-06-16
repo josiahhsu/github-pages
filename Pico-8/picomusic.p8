@@ -2,14 +2,16 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 #include shared/gridhelpers.p8
-
+#include shared/math.p8:1
 function _init()
 	cls()
 	// grid size
-	m,n = 16,13
+	beats = 16
+	m,n = beats*64,13
 	set_grid(make_grid(),true)
 	
-	px,py,ins,oct,spd = 1,1,0,1,5
+	px,py,msr,ins,oct,spd = 
+	1,1,1,0,1,5
 	
 	notes ={"b#","b","a#","a",
 	        "g#","g","f#","f",
@@ -62,7 +64,6 @@ function controls()
 		elseif btnp(➡️) then
 			state = select_state()
 		elseif btnp(⬆️) then
-			t = tempo
 			state = play_state()
 		end
 		return
@@ -83,9 +84,14 @@ function controls()
 	end
 end
 
+function update_msr(v)
+	msr = ceil(v / beats)
+end
+
 function move_horz(dx)
 	if in_bounds_x(px+dx) then
 		px += dx
+		update_msr(px)
 	end
 end
 
@@ -98,12 +104,13 @@ end
 function coords(x,y)
 	//translates value to partial
 	//position on grid
-	return (x-1)*7+2,y*7
+	return (mod(x,beats)-1)*7+2,y*7
 end
 
 function draw_grid()
 	rectfill(0,0,126,128,1)
-	draw_state()
+	print(state.name.." state",1,1,7)
+	print("measure "..msr,70,1,7)
 	print("⬆️⬇️⬅️➡️+❎ "..
 	      "to change controls",
 	      1,122,7)
@@ -114,10 +121,12 @@ function draw_grid()
 	print("spd\n "..spd,115,80,7)
 	rect(115,ins*7+7,122,ins*7+14,9)
 	
-	cell_do_all(
+	local adj_x = (msr-1)*beats
+	cell_do_area(adj_x,adj_x+beats,
+	             1,n,
 	function(x,y)
 		//draws cells on grid
-		spr(16, coords(x,y))
+		spr(16,coords(x,y))
 		spr(get_cell(x,y).ins,coords(x,y))
 	end
 	)
@@ -137,11 +146,8 @@ function play(x,y)
 	end
 end
 -->8
-function draw_state()
-	print(state.name.." state",1,1,7)
-end
-
 function note_state()
+	update_msr(px)
 	local s = {}
 	s.name="note"
 	function s.update() end
@@ -183,6 +189,7 @@ function note_state()
 end
 
 function select_state()
+	update_msr(px)
 	local s = {}
 	s.name = "select"
 	function s.update() end
@@ -228,6 +235,7 @@ function play_state()
 	s.t = 0
 	s.next = 1
 	s.playing = false
+	update_msr(s.next)
 	
 	function s.update()
 		if not s.playing then
@@ -241,6 +249,7 @@ function play_state()
 				s.playing = false
 			else
 				s.next+=1
+				update_msr(s.next)
 				cell_do_lane(s.next,false,play)
 			end
 		end
@@ -249,23 +258,27 @@ function play_state()
 	end
 	
 	function s.draw()
-		local offset = (s.next-1)*7
-		local col = s.playing and 8 or 9
-		rect(2+offset,7,9+offset,98,col)
+		// only need the x offset
+		local offset = coords(s.next,0)
+		local col = 9-tonum(s.playing)
+		rect(offset,7,offset+7,7*(n+1),col)
 		print("🅾️ to start/stop",17,101,7)
 		print("⬆️⬇️ to change tempo",13,108,7)
 		print("⬅️➡️ to change position",13,115,7)
 	end
+	
 	function s.left()
 		if s.next > 1 then
 			s.t = 0
 			s.next -= 1
+			update_msr(s.next)
 		end
 	end
 	function s.right()
 		if s.next < m then
 			s.t = 0
 			s.next += 1
+			update_msr(s.next)
 		end
 	end
 	function s.up()
