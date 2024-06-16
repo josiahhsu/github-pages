@@ -7,7 +7,8 @@ function _init()
 	cls()
 	// grid size
 	beats = 16
-	m,n = beats*64,13
+	num_msrs=64
+	m,n = beats*num_msrs,13
 	set_grid(make_grid(),true)
 	
 	px,py,msr,ins,oct,spd = 
@@ -109,8 +110,10 @@ end
 
 function draw_grid()
 	rectfill(0,0,126,128,1)
-	print(state.name.." state",1,1,7)
-	print("measure "..msr,70,1,7)
+	print(state.name.." state",2,1,7)
+	local str = (msr < 10 and "0" or "")..msr
+	print("measure "..str.."/"..num_msrs,
+	      64,1,7)
 	print("⬆️⬇️⬅️➡️+❎ "..
 	      "to change controls",
 	      1,122,7)
