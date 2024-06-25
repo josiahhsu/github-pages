@@ -133,7 +133,7 @@ function draw_grid()
 		x,y = coords(x,y)
 		spr(16,x,y)
 		if cell.ins >= 0 then
-			circ(x+1,y+(5-cell.oct),0,cell.ins+8)
+			pset(x+1,y+(5-cell.oct),cell.ins+8)
 			spr(cell.ins,x,y)
 		end
 	end
