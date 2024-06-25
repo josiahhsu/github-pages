@@ -129,8 +129,13 @@ function draw_grid()
 	             1,n,
 	function(x,y)
 		//draws cells on grid
-		spr(16,coords(x,y))
-		spr(get_cell(x,y).ins,coords(x,y))
+		local cell = get_cell(x,y)
+		x,y = coords(x,y)
+		spr(16,x,y)
+		if cell.ins >= 0 then
+			circ(x+1,y+(5-cell.oct),0,cell.ins+8)
+			spr(cell.ins,x,y)
+		end
 	end
 	)
 end
