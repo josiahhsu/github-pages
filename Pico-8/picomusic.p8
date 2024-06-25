@@ -7,8 +7,8 @@ function _init()
 	cls()
 	// grid size
 	beats = 16
-	num_msrs=64
-	m,n = beats*num_msrs,13
+	num_msrs=20
+	m,n = beats*num_msrs,12
 	set_grid(make_grid(),true)
 	
 	px,py,msr,ins,oct,spd = 
@@ -16,7 +16,7 @@ function _init()
 	
 	notes ={"b#","b","a#","a",
 	        "g#","g","f#","f",
-	        "e","d#","d","c#","c"}
+	        "e","d#","d","c#"}
 	
 	state = note_state()
 end
@@ -210,7 +210,7 @@ function select_state()
 	end
 	
 	function s.right()
-		if oct < 4 then
+		if oct < 3 then
 			oct += 1
 		end
 	end
