@@ -5,9 +5,11 @@ __lua__
 #include shared/math.p8:1
 function _init()
 	cls()
+	cartdata("picomusic")
+	
 	// grid size
 	beats = 16
-	num_msrs=20
+	num_msrs=64
 	m,n = beats*num_msrs,12
 	set_grid(make_grid(),true)
 	
@@ -67,6 +69,8 @@ function controls()
 			state = select_state()
 		elseif btnp(⬆️) then
 			state = play_state()
+		elseif btnp(⬇️) then
+			state = copy_state()
 		end
 		return
 	end
@@ -113,6 +117,12 @@ function draw_ins_select(col)
 	rect(115,ins*7+7,122,ins*7+14,col)
 end
 
+function measure_do_all(f)
+	local base = (msr-1)*beats+1
+	cell_do_area(base,base+beats-1,
+	             1,n,f)
+end
+
 function draw_grid()
 	rectfill(0,0,126,128,1)
 	print(state.name.." state",2,1,7)
@@ -129,9 +139,7 @@ function draw_grid()
 	print("oct\n "..oct,115,66,7)
 	print("vol\n "..vol,115,80,7)
 	
-	local adj_x = (msr-1)*beats
-	cell_do_area(adj_x,adj_x+beats,
-	             1,n,
+	measure_do_all(
 	function(x,y)
 		//draws cells on grid
 		local cell = get_cell(x,y)
@@ -331,6 +339,45 @@ function play_state()
 	
 	return s
 end
+
+function copy_state()
+	local s = {}
+	s.name="copy"
+	
+	function s.update() end
+	
+	function s.draw()
+		print("⬅️➡️ to change measure",13,94,7)
+		print("⬆️ to copy measure",13,101,7)
+		print("⬇️ to clear copy",13,108,7)
+		if peek(0x5e00) == 1 then
+			print("🅾️ to paste copied measure",13,115,7)
+		end
+	end
+	
+	function s.left()
+		if msr > 1 then
+			msr -= 1
+		end
+	end
+	function s.right()
+		if msr <= num_msrs then
+			msr += 1
+		end
+	end
+	function s.up()
+		copy_measure()
+	end
+	function s.down()
+		clear_copy()
+	end
+	
+	function s.o() 
+		paste_measure()
+	end
+	
+	return s
+end
 -->8
 function serialize_cell(cell)
 	local ser = 0
@@ -359,6 +406,43 @@ function deserialize_cell(ser)
 	ser >>= 2
 	cell.ins = ser & 7
 	return cell
+end
+
+function copy_measure()
+	poke(0x5e00,1)
+	local i = 0
+	measure_do_all(
+	function(x,y)
+		assert(i < 255)
+		local cell = get_cell(x,y)
+		local ser = serialize_cell(cell)
+		poke(0x5e01+i,ser)
+		i+=1
+	end
+	)
+end
+
+function clear_copy()
+	for i = 0,63 do
+		dset(i,0)
+	end
+end
+
+function paste_measure()
+	if peek(0x5e00) == 0 then
+		return
+	end
+	
+	local i = 0
+	measure_do_all(
+	function(x,y)
+		assert(i < 255)
+		ser = peek(0x5e01 + i)
+		local cell = deserialize_cell(ser)
+		set_cell(x,y,cell)
+		i+=1
+	end
+	)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
