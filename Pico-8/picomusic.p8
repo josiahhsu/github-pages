@@ -11,8 +11,8 @@ function _init()
 	m,n = beats*num_msrs,12
 	set_grid(make_grid(),true)
 	
-	px,py,msr,ins,oct,spd = 
-	1,1,1,0,1,5
+	px,py,msr,ins,oct,vol,spd = 
+	1,1,1,0,1,1,5
 	
 	notes ={"b#","b","a#","a",
 	        "g#","g","f#","f",
@@ -36,6 +36,7 @@ function make_cell()
 	local cell = {}
 	cell.ins = -1
 	cell.oct = -1
+	cell.vol = -1
 	return cell
 end
 
@@ -108,6 +109,10 @@ function coords(x,y)
 	return (mod(x,beats)-1)*7+2,y*7
 end
 
+function draw_ins_select(col)
+	rect(115,ins*7+7,122,ins*7+14,col)
+end
+
 function draw_grid()
 	rectfill(0,0,126,128,1)
 	print(state.name.." state",2,1,7)
@@ -120,9 +125,9 @@ function draw_grid()
 	for i=0,8 do
 		spr(i,115,i*7+7)
 	end
+	draw_ins_select(7)
 	print("oct\n "..oct,115,66,7)
-	print("spd\n "..spd,115,80,7)
-	rect(115,ins*7+7,122,ins*7+14,9)
+	print("vol\n "..vol,115,80,7)
 	
 	local adj_x = (msr-1)*beats
 	cell_do_area(adj_x,adj_x+beats,
@@ -146,11 +151,17 @@ function draw_pointer()
 	rect(x,y,x+7,y+7,9)
 end
 
-function play(x,y)
+function play(ins,vol,y,oct)
+	note = notes[y]
+	vol += 1
+	print("\asfi"..ins.."v"..vol..note..oct)
+end
+
+function play_cell(x,y)
 	local c = get_cell(x,y)
-	local i,n,o = c.ins,notes[y],c.oct
+	local i,v,o = c.ins,c.vol,c.oct
 	if i >= 0 then
-		print("\asfi"..i..n..o)
+		play(i,v,y,o)
 	end
 end
 -->8
@@ -189,7 +200,8 @@ function note_state()
 		else
 			cell.ins = ins
 			cell.oct = oct
-			play(px,py)
+			cell.vol = vol
+			play_cell(px,py)
 		end
 	end
 
@@ -201,38 +213,50 @@ function select_state()
 	local s = {}
 	s.name = "select"
 	function s.update() end
-
+	
+	function test_play()
+		play(ins,vol,1,oct)
+	end
+	
 	function s.draw()
-		print("⬆️⬇️ to change instrument",13,101,7)
-		print("⬅️➡️ to change octave",13,108,7)
-		draw_pointer()
+		draw_ins_select(9)
+		print("🅾️ to cycle instrument",13,94,7)
+		print("⬆️⬇️ to change octave",13,101,7)
+		print("⬅️➡️ to change volume",13,108,7)
 	end
 	
 	function s.left() 
-		if oct > 0 then
-			oct -= 1
+		if vol > 0 then
+			vol -= 1
 		end
+		test_play()
 	end
 	
 	function s.right()
-		if oct < 3 then
-			oct += 1
+		if vol < 3 then
+			vol += 1
 		end
+		test_play()
 	end
 	
 	function s.up()
-		if ins > 0 then
-			ins -=1
+		if oct < 3 then
+			oct += 1
 		end
+		test_play()
 	end
 	
 	function s.down()
-		if ins < 7 then
-			ins += 1
+		if oct > 0 then
+			oct -=1
 		end
+		test_play()
 	end
 	
-	function s.o() end
+	function s.o() 
+		ins = (ins + 1) % 8
+		test_play()
+	end
 
 	return s
 end
@@ -251,14 +275,14 @@ function play_state()
 		end
 		
 		if s.t == 0 then
-			cell_do_lane(s.next,false,play)
+			cell_do_lane(s.next,false,play_cell)
 		elseif s.t % spd == 0 then
 			if s.next == m then
 				s.playing = false
 			else
 				s.next+=1
 				update_msr(s.next)
-				cell_do_lane(s.next,false,play)
+				cell_do_lane(s.next,false,play_cell)
 			end
 		end
 		
@@ -270,9 +294,10 @@ function play_state()
 		local offset = coords(s.next,0)
 		local col = 9-tonum(s.playing)
 		rect(offset,7,offset+7,7*(n+1),col)
-		print("🅾️ to start/stop",17,101,7)
+		print("🅾️ to start/stop",25,94,7)
+		print("⬅️➡️ to change position",13,101,7)
 		print("⬆️⬇️ to change tempo",13,108,7)
-		print("⬅️➡️ to change position",13,115,7)
+		print("current speed: "..spd,25,115,7)
 	end
 	
 	function s.left()
