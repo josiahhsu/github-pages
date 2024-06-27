@@ -350,7 +350,7 @@ function copy_state()
 		print("⬅️➡️ to change measure",13,94,7)
 		print("⬆️ to copy measure",13,101,7)
 		print("⬇️ to clear copy",13,108,7)
-		if peek(0x5e00) == 1 then
+		if dget1(0) == 1 then
 			print("🅾️ to paste copied measure",13,115,7)
 		end
 	end
@@ -408,36 +408,46 @@ function deserialize_cell(ser)
 	return cell
 end
 
+function dset1(index,val)
+	assert(in_range(0,255,index))
+	poke(0x5e00+index,val)
+end
+
+function dget1(index)
+	assert(in_range(0,255,index))
+	return peek(0x5e00+index)
+end
+
 function copy_measure()
-	poke(0x5e00,1)
-	local i = 0
+	dset1(0,1)
+	local i = 1
 	measure_do_all(
 	function(x,y)
-		assert(i < 255)
 		local cell = get_cell(x,y)
 		local ser = serialize_cell(cell)
-		poke(0x5e01+i,ser)
+		dset1(i,ser)
 		i+=1
 	end
 	)
 end
 
 function clear_copy()
-	for i = 0,63 do
-		dset(i,0)
+	for i = 0,255 do
+		dset1(i,0)
 	end
 end
 
 function paste_measure()
-	if peek(0x5e00) == 0 then
+	// only paste if we
+	// have a saved copy
+	if dget1(0) == 0 then
 		return
 	end
 	
-	local i = 0
+	local i = 1
 	measure_do_all(
 	function(x,y)
-		assert(i < 255)
-		ser = peek(0x5e01 + i)
+		ser = dget1(i)
 		local cell = deserialize_cell(ser)
 		set_cell(x,y,cell)
 		i+=1
