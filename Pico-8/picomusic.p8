@@ -331,6 +331,35 @@ function play_state()
 	
 	return s
 end
+-->8
+function serialize_cell(cell)
+	local ser = 0
+	if cell.ins == -1 then
+		return 0
+	end
+	ser |= 1 // 1 bit to flag note
+	ser <<= 3
+	ser |= cell.ins // 3 bits
+	ser <<= 2
+	ser |= cell.oct // 2 bits
+	ser <<= 2
+	ser |= cell.vol // 2 bits
+	return ser
+end
+
+function deserialize_cell(ser)
+	local cell = make_cell()
+	if ser == 0 then
+		return cell
+	end
+	
+	cell.vol = ser & 3
+	ser >>= 2
+	cell.oct = ser & 3
+	ser >>= 2
+	cell.ins = ser & 7
+	return cell
+end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
