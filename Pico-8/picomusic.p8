@@ -424,8 +424,7 @@ function copy_measure()
 	measure_do_all(
 	function(x,y)
 		local cell = get_cell(x,y)
-		local ser = serialize_cell(cell)
-		dset1(i,ser)
+		dset1(i,serialize_cell(cell))
 		i+=1
 	end
 	)
