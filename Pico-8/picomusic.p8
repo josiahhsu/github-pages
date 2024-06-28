@@ -121,7 +121,7 @@ function draw_grid()
 	local str = (msr < 10 and "0" or "")..msr
 	print("measure "..str.."/"..num_msrs,
 	      64,1,7)
-	print("❎ to change controls",
+	print("❎: change controls",
 	      13,122,7)
 	for i=0,8 do
 		spr(i,115,i*7+7)
@@ -173,8 +173,8 @@ function note_state()
 	function s.update() end
 
 	function s.draw()
-		print("⬆️⬇️⬅️➡️ to move",13,94,7)
-		print("🅾️ to place/erase note",13,101,7)
+		print("⬆️⬇️⬅️➡️: move cursor",13,101,7)
+		print("🅾️: place/erase note",13,108,7)
 		draw_pointer()
 	end
 	
@@ -221,9 +221,9 @@ function select_state()
 	
 	function s.draw()
 		draw_ins_select(9)
-		print("🅾️ to cycle instrument",13,94,7)
-		print("⬆️⬇️ to change octave",13,101,7)
-		print("⬅️➡️ to change volume",13,108,7)
+		print("🅾️: cycle instrument",13,94,7)
+		print("⬆️⬇️: change octave",13,101,7)
+		print("⬅️➡️: change volume",13,108,7)
 	end
 	
 	function s.left() 
@@ -295,9 +295,9 @@ function play_state()
 		local offset = coords(s.next,0)
 		local col = 9-tonum(s.playing)
 		rect(offset,7,offset+7,7*(n+1),col)
-		print("🅾️ to start/stop",13,94,7)
-		print("⬅️➡️ to change position",13,101,7)
-		print("⬆️⬇️ to change tempo",13,108,7)
+		print("🅾️: start/stop",13,94,7)
+		print("⬅️➡️: change position",13,101,7)
+		print("⬆️⬇️: change tempo",13,108,7)
 		print("current speed: "..spd,13,115,7)
 	end
 	
@@ -340,11 +340,11 @@ function copy_state()
 	function s.update() end
 	
 	function s.draw()
-		print("⬅️➡️ to change measure",13,94,7)
-		print("⬆️ to copy measure",13,101,7)
-		print("⬇️ to clear copy",13,108,7)
+		print("⬅️➡️: change measure",13,94,7)
+		print("⬆️: copy measure",13,101,7)
+		print("⬇️: clear copy",13,108,7)
 		if dget1(0) == 1 then
-			print("🅾️ to paste copied measure",13,115,7)
+			print("🅾️: paste copied measure",13,115,7)
 		end
 	end
 	
@@ -384,6 +384,7 @@ function change_state()
 		print("➡️: change note properties",13,101,7)
 		print("⬆️: playback",13,108,7)
 		print("⬇️: copy/paste measures",13,115,7)
+		rectfill(0,122,128,128,1)
 	end
 	
 	function s.left()
