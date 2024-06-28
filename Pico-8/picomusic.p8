@@ -63,15 +63,7 @@ end
 function controls()
 	//player controls
 	if btn(❎) then
-		if btnp(⬅️) then
-			state = note_state()
-		elseif btnp(➡️) then
-			state = select_state()
-		elseif btnp(⬆️) then
-			state = play_state()
-		elseif btnp(⬇️) then
-			state = copy_state()
-		end
+		state = change_state()
 		return
 	end
 	
@@ -129,9 +121,8 @@ function draw_grid()
 	local str = (msr < 10 and "0" or "")..msr
 	print("measure "..str.."/"..num_msrs,
 	      64,1,7)
-	print("⬆️⬇️⬅️➡️+❎ "..
-	      "to change controls",
-	      1,122,7)
+	print("❎ to change controls",
+	      13,122,7)
 	for i=0,8 do
 		spr(i,115,i*7+7)
 	end
@@ -182,8 +173,8 @@ function note_state()
 	function s.update() end
 
 	function s.draw()
-		print("⬆️⬇️⬅️➡️ to move",25,101,7)
-		print("🅾️ to place/erase note",13,108,7)
+		print("⬆️⬇️⬅️➡️ to move",13,94,7)
+		print("🅾️ to place/erase note",13,101,7)
 		draw_pointer()
 	end
 	
@@ -304,10 +295,10 @@ function play_state()
 		local offset = coords(s.next,0)
 		local col = 9-tonum(s.playing)
 		rect(offset,7,offset+7,7*(n+1),col)
-		print("🅾️ to start/stop",25,94,7)
+		print("🅾️ to start/stop",13,94,7)
 		print("⬅️➡️ to change position",13,101,7)
 		print("⬆️⬇️ to change tempo",13,108,7)
-		print("current speed: "..spd,25,115,7)
+		print("current speed: "..spd,13,115,7)
 	end
 	
 	function s.left()
@@ -377,6 +368,38 @@ function copy_state()
 	function s.o() 
 		paste_measure()
 	end
+	
+	return s
+end
+
+
+function change_state()
+	local s = {}
+	s.name="change"
+	
+	function s.update() end
+	
+	function s.draw()
+		print("⬅️: place notes",13,94,7)
+		print("➡️: change note properties",13,101,7)
+		print("⬆️: playback",13,108,7)
+		print("⬇️: copy/paste measures",13,115,7)
+	end
+	
+	function s.left()
+		state = note_state()
+	end
+	function s.right()
+		state = select_state()
+	end
+	function s.up()
+		state = play_state()
+	end
+	function s.down()
+		state = copy_state()
+	end
+	
+	function s.o()end
 	
 	return s
 end
