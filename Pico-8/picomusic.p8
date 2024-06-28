@@ -146,6 +146,16 @@ function draw_grid()
 	)
 end
 
+function draw_guides(guides)
+	i = 0
+	foreach(guides,
+	function(str)
+		print(str,13,94+i,7)
+		i += 7
+	end
+	)
+end
+
 function draw_pointer()
 	//draws pointer position
 	local x,y = coords(px,py)
@@ -171,10 +181,11 @@ function note_state()
 	local s = {}
 	s.name="note"
 	function s.update() end
-
+	
 	function s.draw()
-		print("⬆️⬇️⬅️➡️: move cursor",13,101,7)
-		print("🅾️: place/erase note",13,108,7)
+		draw_guides({"",
+		             "⬆️⬇️⬅️➡️: move cursor",
+		             "🅾️: place/erase note"})
 		draw_pointer()
 	end
 	
@@ -221,9 +232,9 @@ function select_state()
 	
 	function s.draw()
 		draw_ins_select(9)
-		print("🅾️: cycle instrument",13,94,7)
-		print("⬆️⬇️: change octave",13,101,7)
-		print("⬅️➡️: change volume",13,108,7)
+		draw_guides({"🅾️: cycle instrument",
+		             "⬆️⬇️: change octave",
+		             "⬅️➡️: change volume"})
 	end
 	
 	function s.left() 
@@ -295,10 +306,11 @@ function play_state()
 		local offset = coords(s.next,0)
 		local col = 9-tonum(s.playing)
 		rect(offset,7,offset+7,7*(n+1),col)
-		print("🅾️: start/stop",13,94,7)
-		print("⬅️➡️: change position",13,101,7)
-		print("⬆️⬇️: change tempo",13,108,7)
-		print("current speed: "..spd,13,115,7)
+		
+		draw_guides({"🅾️: start/stop",
+		             "⬅️➡️: change position",
+		             "⬆️⬇️: change tempo",
+		             "current speed: "..spd})
 	end
 	
 	function s.left()
@@ -340,12 +352,13 @@ function copy_state()
 	function s.update() end
 	
 	function s.draw()
-		print("⬅️➡️: change measure",13,94,7)
-		print("⬆️: copy measure",13,101,7)
-		print("⬇️: clear copy",13,108,7)
+		local gd = {"⬅️➡️: change measure",
+		            "⬆️: copy measure",
+		            "⬇️: clear copy"}
 		if dget1(0) == 1 then
-			print("🅾️: paste copied measure",13,115,7)
+			add(gd,"🅾️: paste copied measure")
 		end
+		draw_guides(gd)
 	end
 	
 	function s.left()
@@ -380,10 +393,10 @@ function change_state()
 	function s.update() end
 	
 	function s.draw()
-		print("⬅️: place notes",13,94,7)
-		print("➡️: change note properties",13,101,7)
-		print("⬆️: playback",13,108,7)
-		print("⬇️: copy/paste measures",13,115,7)
+		draw_guides({"⬅️: place notes",
+		             "➡️: change note properties",
+		             "⬆️: playback",
+		             "⬇️: copy/paste measures"})
 		rectfill(0,122,128,128,1)
 	end
 	
