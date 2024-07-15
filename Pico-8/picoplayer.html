@@ -6,7 +6,8 @@
     <script type="text/javascript">
         // Cartridge that will be loaded is based off the passed in URL parameter.
         const cartname = new URL(window.location.href).searchParams.get("cart");
-        const cartsrc = `${cartname}.js`;
+        const cartsrc = `exports/${cartname}.js`;
+        const cartlabel = `exports/${cartname}.png`;
 
         var http = new XMLHttpRequest();
         http.open('HEAD', cartsrc, false);
@@ -1047,7 +1048,7 @@
 
             <script>
                 // Dynamically set the background image based on URL parameters
-                document.getElementById("p8_start_button").style.setProperty("--url", `url(${cartname}.png)`);
+                document.getElementById("p8_start_button").style.setProperty("--url", `url(${cartlabel})`);
             </script>
 
 
