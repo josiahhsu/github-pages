@@ -1,4 +1,4 @@
-$carts = ls *.p8
+$carts = ls source/*.p8
 foreach($cart in $carts)
 {
     $cartname = (Get-Item $cart).BaseName
