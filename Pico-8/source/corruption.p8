@@ -17,7 +17,7 @@ function _draw()
 	state.draw()
 end
 
-function template_controls()
+function template_state()
 	local t = {}
 	function t:left() end
 	function t:right() end
@@ -25,24 +25,26 @@ function template_controls()
 	function t:down() end
 	function t:o() end
 	function t:x() end
+	function t:update() end
+	function t:draw() end
 	return t
 end
 
 function controls()
 	if btnp(⬅️) then
-		ctrl.left()
+		state.left()
 	elseif btnp(➡️) then
-		ctrl.right()
+		state.right()
 	elseif btnp(⬆️) then
-		ctrl.up()
+		state.up()
 	elseif btnp(⬇️) then
-		ctrl.down()
+		state.down()
 	end
 
 	if btnp(🅾️) then
-		ctrl.o()
+		state.o()
 	elseif btnp(❎) then
-		ctrl.x()
+		state.x()
 	end
 end
 
@@ -58,7 +60,7 @@ end
 -->8
 // main menu
 function title_state()
-	local s={}
+	local s=template_state()
 	s.time = 0
 	s.mirror = false
 	
@@ -82,31 +84,23 @@ function title_state()
 		spr(32,64,56,1,1,s.mirror)
 	end
 	
-	ctrl = title_controls()
-	return s
-end
-
-function title_controls()
-	local t = template_controls()
-	function t:x()
+	function s:x()
 		state = map_state()
 		cls()
 		music(-1)
 	end
-	return t
+	return s
 end
 -->8
 // map
 function map_state()
-	local s={}
+	local s=template_state()
 	function s.update()
 	end
 	
 	function s.draw()
 			map(16,0)
 	end
-	
-	ctrl = template_controls()
 	return s
 end
 __gfx__
