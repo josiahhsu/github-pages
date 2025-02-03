@@ -174,11 +174,15 @@ function map_state()
 	local s=template_state()
 	s.roll_count=0
 	s.roll_result=0
+	s.is_rolling = false
 	
 	function s:update()
 		if s.roll_count > 0 then
 			s.roll_result=roll()
 			s.roll_count-=1
+			if s.roll_count == 0 then
+				s.is_rolling = false
+			end
 		end
 	end
 	
@@ -190,8 +194,9 @@ function map_state()
 	end
 	
 	function move_player(dx,dy)
-		if s.roll_result > 0 and
-			  valid_move(px+dx,py+dy) then
+		if not s.is_rolling and
+		   s.roll_result > 0 and
+		  valid_move(px+dx,py+dy) then
 			px += dx
 			py += dy
 			s.roll_result-=1
@@ -228,8 +233,10 @@ function map_state()
 	end
 	
 	function s:o()
-		if s.roll_result==0 then
+		if not s.is_rolling and
+		   s.roll_result == 0 then
 			s.roll_count=20
+			s.is_rolling = true
 		end
 	end
 	
