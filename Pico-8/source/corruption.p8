@@ -1,10 +1,21 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
+#include shared/gridhelpers.p8
+
 function _init()
 	cls()
 	
 	state = title_state()
+	init_map(1)
+	
+	px,py=0,0
+	function init_player(x,y)
+		if get_cell(x,y).start then
+			px,py = x,y
+		end
+	end
+	cell_do_all(init_player)
 end
 
 function _update()
@@ -17,16 +28,16 @@ function _draw()
 end
 
 function template_state()
-	local t = {}
-	function t:left() end
-	function t:right() end
-	function t:up() end
-	function t:down() end
-	function t:o() end
-	function t:x() end
-	function t:update() end
-	function t:draw() end
-	return t
+	local s = {}
+	function s:left() end
+	function s:right() end
+	function s:up() end
+	function s:down() end
+	function s:o() end
+	function s:x() end
+	function s:update() end
+	function s:draw() end
+	return s
 end
 
 function controls()
@@ -59,6 +70,33 @@ function corrupt(n)
 	for i=1,n do
 		poke(abs(rnd(-1)),rnd(-1))
 	end
+end
+
+function make_cell(x,y)
+	local cell = {}
+	local m=mget(x,y)
+	cell.path = fget(m,0)
+	cell.corrupt = fget(m,1)
+	cell.minigame = fget(m,2)
+	cell.finish = fget(m,3)
+	cell.start = fget(m,4)
+	return cell
+end
+
+function init_map(n)
+	local grid = {}
+	local d = n*16
+	for x=1,14 do
+		grid[x] = {}
+		for y=1,14 do
+			grid[x][y] = make_cell(x+d,y)
+		end
+	end
+	set_grid(grid,true)
+end
+
+function translate(n)
+	return n*8
 end
 -->8
 // main menu
@@ -114,6 +152,23 @@ function map_state()
 		map(16,0)
 		local res = 2*s.roll_result
 		spr(36+res,16,96,2,2)
+		spr(32,translate(px),translate(py))
+	end
+	
+	function s:left() 
+		move_player(-1,0)
+	end
+	
+	function s:right() 
+		move_player(1,0)
+	end
+	
+	function s:up()
+		move_player(0,-1)
+	end
+	
+	function s:down()
+		move_player(0,1)
 	end
 	
 	function s:o()
@@ -125,6 +180,22 @@ function map_state()
 	
 	music(1)
 	return s
+end
+
+function move_player(dx,dy)
+	if valid_move(px+dx,py+dy) then
+		px += dx
+		py += dy
+	end
+end
+
+function valid_move(x,y)
+	if in_bounds_x(x) and
+	   in_bounds_y(y) then
+		return get_cell(x,y).path
+	end
+	
+	return false
 end
 
 function roll()
@@ -310,7 +381,7 @@ __label__
 55555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555
 
 __gff__
-0000000000010200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000091101030500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 0101010101010101010101010101010101010101010101010101010101010101000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
