@@ -10,7 +10,7 @@ function _init()
 	current_map=ceil(rnd(3))*16
 	init_map()
 	
-	px,py=0,0
+	px,py,plastdx,plastdy=0,0,0,0
 	function init_player(x,y)
 		if get_cell(x,y).start then
 			px,py = x,y
@@ -191,12 +191,19 @@ function map_state()
 		spr(32,translate(px),translate(py))
 	end
 	
+	function is_advancing(dx,dy)
+		return plastdx + dx != 0 or
+		       plastdy + dy != 0
+	end
+	
 	function move_player(dx,dy)
 		if not s.is_rolling and
 		   s.roll_result > 0 and
+		   is_advancing(dx,dy) and 
 		  valid_move(px+dx,py+dy) then
 			px += dx
 			py += dy
+			plastdx,plastdy = dx,dy
 			s.roll_result-=1
 			local cell = get_cell(px,py)
 			if cell.finish then
