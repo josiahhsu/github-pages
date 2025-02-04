@@ -10,7 +10,7 @@ function _init()
 	current_map=ceil(rnd(3))*16
 	init_map()
 	
-	px,py,plastdx,plastdy=0,0,0,0
+	px,py,pback=0,0,nil
 	function init_player(x,y)
 		if get_cell(x,y).start then
 			px,py = x,y
@@ -170,6 +170,13 @@ end
 // map
 function map_state()
 	local s=template_state()
+	local dir_map=
+	{ //dx,dy,opposite dir
+		[⬆️]={0,-1,⬇️},
+		[⬇️]={0,1,⬆️},
+		[⬅️]={-1,0,➡️},
+		[➡️]={1,0,⬅️}
+	}
 	s.roll_count=0
 	s.roll_result=0
 	s.is_rolling=false
@@ -191,19 +198,15 @@ function map_state()
 		spr(32,translate(px),translate(py))
 	end
 	
-	function is_advancing(dx,dy)
-		return plastdx + dx != 0 or
-		       plastdy + dy != 0
-	end
-	
-	function move_player(dx,dy)
+	function move_player(dir)
+		local dx,dy,back = unpack(dir_map[dir])
 		if not s.is_rolling and
 		   s.roll_result > 0 and
-		   is_advancing(dx,dy) and 
+		   dir != pback and
 		  valid_move(px+dx,py+dy) then
 			px += dx
 			py += dy
-			plastdx,plastdy = dx,dy
+			pback=back
 			s.roll_result-=1
 			local cell = get_cell(px,py)
 			if cell.finish then
@@ -226,19 +229,19 @@ function map_state()
 	end
 	
 	function s:left() 
-		move_player(-1,0)
+		move_player(⬅️)
 	end
 	
 	function s:right() 
-		move_player(1,0)
+		move_player(➡️)
 	end
 	
 	function s:up()
-		move_player(0,-1)
+		move_player(⬆️)
 	end
 	
 	function s:down()
-		move_player(0,1)
+		move_player(⬇️)
 	end
 	
 	function s:o()
