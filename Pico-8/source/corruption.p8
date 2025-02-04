@@ -214,7 +214,7 @@ function map_state()
 			end
 			if s.roll_result == 0 then
 				if cell.corrupt then
-					corrupt(100)
+					corrupt(750)
 				end
 			end
 		end
