@@ -6,17 +6,8 @@ __lua__
 function _init()
 	cls()
 	
+	current_map = nil
 	state = title_state()
-	current_map=ceil(rnd(3))*16
-	init_map()
-	
-	px,py,pback=0,0,nil
-	function init_player(x,y)
-		if get_cell(x,y).start then
-			px,py = x,y
-		end
-	end
-	cell_do_all(init_player)
 end
 
 function _update()
@@ -72,32 +63,6 @@ function corrupt(n)
 	for i=1,n do
 		poke(abs(rnd(-1)),rnd(-1))
 	end
-end
-
-function make_cell(x,y)
-	local cell = {}
-	local m=mget(x,y)
-	cell.path = fget(m,0)
-	cell.corrupt = fget(m,1)
-	cell.minigame = fget(m,2)
-	cell.finish = fget(m,3)
-	cell.start = fget(m,4)
-	return cell
-end
-
-function init_map()
-	local grid = {}
-	for x=1,14 do
-		grid[x] = {}
-		for y=1,14 do
-			grid[x][y]=make_cell(x+current_map,y)
-		end
-	end
-	set_grid(grid,true)
-end
-
-function translate(n)
-	return n*8
 end
 -->8
 // main menu
@@ -159,12 +124,48 @@ function title_state()
 		if s.show_help then
 			s.show_help = false
 		else
+			start_game()
 			state = map_state()
 		end
 	end
 	
 	music(0)
 	return s
+end
+
+function make_cell(x,y)
+	local cell = {}
+	local m=mget(x,y)
+	cell.path = fget(m,0)
+	cell.corrupt = fget(m,1)
+	cell.minigame = fget(m,2)
+	cell.finish = fget(m,3)
+	cell.start = fget(m,4)
+	return cell
+end
+
+function start_game()
+	current_map=ceil(rnd(3))*16
+	local grid = {}
+	for x=1,14 do
+		grid[x] = {}
+		for y=1,14 do
+			grid[x][y]=make_cell(x+current_map,y)
+		end
+	end
+	set_grid(grid,true)
+	
+	px,py,pback=0,0,nil
+	function init_player(x,y)
+		if get_cell(x,y).start then
+			px,py = x,y
+		end
+	end
+	cell_do_all(init_player)
+end
+
+function translate(n)
+	return n*8
 end
 -->8
 // map
@@ -269,6 +270,12 @@ function win_state()
 	function s:draw()
 		map(0,16)
 	end
+	
+	function s:o()
+		state=title_state()
+	end
+	
+	function s:x() s.o() end
 	
 	music(0)
 	return s
