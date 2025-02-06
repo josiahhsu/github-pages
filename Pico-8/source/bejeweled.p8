@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
-#include shared/gridhelpers.p8
+#include shared/grid.p8
 #include shared/math.p8:0
 
 function _init()
@@ -12,7 +12,7 @@ function _init()
 	ps = nil //player stored cell
 	pm = nil //moved cell
 	size = 12 //size of grid
-	set_grid(make_grid(),true)
+	grid = make_grid()
 	specials = {}
 	bombs = {}
 	wilds = {}
@@ -57,7 +57,7 @@ function make_plain(cell)
 	//from cells
 	cell.color %= 8
 	cell.special = false
-	function cell:clear_cell()
+	function cell.clear_cell()
 		cell.clear = true
 	end
 end
@@ -68,7 +68,7 @@ function make_bomb(cell)
 	cell.clear = false
 	cell.special = true
 	cell.color = cell.color%16+16
-	function cell:clear_cell()
+	function cell.clear_cell()
 		//blows up surrounding cells
 		cell.clear = true
 		local c = cell.x
@@ -83,7 +83,7 @@ function make_bomb(cell)
 				draw_grid()
 			end
 			wait(1)
-			cell_do_adj(c,r,clear)
+			grid.do_adj(c,r,clear)
 		end
 		make_plain(cell)
 	end
@@ -95,7 +95,7 @@ function make_lightning(cell)
 	cell.clear = false
 	cell.special = true
 	cell.color = cell.color%16+32
-	function cell:clear_cell()
+	function cell.clear_cell()
 		//blows up surrounding cells
 		cell.clear = true
 		local c = cell.x
@@ -113,8 +113,8 @@ function make_lightning(cell)
 				draw_grid()
 			end
 
-			cell_do_lane(r,true,clear)
-			cell_do_lane(c,false,clear)
+			grid.do_lane(r,true,clear)
+			grid.do_lane(c,false,clear)
 		end
 		make_plain(cell)
 	end
@@ -134,14 +134,8 @@ end
 
 function make_grid()
 	//initializes a grid of cells
-	local grid = {}
-	for i = 1, size do
-		grid[i] = {}
-		for j = 1, size do
-			grid[i][j] = make_cell(i,j)
-		end
-	end
-	return grid
+	return create_grid(size,size,true,
+	                   make_cell)
 end
 
 function init_grid()
@@ -150,11 +144,11 @@ function init_grid()
 	removedwild = false
 	while clear_cells()!=0 do end
 	
-	cell_do_all(
+	grid.do_all(
 	function(x,y)
-		make_plain(get_cell(x,y))
-		if get_cell(x,y).color==0 then
-			get_cell(x,y).color = 1
+		make_plain(grid.get(x,y))
+		if grid.get(x,y).color==0 then
+			grid.get(x,y).color = 1
 			removedwild = true
 		end
 	end
@@ -174,8 +168,8 @@ function shuffle()
 		for r = 1, size do
 			local x = rand_int(size)
 			local y = rand_int(size)
-			swap(get_cell(c,r),
-			     get_cell(x,y))
+			swap(grid.get(c,r),
+			     grid.get(x,y))
 		end
 	end
 	draw_grid()
@@ -187,7 +181,7 @@ function draw_grid()
 	//displays the board
 	rectfill(0,0,128,128,1)
 	rectfill(9,14,117,122,15)
-	cell_do_all(draw_cell)
+	grid.do_all(draw_cell)
 	print("score: "..score,9,2,6)
 end
 
@@ -221,7 +215,7 @@ end
 
 function draw_cell(x,y)
 	//displays one cell
-	local cell = get_cell(x,y)
+	local cell = grid.get(x,y)
 	if not cell.clear then
 		spr(cell.color,coords(x,y))
 	end
@@ -241,9 +235,9 @@ function controls()
 	end
 	if btn(🅾️) and btn(❎) then
 		//testing purposes only
-		//make_wild(get_cell(px,py))
-		//make_bomb(get_cell(px,py))
-		//make_lightning(get_cell(px,py))
+		//make_wild(grid.get(px,py))
+		//make_bomb(grid.get(px,py))
+		//make_lightning(grid.get(px,py))
 		//shuffle()
 	elseif btnp(🅾️) or btnp(❎) then
 		swap_action()
@@ -261,8 +255,8 @@ end
 function valid_move(x,y)
 	//checks to see if pointer
 	//movement is valid
-	local valid = in_bounds_x(x) and
-	              in_bounds_y(y)
+	local valid = grid.in_bounds_x(x) and
+	              grid.in_bounds_y(y)
 
 	//restricts movement to 1
 	//square if cell selected
@@ -288,7 +282,7 @@ end
 function swap_action()
 	//player initiated
 	//cell swap
-	local c = get_cell(px,py)
+	local c = grid.get(px,py)
 	if ps == nil then
 		//stores a cell
 		sfx(0)
@@ -334,7 +328,7 @@ function swap(c1, c2)
 	//and updates their x/y coords
 	local x1, x2 = c1.x, c2.x
 	local y1, y2 = c1.y, c2.y
-	swap_cells(x1,y1,x2,y2)
+	grid.swap(x1,y1,x2,y2)
 	c1.x, c2.x = x2, x1
 	c1.y, c2.y = y2, y1
 end
@@ -348,7 +342,7 @@ function match(c1, c2)
 end
 
 function clear(x,y)
-	clear_cell(get_cell(x,y))
+	clear_cell(grid.get(x,y))
 end
 
 function clear_cell(c)
@@ -404,18 +398,18 @@ function clear_cells()
 		wait(5)
 	end
 	
-	cell_do_all(
+	grid.do_all(
 	function(x,y)
-		if get_cell(x,y).clear then
+		if grid.get(x,y).clear then
 			//swaps cleared cell to top
 			//and replaces it - "drop"
 			cleared += 1
 			for j = y, 2, -1 do
-				local c1 = get_cell(x,j)
-				local c2 = get_cell(x,j-1)
+				local c1 = grid.get(x,j)
+				local c2 = grid.get(x,j-1)
 				swap(c1,c2)
 			end
-			set_cell(x,1,make_cell(x,1))
+			grid.set(x,1,make_cell(x,1))
 		end
 	end
 	)
@@ -470,9 +464,9 @@ function check_lines(l)
 			end
 		end
 		
-		cell_do_lane(l,isrow==0,
+		grid.do_lane(l,isrow==0,
 		function(x,y)
-			local cell = get_cell(x,y)
+			local cell = grid.get(x,y)
 			if not match(cell.color,cl) then
 				check_match()
 				cells = {}
@@ -503,9 +497,9 @@ function wildcard(c1,c2)
 	//clear all colors matching c2
 	local c = c2.color
 	local cells = {}
-	cell_do_all(
+	grid.do_all(
 	function(x,y)
-		local cell = get_cell(x,y)
+		local cell = grid.get(x,y)
 		if match(cell.color,c) then
 			cell.color-=cell.color%16
 			add(cells, cell)
@@ -524,9 +518,9 @@ end
 function clear_all()
 	//double wildcards -
 	//clears whole screen
-	cell_do_all(
+	grid.do_all(
 	function(x,y)
-		get_cell(x,y).clear = true;
+		grid.get(x,y).clear = true;
 	end
 	)
 	

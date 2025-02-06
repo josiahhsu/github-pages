@@ -47,8 +47,8 @@ function create_grid(bx,by,
 	function g.swap(x1,y1,x2,y2)
 		g.grid[x1][y1],
 		g.grid[x2][y2] =
-		g.get_cell(x2,y2),
-		g.get_cell(x1,y1)
+		g.get(x2,y2),
+		g.get(x1,y1)
 	end
 	
 	// helpers for operating on
