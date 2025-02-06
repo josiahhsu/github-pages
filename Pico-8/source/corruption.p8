@@ -146,7 +146,8 @@ function start_game()
 		cell.start = fget(m,4)
 		return cell
 	end
-	grid=make_grid(14,14,true,make_cell)
+	grid=create_grid(14,14,true,
+	                 make_cell)
 	
 	px,py,pback=0,0,nil
 	local function init_player(x,y)

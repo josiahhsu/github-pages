@@ -10,7 +10,9 @@ __lua__
 //  are enforced
 // fn = function for 
 //  initializing grid cells
-function make_grid(bx,by,enforce,fn)
+function create_grid(bx,by,
+                     enforce,
+                     fn)
 	local g = {}
 	
 	// make grid using supplied

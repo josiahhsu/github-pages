@@ -20,7 +20,8 @@ function _init()
 		cell.vol = -1
 		return cell
 	end
-	grid=make_grid(m,n,true,make_cell)
+	grid=create_grid(m,n,true,
+	                 make_cell)
 	
 	px,py,msr,ins,oct,vol,spd =
 	1,1,1,0,1,1,5
