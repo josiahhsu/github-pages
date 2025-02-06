@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
-#include shared/gridhelpers.p8
+#include shared/grid.p8
 #include shared/math.p8:1
 function _init()
 	cls()
@@ -11,9 +11,18 @@ function _init()
 	beats = 16
 	num_msrs=64
 	m,n = beats*num_msrs,12
-	set_grid(make_grid(),true)
 	
-	px,py,msr,ins,oct,vol,spd = 
+	function make_cell()
+		//makes a cell
+		local cell = {}
+		cell.ins = -1
+		cell.oct = -1
+		cell.vol = -1
+		return cell
+	end
+	grid=make_grid(m,n,true,make_cell)
+	
+	px,py,msr,ins,oct,vol,spd =
 	1,1,1,0,1,1,5
 	
 	notes ={"b#","b","a#","a",
@@ -33,33 +42,6 @@ function _draw()
 	state.draw()
 end
 -->8
-function make_cell()
-	//makes a cell
-	local cell = {}
-	cell.ins = -1
-	cell.oct = -1
-	cell.vol = -1
-	return cell
-end
-
-function shuffle(t)
-	for i = 1, #t do
-		local j = rand_int(i)
-		t[i],t[j] = t[j],t[i]
-	end
-end
-
-function make_grid()
-	local grid = {}
-	for i = 1, m do
-		grid[i] = {}
-		for j = 1, n do
-			grid[i][j] = make_cell()
-		end
-	end
-	return grid
-end
--->8
 function controls()
 	//player controls
 	if btn(❎) then
@@ -76,7 +58,7 @@ function controls()
 	elseif btnp(⬇️) then
 		state.down()
 	end
-
+	
 	if btnp(🅾️) then
 		state.o()
 	end
@@ -87,14 +69,14 @@ function update_msr(v)
 end
 
 function move_horz(dx)
-	if in_bounds_x(px+dx) then
+	if grid.in_bounds_x(px+dx) then
 		px += dx
 		update_msr(px)
 	end
 end
 
 function move_vert(dy)
-	if in_bounds_y(py+dy) then
+	if grid.in_bounds_y(py+dy) then
 		py += dy
 	end
 end
@@ -111,7 +93,7 @@ end
 
 function measure_do_all(f)
 	local base = (msr-1)*beats+1
-	cell_do_area(base,base+beats-1,
+	grid.do_area(base,base+beats-1,
 	             1,n,f)
 end
 
@@ -133,7 +115,7 @@ function draw_grid()
 	measure_do_all(
 	function(x,y)
 		//draws cells on grid
-		local cell = get_cell(x,y)
+		local cell = grid.get(x,y)
 		x,y = coords(x,y)
 		spr(16,x,y)
 		local col = cell.ins
@@ -169,7 +151,7 @@ function play(ins,vol,y,oct)
 end
 
 function play_cell(x,y)
-	local c = get_cell(x,y)
+	local c = grid.get(x,y)
 	local i,v,o = c.ins,c.vol,c.oct
 	if i >= 0 then
 		play(i,v,y,o)
@@ -206,7 +188,7 @@ function note_state()
 	end
 	
 	function s.o()
-		local cell = get_cell(px,py)
+		local cell = grid.get(px,py)
 		if cell.ins == ins then
 			cell.ins = -1
 		else
@@ -216,7 +198,7 @@ function note_state()
 			play_cell(px,py)
 		end
 	end
-
+	
 	return s
 end
 
@@ -237,7 +219,7 @@ function select_state()
 		             "⬅️➡️: change volume"})
 	end
 	
-	function s.left() 
+	function s.left()
 		if vol > 0 then
 			vol -= 1
 		end
@@ -265,11 +247,11 @@ function select_state()
 		test_play()
 	end
 	
-	function s.o() 
+	function s.o()
 		ins = (ins + 1) % 8
 		test_play()
 	end
-
+	
 	return s
 end
 
@@ -287,14 +269,14 @@ function play_state()
 		end
 		
 		if s.t == 0 then
-			cell_do_lane(s.next,false,play_cell)
+			grid.do_lane(s.next,false,play_cell)
 		elseif s.t % spd == 0 then
 			if s.next == m then
 				s.playing = false
 			else
 				s.next+=1
 				update_msr(s.next)
-				cell_do_lane(s.next,false,play_cell)
+				grid.do_lane(s.next,false,play_cell)
 			end
 		end
 		
@@ -378,13 +360,12 @@ function copy_state()
 		clear_copy()
 	end
 	
-	function s.o() 
+	function s.o()
 		paste_measure()
 	end
 	
 	return s
 end
-
 
 function change_state()
 	local s = {}
@@ -462,7 +443,7 @@ function copy_measure()
 	local i = 1
 	measure_do_all(
 	function(x,y)
-		local cell = get_cell(x,y)
+		local cell = grid.get(x,y)
 		dset1(i,serialize_cell(cell))
 		i+=1
 	end
@@ -487,7 +468,7 @@ function paste_measure()
 	function(x,y)
 		ser = dget1(i)
 		local cell = deserialize_cell(ser)
-		set_cell(x,y,cell)
+		grid.set(x,y,cell)
 		i+=1
 	end
 	)
