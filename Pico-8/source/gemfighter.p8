@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
-#include shared/gridhelpers.p8
+#include shared/grid.p8
 #include shared/math.p8:0
 
 function _init()
@@ -24,6 +24,7 @@ function _init()
 	ctrl = grid_controls()
 
 	//grid
+	grid = nil
 	size = 7 //size of grid
 
 	//trackers
@@ -131,39 +132,14 @@ function make_cell(x,y,cl)
 	return c
 end
 
-function make_grid()
-	//initializes a grid of cells
-	local grid = {}
-	for i = 1, size do
-		grid[i] = {}
-		for j = 1, size do
-			grid[i][j] = make_cell(i,j)
-		end
-	end
-	return grid
-end
-
 function init_grid()
 	//initializes the grid
 	//at the start of the game
-	set_grid(make_grid(),true)
+	grid = create_grid(size,size,
+	                   true,
+	                   make_cell)
 	while clear_cells()!=0 do end
 	stats=init_stats()
-end
-
-function shuffle()
-	//shuffles the board while
-	//keeping current tiles
-	cell_do_all(
-	function(x,y)
-		local x2 = rand_int(size)
-		local y2 = rand_int(size)
-		swap(get_cell(x,y),
-		     get_cell(x2,y2))
-	end
-	)
-	screen.draw_screen()
-	update_grid()
 end
 
 function draw_grid()
@@ -172,7 +148,7 @@ function draw_grid()
 	rectfill(9,6,117,122,15)
 	rectfill(9,49,117,122,13)
 	rect(9,59,72,122,6)
-	cell_do_all(draw_cell)
+	grid.do_all(draw_cell)
 end
 
 function update_grid()
@@ -194,7 +170,7 @@ end
 
 function draw_cell(x,y)
 	//displays one cell
-	local cell = get_cell(x,y)
+	local cell = grid.get(x,y)
 	if not cell.clear then
 		spr(cell.color,coords(x,y))
 	end
@@ -307,8 +283,8 @@ function valid_move(x,y)
 	//checks to see if pointer
 	//movement is valid
 	local in_bounds =
-		in_bounds_x(x) and
-		in_bounds_y(y)
+		grid.in_bounds_x(x) and
+		grid.in_bounds_y(y)
 	//restricts movement to 1
 	//square if cell selected
 	if in_bounds and ps then
@@ -326,7 +302,7 @@ function swap_action()
 	//player initiated
 	//cell swap
 	sfx(0)
-	local c = get_cell(px,py)
+	local c = grid.get(px,py)
 	if ps == nil then
 		//stores a cell
 		ps = c
@@ -352,7 +328,7 @@ function swap(c1, c2)
 	//and updates their x/y coords
 	local x1, x2 = c1.x, c2.x
 	local y1, y2 = c1.y, c2.y
-	swap_cells(x1,y1,x2,y2)
+	grid.swap(x1,y1,x2,y2)
 	c1.x, c2.x = x2, x1
 	c1.y, c2.y = y2, y1
 end
@@ -383,17 +359,17 @@ function clear_cells()
 	//were cleared
 	cleared = 0
 
-	cell_do_all(
+	grid.do_all(
 	function(x,y)
-		if get_cell(x,y).clear then
+		if grid.get(x,y).clear then
 			//swaps cleared cell to top
 			//and replaces it - "drop"
 			cleared += 1
 			for j = y, 2, -1 do
-				swap(get_cell(x,j),
-				     get_cell(x,j-1))
+				swap(grid.get(x,j),
+				     grid.get(x,j-1))
 			end
-			set_cell(x,1,make_cell(x,1))
+			grid.set(x,1,make_cell(x,1))
 		end
 	end
 	)
@@ -429,9 +405,9 @@ function check_lines(l)
 			end
 		end
 		
-		cell_do_lane(l,isrow==0,
+		grid.do_lane(l,isrow==0,
 		function(x,y)
-			local cell = get_cell(x,y)
+			local cell = grid.get(x,y)
 			local m = match(cell.color,cl)
 			if not match(cell.color,cl) then
 				check_match()
