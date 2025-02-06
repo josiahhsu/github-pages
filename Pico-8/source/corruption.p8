@@ -1,11 +1,12 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
-#include shared/gridhelpers.p8
+#include shared/grid.p8
 
 function _init()
 	cls()
 	
+	grid = nil
 	current_map = nil
 	state = title_state()
 end
@@ -22,14 +23,14 @@ end
 
 function template_state()
 	local s = {}
-	function s:left() end
-	function s:right() end
-	function s:up() end
-	function s:down() end
-	function s:o() end
-	function s:x() end
-	function s:update() end
-	function s:draw() end
+	function s.left() end
+	function s.right() end
+	function s.up() end
+	function s.down() end
+	function s.o() end
+	function s.x() end
+	function s.update() end
+	function s.draw() end
 	return s
 end
 
@@ -116,11 +117,11 @@ function title_state()
 		end
 	end
 	
-	function s:x()
+	function s.x()
 		s.show_help = not s.show_help
 	end
 	
-	function s:o()
+	function s.o()
 		if s.show_help then
 			s.show_help = false
 		else
@@ -133,35 +134,27 @@ function title_state()
 	return s
 end
 
-function make_cell(x,y)
-	local cell = {}
-	local m=mget(x,y)
-	cell.path = fget(m,0)
-	cell.corrupt = fget(m,1)
-	cell.minigame = fget(m,2)
-	cell.finish = fget(m,3)
-	cell.start = fget(m,4)
-	return cell
-end
-
 function start_game()
 	current_map=ceil(rnd(3))*16
-	local grid = {}
-	for x=1,14 do
-		grid[x] = {}
-		for y=1,14 do
-			grid[x][y]=make_cell(x+current_map,y)
-		end
+	local function make_cell(x,y)
+		local cell = {}
+		local m=mget(x+current_map,y)
+		cell.path = fget(m,0)
+		cell.corrupt = fget(m,1)
+		cell.minigame = fget(m,2)
+		cell.finish = fget(m,3)
+		cell.start = fget(m,4)
+		return cell
 	end
-	set_grid(grid,true)
+	grid=make_grid(14,14,true,make_cell)
 	
 	px,py,pback=0,0,nil
-	function init_player(x,y)
-		if get_cell(x,y).start then
+	local function init_player(x,y)
+		if grid.get(x,y).start then
 			px,py = x,y
 		end
 	end
-	cell_do_all(init_player)
+	grid.do_all(init_player)
 end
 
 function translate(n)
@@ -182,7 +175,7 @@ function map_state()
 	s.roll_result=0
 	s.is_rolling=false
 	
-	function s:update()
+	function s.update()
 		if s.roll_count > 0 then
 			s.roll_result=roll()
 			s.roll_count-=1
@@ -192,14 +185,14 @@ function map_state()
 		end
 	end
 	
-	function s:draw()
+	function s.draw()
 		map(current_map,0)
 		local res = 2*s.roll_result
 		spr(34+res,16,96,2,2)
 		spr(32,translate(px),translate(py))
 	end
 	
-	function move_player(dir)
+	local function move_player(dir)
 		local dx,dy,back = unpack(dir_map[dir])
 		if not s.is_rolling and
 		   s.roll_result > 0 and
@@ -209,7 +202,7 @@ function map_state()
 			py += dy
 			pback=back
 			s.roll_result-=1
-			local cell = get_cell(px,py)
+			local cell = grid.get(px,py)
 			if cell.finish then
 				state = win_state()
 			end
@@ -222,30 +215,30 @@ function map_state()
 	end
 	
 	function valid_move(x,y)
-		if in_bounds_x(x) and
-		   in_bounds_y(y) then
-			return get_cell(x,y).path
+		if grid.in_bounds_x(x) and
+		   grid.in_bounds_y(y) then
+			return grid.get(x,y).path
 		end
 		return false
 	end
 	
-	function s:left() 
+	function s.left() 
 		move_player(⬅️)
 	end
 	
-	function s:right() 
+	function s.right() 
 		move_player(➡️)
 	end
 	
-	function s:up()
+	function s.up()
 		move_player(⬆️)
 	end
 	
-	function s:down()
+	function s.down()
 		move_player(⬇️)
 	end
 	
-	function s:o()
+	function s.o()
 		if not s.is_rolling and
 		   s.roll_result == 0 then
 			s.roll_count=20
@@ -253,7 +246,7 @@ function map_state()
 		end
 	end
 	
-	function s:x() s.o() end
+	function s.x() s.o() end
 	
 	music(1)
 	return s
@@ -267,15 +260,15 @@ end
 function win_state()
 	local s=template_state()
 	
-	function s:draw()
+	function s.draw()
 		map(0,16)
 	end
 	
-	function s:o()
+	function s.o()
 		state=title_state()
 	end
 	
-	function s:x() s.o() end
+	function s.x() s.o() end
 	
 	music(0)
 	return s
