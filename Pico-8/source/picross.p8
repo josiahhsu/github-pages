@@ -1,14 +1,14 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
-#include shared/gridhelpers.p8
+#include shared/grid.p8
 #include shared/math.p8:0
 
 function _init()
 	cls()
 	total = 0
 	n = 10
-	set_grid(make_grid(),true)
+	grid = make_grid()
 	px,py = 1,1
 	mistakes = 0
 end
@@ -24,29 +24,24 @@ function _draw()
 	end
 end
 -->8
-function make_cell()
-	//makes a cell and determines
-	//whether it's marked or not
-	local cell = {}
-	cell.value = round(rnd(1))
-	cell.revealed = false
-	cell.mistake = false
-	return cell
-end
-
 function make_grid()
 	//makes grid of cells
 	total = 0
-	local grid = {}
-	for i = 1, n do
-		grid[i] = {}
-		for j = 1, n do
-			local cell = make_cell()
-			grid[i][j] = cell
-			total += cell.value
-		end
+	local function make_cell()
+		//makes a cell and determines
+		//whether it's marked or not
+		local cell = {}
+		cell.value = round(rnd(1))
+		total+=cell.value
+		cell.revealed = false
+		cell.mistake = false
+		return cell
 	end
-
+	
+	local grid=create_grid(n,n,
+	                       true,
+	                       make_cell)
+	
 	// make sure grid has good
 	// amount of cells
 	if total < 40 or total > 60 then
@@ -68,7 +63,7 @@ function controls()
 		move_vert(1)
 	end
 
-	local cell = get_cell(px,py)
+	local cell = grid.get(px,py)
 	if btn(🅾️) then
 		reveal_cell(cell,1)
 	elseif btn(❎) then
@@ -77,13 +72,13 @@ function controls()
 end
 
 function move_horz(dx)
-	if in_bounds_x(px+dx) then
+	if grid.in_bounds_x(px+dx) then
 		px += dx
 	end
 end
 
 function move_vert(dy)
-	if in_bounds_y(py+dy) then
+	if grid.in_bounds_y(py+dy) then
 		py += dy
 	end
 end
@@ -100,9 +95,9 @@ function reveal_cell(cell,value)
 		if cell.value == 1 then
 			total -= 1
 			if total == 0 then
-				cell_do_all(
+				grid.do_all(
 				function(x,y)
-					get_cell(x,y).revealed = true
+					grid.get(x,y).revealed=true
 				end
 				)
 			end
@@ -118,7 +113,7 @@ end
 
 function draw_cell(x,y)
 	//draws cells on grid
-	local cell = get_cell(x,y)
+	local cell = grid.get(x,y)
 	x,y = coords(x),coords(y)
 	//dictates how cell is drawn
 	if cell.revealed then
@@ -144,7 +139,7 @@ function draw_grid()
 	print("remaining:"..total,4,34,5)
 	print("mistakes:"..mistakes,4,40,5)
 	draw_nums()
-	cell_do_all(draw_cell)
+	grid.do_all(draw_cell)
 end
 
 function draw_pointer(x,y)
@@ -179,9 +174,9 @@ function count_nums(l,isrow)
 		end
 	end
 	
-	cell_do_lane(l,isrow,
+	grid.do_lane(l,isrow,
 	function(x,y)
-		local v = get_cell(x,y).value
+		local v = grid.get(x,y).value
 		cnt += v
 		if v == 0 then
 			addnz(v)
