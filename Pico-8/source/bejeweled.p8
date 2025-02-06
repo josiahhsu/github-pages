@@ -12,7 +12,9 @@ function _init()
 	ps = nil //player stored cell
 	pm = nil //moved cell
 	size = 12 //size of grid
-	grid = make_grid()
+	grid = create_grid(size,size,
+	                   true,
+	                   make_cell)
 	specials = {}
 	bombs = {}
 	wilds = {}
@@ -130,12 +132,6 @@ function make_wild(cell)
 		c2 = make_cell(-1,-1)
 		wildcard(cell, c2)
 	end
-end
-
-function make_grid()
-	//initializes a grid of cells
-	return create_grid(size,size,true,
-	                   make_cell)
 end
 
 function init_grid()
