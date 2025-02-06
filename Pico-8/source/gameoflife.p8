@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
-#include shared/gridhelpers.p8
+#include shared/grid.p8
 #include shared/math.p8:1
 
 function _init()
@@ -9,7 +9,7 @@ function _init()
 
 	// grid size and # of mines
 	m,n = 18,14
-	set_grid(make_grid(),false)
+	make_grid()
 
 	// player position
 	px,py = 1,1
@@ -39,16 +39,16 @@ function make_cell(x,y)
 	cell.spr = 0
 	cell.nextspr = 0
 	
-	function cell:toggle()
+	function cell.toggle()
 		cell.spr = tonum(cell.spr==0)
 	end
 	
-	function cell:update()
+	function cell.update()
 		local cnt = 0
-		cell_do_adj(x,y,
+		grid.do_adj(x,y,
 		function(i,j)
 			if not (i == x and j == y) and
-			   get_cell(mod(i,m),
+			   grid.get(mod(i,m),
 			            mod(j,n)).spr == 1 then
 				cnt += 1
 			end
@@ -60,7 +60,7 @@ function make_cell(x,y)
 		       or cnt == 3)
 	end
 	
-	function cell:transition()
+	function cell.transition()
 		cell.spr = cell.nextspr
 	end
 	return cell
@@ -68,15 +68,9 @@ end
 
 function make_grid()
 	// init grid
-	local grid = {}
-	for i = 1,m do
-		grid[i] = {}
-		for j = 1,n do
-			grid[i][j] = make_cell(i,j)
-		end
-	end
-	
-	return grid
+	grid=create_grid(18,14,
+	                 false,
+	                 make_cell)
 end
 -->8
 function controls()
@@ -130,10 +124,10 @@ function draw_grid()
 	
 	state.drawcontrols()
 	
-	cell_do_all(
+	grid.do_all(
 	function(x,y)
 		//draws cells on grid
-		spr(get_cell(x,y).spr,coords(x,y))
+		spr(grid.get(x,y).spr,coords(x,y))
 	end
 	)
 end
@@ -182,7 +176,7 @@ function edit_state()
 	end
 
 	function s.o()
-		get_cell(px,py).toggle()
+		grid.get(px,py).toggle()
 	end
 
 	function s.x()
@@ -202,15 +196,15 @@ function play_state()
 		if t == dur then
 			gen+=1
 			t = 0
-			cell_do_all(
+			grid.do_all(
 			function(x,y)
-				get_cell(x,y).update()
+				grid.get(x,y).update()
 			end
 			)
 			
-			cell_do_all(
+			grid.do_all(
 			function(x,y)
-				get_cell(x,y).transition()
+				grid.get(x,y).transition()
 			end
 			)
 		end
@@ -248,7 +242,7 @@ function play_state()
 	function s.down() end
 
 	function s.o()
-		grid = make_grid()
+		make_grid()
 		state = edit_state()
 		gen = 0
 	end
