@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
-#include shared/gridhelpers.p8
+#include shared/grid.p8
 #include shared/math.p8:0
 
 function _init()
@@ -9,7 +9,7 @@ function _init()
 
 	// grid size and # of mines
 	m,n,mines = 18,14,40
-	set_grid(make_grid(),true)
+	grid = make_grid()
 
 	// cells to open
 	remaining = m*n - mines
@@ -59,12 +59,12 @@ function make_grid()
 	shuffle(cells)
 
 	// transform array into grid
-	for i = 1, m do
-		grid[i] = {}
-		for j = 1, n do
-			grid[i][j] = deli(cells)
-		end
+	
+	grid = create_grid(m,n,true,
+	function (x,y)
+		return deli(cells)
 	end
+	)
 	return grid
 end
 -->8
@@ -91,7 +91,7 @@ end
 // standard x button:
 // flag or reveal adjacent
 function x()
-	if get_cell(px,py).opened then
+	if grid.get(px,py).opened then
 		open_adjacent()
 	else
 		flag_cell()
@@ -99,13 +99,13 @@ function x()
 end
 
 function move_horz(dx)
-	if in_bounds_x(px+dx) then
+	if grid.in_bounds_x(px+dx) then
 		px += dx
 	end
 end
 
 function move_vert(dy)
-	if in_bounds_y(py+dy) then
+	if grid.in_bounds_y(py+dy) then
 		py += dy
 	end
 end
@@ -116,9 +116,9 @@ end
 function opening_move()
 	local cnt,empty = 0,{}
 
-	cell_do_all(
+	grid.do_all(
 	function(i,j)
-		local cell = get_cell(i,j)
+		local cell = grid.get(i,j)
 		if in_range(px-1,px+1,i) and
 		   in_range(py-1,py+1,j) then
 			// remove any mines in
@@ -144,11 +144,11 @@ function opening_move()
 		deli(empty).mine = true
 	end
 
-	cell_do(px,py,open_cell)
+	grid.do_cell(px,py,open_cell)
 end
 
 function open_cell(x,y)
-	local cell = get_cell(x,y)
+	local cell = grid.get(x,y)
 
 	// don't open flagged cells
 	// or already open cells
@@ -167,9 +167,9 @@ function open_cell(x,y)
 		// find # of surrounding mines
 		local cnt = 0
 		
-		cell_do_adj(x,y,
+		grid.do_adj(x,y,
 		function(i,j)
-			cnt+=tonum(get_cell(i,j).mine)
+			cnt+=tonum(grid.get(i,j).mine)
 		end
 		)
 		cell.spr=cnt
@@ -177,7 +177,7 @@ function open_cell(x,y)
 		// open surrounding cells if
 		// there's no mines
 		if cnt == 0 then
-			cell_do_adj(x,y,open_cell)
+			grid.do_adj(x,y,open_cell)
 		end
 
 		remaining -= 1
@@ -190,19 +190,19 @@ end
 function open_adjacent()
 	local cnt = 0
 
-	cell_do_adj(px,py,
+	grid.do_adj(px,py,
 	function(i,j)
-		cnt+=tonum(get_cell(i,j).flagged)
+		cnt+=tonum(grid.get(i,j).flagged)
 	end
 	)
 
-	if cnt == get_cell(px,py).spr then
-		cell_do_adj(px,py,open_cell)
+	if cnt == grid.get(px,py).spr then
+		grid.do_adj(px,py,open_cell)
 	end
 end
 
 function flag_cell()
-	local cell = get_cell(px,py)
+	local cell = grid.get(px,py)
 
 	// don't flag opened cells
 	if cell.opened then
@@ -218,9 +218,9 @@ end
 
 function end_game(win)
 	// reveal all mine locations
-	cell_do_all(
+	grid.do_all(
 	function(x,y)
-		local cell = get_cell(x,y)
+		local cell = grid.get(x,y)
 		if cell.mine and
 		   not cell.flagged then
 			// flag mines if game won,
@@ -266,10 +266,10 @@ function draw_grid()
 	print("❎ to flag or",38,9,5)
 	print("open adjacent",38,16,5)
 
-	cell_do_all(
+	grid.do_all(
 	function(x,y)
 		//draws cells on grid
-		spr(get_cell(x,y).spr,coords(x,y))
+		spr(grid.get(x,y).spr,coords(x,y))
 	end
 	)
 end
@@ -316,7 +316,7 @@ function play_state()
 	end
 
 	function s.o()
-		cell_do(px,py, open_cell)
+		grid.do_cell(px,py, open_cell)
 	end
 
 	function s.x()
