@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 #include shared/grid.p8
+#include shared/state.p8
 #include shared/math.p8:1
 function _init()
 	cls()
@@ -34,7 +35,7 @@ function _init()
 end
 
 function _update()
-	controls()
+	state.controls()
 	state.update()
 end
 
@@ -43,28 +44,6 @@ function _draw()
 	state.draw()
 end
 -->8
-function controls()
-	//player controls
-	if btn(❎) then
-		state = change_state()
-		return
-	end
-	
-	if btnp(⬅️) then
-		state.left()
-	elseif btnp(➡️) then
-		state.right()
-	elseif btnp(⬆️) then
-		state.up()
-	elseif btnp(⬇️) then
-		state.down()
-	end
-	
-	if btnp(🅾️) then
-		state.o()
-	end
-end
-
 function update_msr(v)
 	msr = ceil(v / beats)
 end
@@ -159,18 +138,22 @@ function play_cell(x,y)
 	end
 end
 -->8
+function base_state()
+	// all states use x to
+	// change states
+	local s = template_state()
+	
+	function s.x()
+		state = change_state()
+	end
+	
+	return s
+end
+
 function note_state()
 	update_msr(px)
-	local s = {}
+	local s = base_state()
 	s.name="note"
-	function s.update() end
-	
-	function s.draw()
-		draw_guides({"",
-		             "⬆️⬇️⬅️➡️: move cursor",
-		             "🅾️: place/erase note"})
-		draw_pointer()
-	end
 	
 	function s.left()
 		move_horz(-1)
@@ -200,24 +183,23 @@ function note_state()
 		end
 	end
 	
+	function s.draw()
+		draw_guides({"",
+		             "⬆️⬇️⬅️➡️: move cursor",
+		             "🅾️: place/erase note"})
+		draw_pointer()
+	end
+	
 	return s
 end
 
 function select_state()
 	update_msr(px)
-	local s = {}
+	local s = base_state()
 	s.name = "select"
-	function s.update() end
 	
-	function test_play()
+	local function test_play()
 		play(ins,vol,1,oct)
-	end
-	
-	function s.draw()
-		draw_ins_select(9)
-		draw_guides({"🅾️: cycle instrument",
-		             "⬆️⬇️: change octave",
-		             "⬅️➡️: change volume"})
 	end
 	
 	function s.left()
@@ -253,16 +235,56 @@ function select_state()
 		test_play()
 	end
 	
+	function s.draw()
+		draw_ins_select(9)
+		draw_guides({"🅾️: cycle instrument",
+		             "⬆️⬇️: change octave",
+		             "⬅️➡️: change volume"})
+	end
+	
 	return s
 end
 
 function play_state()
-	local s = {}
+	local s = base_state()
 	s.name="playback"
 	s.t = 0
 	s.next = 1
 	s.playing = false
 	update_msr(s.next)
+	
+	function s.left()
+		if s.next > 1 then
+			s.t = 0
+			s.next -= 1
+			update_msr(s.next)
+		end
+	end
+	
+	function s.right()
+		if s.next < m then
+			s.t = 0
+			s.next += 1
+			update_msr(s.next)
+		end
+	end
+	
+	function s.up()
+		if spd < 30 then
+			spd += 1
+		end
+	end
+	
+	function s.down()
+		if spd > 1 then
+			spd -= 1
+		end
+	end
+	
+	function s.o()
+		s.t = 0
+		s.playing = not s.playing
+	end
 	
 	function s.update()
 		if not s.playing then
@@ -296,43 +318,36 @@ function play_state()
 		             "current speed: "..spd})
 	end
 	
-	function s.left()
-		if s.next > 1 then
-			s.t = 0
-			s.next -= 1
-			update_msr(s.next)
-		end
-	end
-	function s.right()
-		if s.next < m then
-			s.t = 0
-			s.next += 1
-			update_msr(s.next)
-		end
-	end
-	function s.up()
-		if spd < 30 then
-			spd += 1
-		end
-	end
-	function s.down()
-		if spd > 1 then
-			spd -= 1
-		end
-	end
-	function s.o()
-		s.t = 0
-		s.playing = not s.playing
-	end
-	
 	return s
 end
 
 function copy_state()
-	local s = {}
+	local s = base_state()
 	s.name="copy"
 	
-	function s.update() end
+	function s.left()
+		if msr > 1 then
+			msr -= 1
+		end
+	end
+	
+	function s.right()
+		if msr <= num_msrs then
+			msr += 1
+		end
+	end
+	
+	function s.up()
+		copy_measure()
+	end
+	
+	function s.down()
+		clear_copy()
+	end
+	
+	function s.o()
+		paste_measure()
+	end
 	
 	function s.draw()
 		local gd = {"⬅️➡️: change measure",
@@ -344,35 +359,28 @@ function copy_state()
 		draw_guides(gd)
 	end
 	
-	function s.left()
-		if msr > 1 then
-			msr -= 1
-		end
-	end
-	function s.right()
-		if msr <= num_msrs then
-			msr += 1
-		end
-	end
-	function s.up()
-		copy_measure()
-	end
-	function s.down()
-		clear_copy()
-	end
-	
-	function s.o()
-		paste_measure()
-	end
-	
 	return s
 end
 
 function change_state()
-	local s = {}
+	local s = base_state()
 	s.name="change"
 	
-	function s.update() end
+	function s.left()
+		state = note_state()
+	end
+	
+	function s.right()
+		state = select_state()
+	end
+	
+	function s.up()
+		state = play_state()
+	end
+	
+	function s.down()
+		state = copy_state()
+	end
 	
 	function s.draw()
 		draw_guides({"⬅️: place notes",
@@ -381,21 +389,6 @@ function change_state()
 		             "⬇️: copy/paste measures"})
 		rectfill(0,122,128,128,1)
 	end
-	
-	function s.left()
-		state = note_state()
-	end
-	function s.right()
-		state = select_state()
-	end
-	function s.up()
-		state = play_state()
-	end
-	function s.down()
-		state = copy_state()
-	end
-	
-	function s.o()end
 	
 	return s
 end
