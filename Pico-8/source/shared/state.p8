@@ -1,245 +1,50 @@
 pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
-#include shared/grid.p8
-#include shared/state.p8
-
-function _init()
-	cls()
+// interface for states.
+// allows for easy customization
+// of controls and game states
+function template_state()
+	local s = {}
 	
-	grid = nil
-	current_map = nil
-	state = title_state()
-end
-
-function _update()
-	state.controls()
-	state.update()
-end
-
-function _draw()
-	cls()
-	state.draw()
-end
-
-// corrupts the game state.
-// defaults to corrupting once.
-function corrupt(n)
-	n = n or 1
+	// button mapping
+	function s.left() end
+	function s.right() end
+	function s.up() end
+	function s.down() end
+	function s.o() end
+	function s.x() end
 	
-	for i=1,n do
-		poke(abs(rnd(-1)),rnd(-1))
-	end
-end
--->8
-// main menu
-function title_state()
-	local s=template_state()
-	s.time = 0
-	s.mirror = false
-	s.show_help = false
+	function s.controls()
+		if btnp(⬅️) then
+			s.left()
+		end
+		if btnp(➡️) then
+			s.right()
+		end
+		if btnp(⬆️) then
+			s.up()
+		end
+		if btnp(⬇️) then
+			s.down()
+		end
 	
-	function s.update()
-		s.time+=1
-		if s.time % 36 == 0 then
-			s.time = 0
-			s.mirror=not s.mirror
+		if btnp(🅾️) then
+			s.o()
+		end
+		if btnp(❎) then
+			s.x()
 		end
 	end
 	
-	function draw_help()
-		local txt = {
-		"corruption is a game where you",
-		"race against the degredation",
-		"of the game itself!", "",
-		"use 🅾️/❎ to roll the die and",
-		"advance towards the goal.", "",
-		"beware: landing on the ! spaces",
-		"will corrupt your game session!",
-		}
-		
-		for i=1, #txt do
-			print(txt[i],0,8+8*i, 7)
-		end
-	end
+	// update/draw functions
+	function s.update() end
+	function s.draw() end
 	
-	function draw_title()
-		map(0,0)
-		local txt = {
-		"🅾️ to start",
-		"❎ for help"
-		}
-		for i=1, #txt do
-			print(txt[i],42,72+8*i, 7)
-		end
-		spr(32,64,56,1,1,s.mirror)
-	end
-	
-	function s.draw()
-		if s.show_help then
-			draw_help()
-		else
-			draw_title()
-		end
-	end
-	
-	function s.x()
-		s.show_help = not s.show_help
-	end
-	
-	function s.o()
-		if s.show_help then
-			s.show_help = false
-		else
-			start_game()
-			state = map_state()
-		end
-	end
-	
-	music(0)
 	return s
 end
 
-function start_game()
-	current_map=ceil(rnd(3))*16
-	local function make_cell(x,y)
-		local cell = {}
-		local m=mget(x+current_map,y)
-		cell.path = fget(m,0)
-		cell.corrupt = fget(m,1)
-		cell.minigame = fget(m,2)
-		cell.finish = fget(m,3)
-		cell.start = fget(m,4)
-		return cell
-	end
-	grid=create_grid(14,14,true,
-	                 make_cell)
-	
-	px,py,pback=0,0,nil
-	local function init_player(x,y)
-		if grid.get(x,y).start then
-			px,py = x,y
-		end
-	end
-	grid.do_all(init_player)
-end
 
-function translate(n)
-	return n*8
-end
--->8
-// map
-function map_state()
-	local s=template_state()
-	local dir_map=
-	{ //dx,dy,opposite dir
-		[⬆️]={0,-1,⬇️},
-		[⬇️]={0,1,⬆️},
-		[⬅️]={-1,0,➡️},
-		[➡️]={1,0,⬅️}
-	}
-	s.roll_count=0
-	s.roll_result=0
-	s.is_rolling=false
-	
-	function s.update()
-		if s.roll_count > 0 then
-			s.roll_result=roll()
-			s.roll_count-=1
-			if s.roll_count == 0 then
-				s.is_rolling = false
-			end
-		end
-	end
-	
-	function s.draw()
-		map(current_map,0)
-		local res = 2*s.roll_result
-		spr(34+res,16,96,2,2)
-		spr(32,translate(px),translate(py))
-	end
-	
-	local function move_player(dir)
-		local dx,dy,back = unpack(dir_map[dir])
-		if not s.is_rolling and
-		   s.roll_result > 0 and
-		   dir != pback and
-		  valid_move(px+dx,py+dy) then
-			px += dx
-			py += dy
-			pback=back
-			s.roll_result-=1
-			local cell = grid.get(px,py)
-			if cell.finish then
-				state = win_state()
-			end
-			if s.roll_result == 0 then
-				if cell.corrupt then
-					corrupt(750)
-				end
-			end
-		end
-	end
-	
-	function valid_move(x,y)
-		if grid.in_bounds_x(x) and
-		   grid.in_bounds_y(y) then
-			return grid.get(x,y).path
-		end
-		return false
-	end
-	
-	function s.left() 
-		move_player(⬅️)
-	end
-	
-	function s.right() 
-		move_player(➡️)
-	end
-	
-	function s.up()
-		move_player(⬆️)
-	end
-	
-	function s.down()
-		move_player(⬇️)
-	end
-	
-	function s.o()
-		if not s.is_rolling and
-		   s.roll_result == 0 then
-			s.roll_count=20
-			s.is_rolling=true
-		end
-	end
-	
-	function s.x() s.o() end
-	
-	music(1)
-	return s
-end
-
-function roll()
-	return ceil(rnd(6))
-end
-
-// win screen
-function win_state()
-	local s=template_state()
-	
-	function s.draw()
-		map(0,16)
-	end
-	
-	function s.o()
-		state=title_state()
-	end
-	
-	function s.x() s.o() end
-	
-	music(0)
-	return s
-end
 __gfx__
 00000000555555553333333399999999dddddddddddddddddddddddd11111111111111111dddddddddddddd111111111ddddddd11ddddddddddddddddddddddd
 00000000566666653bbbbbb398888889d777777dd778877dd777777d1dddddddddddddd11dddddddddddddd1ddddddddddddddd11ddddddddddddddddddddddd
