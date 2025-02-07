@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 #include shared/grid.p8
+#include shared/state.p8
 #include shared/math.p8:0
 
 function _init()
@@ -22,7 +23,7 @@ function _init()
 end
 
 function _update()
-	controls()
+	state.controls()
 	state.update()
 end
 
@@ -68,36 +69,6 @@ function make_grid()
 	return grid
 end
 -->8
-function controls()
-	//player controls for movement
-	//and revealing cells
-	if btnp(⬅️) then
-		move_horz(-1)
-	elseif btnp(➡️) then
-		move_horz(1)
-	elseif btnp(⬆️) then
-		move_vert(-1)
-	elseif btnp(⬇️) then
-		move_vert(1)
-	end
-
-	if btnp(🅾️) then
-		state.o()
-	elseif btnp(❎) then
-		state.x()
-	end
-end
-
-// standard x button:
-// flag or reveal adjacent
-function x()
-	if grid.get(px,py).opened then
-		open_adjacent()
-	else
-		flag_cell()
-	end
-end
-
 function move_horz(dx)
 	if grid.in_bounds_x(px+dx) then
 		px += dx
@@ -283,55 +254,65 @@ end
 -->8
 function init_state()
 	// before start of game
-	local s = {}
-
-	function s.update() end
-
-	function s.draw()
-		draw_pointer()
+	local s = template_state()
+	
+	function s.left()
+		move_horz(-1)
 	end
-
+	
+	function s.right()
+		move_horz(1)
+	end
+	
+	function s.up()
+		move_vert(-1)
+	end
+	
+	function s.down()
+		move_vert(1)
+	end
+	
 	function s.o()
 		state = play_state()
 		opening_move()
 	end
-
+	
 	function s.x()
-		x()
+		// flag or reveal adjacent
+		if grid.get(px,py).opened then
+			open_adjacent()
+		else
+			flag_cell()
+		end
 	end
-
+	
+	function s.draw()
+		draw_pointer()
+	end
+	
 	return s
 end
 
 function play_state()
-	// during main gameplay
-	local s = {}
-
+	// same as init but with timer
+	// and no opening move
+	local s = init_state()
+	
 	function s.update()
 		t+=1/30
 	end
-
-	function s.draw()
-		draw_pointer()
-	end
-
+	
 	function s.o()
 		open_cell(px,py)
 	end
-
-	function s.x()
-		x()
-	end
-
+	
 	return s
 end
 
 function end_state()
 	// game is over
-	local s = {}
-
-	function s.update() end
-
+	local s = template_state()
+	
 	function s.draw()
 		draw_stats()
 		if remaining == 0 then
