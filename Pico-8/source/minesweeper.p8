@@ -144,7 +144,7 @@ function opening_move()
 		deli(empty).mine = true
 	end
 
-	grid.do_cell(px,py,open_cell)
+	open_cell(px,py)
 end
 
 function open_cell(x,y)
@@ -316,7 +316,7 @@ function play_state()
 	end
 
 	function s.o()
-		grid.do_cell(px,py, open_cell)
+		open_cell(px,py)
 	end
 
 	function s.x()
