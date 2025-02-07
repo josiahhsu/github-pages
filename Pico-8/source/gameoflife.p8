@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 #include shared/grid.p8
+#include shared/state.p8
 #include shared/math.p8:1
 
 function _init()
@@ -21,7 +22,7 @@ function _init()
 end
 
 function _update()
-	controls()
+	state.controls()
 	state.update()
 end
 
@@ -73,35 +74,6 @@ function make_grid()
 	                 make_cell)
 end
 -->8
-function controls()
-	//player controls for movement
-	//and revealing cells
-	if btnp(⬅️) then
-		state.left()
-	elseif btnp(➡️) then
-		state.right()
-	elseif btnp(⬆️) then
-		state.up()
-	elseif btnp(⬇️) then
-		state.down()
-	end
-
-	if btnp(🅾️) then
-		state.o()
-	elseif btnp(❎) then
-		state.x()
-	end
-end
-
-function move_horz(dx)
-	px = mod(px+dx,m)
-end
-
-function move_vert(dy)
-	py = mod(py+dy,n)
-end
-
--->8
 function coords(x,y)
 	//translates value to partial
 	//position on grid
@@ -137,26 +109,17 @@ function draw_pointer()
 	local x,y = coords(px,py)
 	rect(x,y,x+7,y+7,9)
 end
-
 -->8
 function edit_state()
 	// before start of game
-	local s = {}
+	local s = template_state()
 
-	function s.update() end
-
-	function s.drawcontrols()
-		print("⬆️",13,4,5)
-		print("⬅️⬇️➡️",5,10,5)
-		print("to move",3,16,5)
-		print("🅾️ to",38,1,5)
-		print("toggle cells",38,7,5)
-		print("❎ to start",38,13,5)
-		print("simulation",38,19,5)
+	local function move_horz(dx)
+		px = mod(px+dx,m)
 	end
 
-	function s.draw()
-		draw_pointer()
+	local function move_vert(dy)
+		py = mod(py+dy,n)
 	end
 
 	function s.left()
@@ -183,12 +146,51 @@ function edit_state()
 		state = play_state()
 	end
 
+	function s.drawcontrols()
+		print("⬆️",13,4,5)
+		print("⬅️⬇️➡️",5,10,5)
+		print("to move",3,16,5)
+		print("🅾️ to",38,1,5)
+		print("toggle cells",38,7,5)
+		print("❎ to start",38,13,5)
+		print("simulation",38,19,5)
+	end
+
+	function s.draw()
+		draw_pointer()
+	end
+
 	return s
 end
 
 function play_state()
 	// during main gameplay
-	local s = {}
+	local s = template_state()
+
+	local function update_dur(dv)
+		if in_range(1,30,dur+dv) then
+			dur += dv
+			t = 0
+		end
+	end
+
+	function s.left()
+		update_dur(1)
+	end
+
+	function s.right()
+		update_dur(-1)
+	end
+
+	function s.o()
+		make_grid()
+		state = edit_state()
+		gen = 0
+	end
+
+	function s.x()
+		state = edit_state()
+	end
 
 	function s.update()
 		local old = t
@@ -218,37 +220,6 @@ function play_state()
 		print("reset game",38,7,5)
 		print("❎ to end",38,13,5)
 		print("simulation",38,19,5)
-	end
-
-	function s.draw() end
-
-	function update_dur(dv)
-		if in_range(1,30,dur+dv) then
-			dur += dv
-			t = 0
-		end
-	end
-
-	function s.left()
-		update_dur(1)
-	end
-
-	function s.right()
-		update_dur(-1)
-	end
-
-	function s.up() end
-
-	function s.down() end
-
-	function s.o()
-		make_grid()
-		state = edit_state()
-		gen = 0
-	end
-
-	function s.x()
-		state = edit_state()
 	end
 
 	return s
