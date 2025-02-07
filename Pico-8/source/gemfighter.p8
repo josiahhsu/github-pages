@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 #include shared/grid.p8
+#include shared/state.p8
 #include shared/math.p8:0
 
 function _init()
@@ -21,7 +22,8 @@ function _init()
 	//player skills
 	skills = init_skills()
 	pskill = 1
-	ctrl = grid_controls()
+	
+	state = grid_state()
 
 	//grid
 	grid = nil
@@ -45,7 +47,7 @@ end
 
 function _update()
 	if gameactive then
-		controls()
+		state.controls()
 		timer()
 	else
 		end_fight()
@@ -55,7 +57,7 @@ end
 function _draw()
 	if gameactive then
 		screen.draw_screen()
-		ctrl.draw_pointer()
+		state.draw_pointer()
 	end
 end
 
@@ -75,7 +77,7 @@ end
 function start_fight(enemy)
 	ti = 0
 	init_grid()
-	ctrl = grid_controls()
+	state = grid_state()
 	e = enemy
 	gameactive = true
 end
@@ -176,99 +178,77 @@ function draw_cell(x,y)
 	end
 end
 -->8
-function controls()
-	if btnp(⬅️) then
-		ctrl.left()
-	elseif btnp(➡️) then
-		ctrl.right()
-	elseif btnp(⬆️) then
-		ctrl.up()
-	elseif btnp(⬇️) then
-		ctrl.down()
-	end
-
-	if btnp(🅾️) then
-		ctrl.o()
-	elseif btnp(❎) then
-		ctrl.x()
-	end
-end
-
-function grid_controls()
-	local t = {}
-	function t.left()
+function grid_state()
+	local s = template_state()
+	
+	function s.left()
 		move_pointer(-1,0)
 	end
-
-	function t.right()
+	
+	function s.right()
 		move_pointer(1,0)
 	end
-
-	function t.up()
+	
+	function s.up()
 		move_pointer(0,-1)
 	end
-
-	function t.down()
+	
+	function s.down()
 		move_pointer(0,1)
 	end
-
-	function t.o()
+	
+	function s.o()
 		swap_action()
 	end
-
-	function t.x()
+	
+	function s.x()
 		ps = nil
-		ctrl = menu_controls()
+		state = action_state()
 		sfx(0)
 	end
-
-	function t.draw_pointer()
+	
+	function s.draw_pointer()
 		spr(8,coords(px,py))
 		if ps then
 			spr(9,coords(ps.x,ps.y))
 		end
 	end
-	return t
+	
+	return s
 end
 
-function menu_controls()
-	local t = {}
-	function t.left()
-
-	end
-
-	function t.right()
-
-	end
-
-	function t.up()
+function action_state()
+	local s = template_state()
+	
+	function s.up()
 		if pskill > 1 then
 			pskill-=1
 			sfx(0)
 		end
 	end
-
-	function t.down()
+	
+	function s.down()
 		if pskill < #skills then
 			pskill+=1
 			sfx(0)
 		end
 	end
-
-	function t.o()
+	
+	function s.o()
 		use_skill(skills[pskill])
 	end
-
-	function t.x()
-		ctrl = grid_controls()
+	
+	function s.x()
+		state = grid_state()
 		sfx(0)
 	end
-
-	function t.draw_pointer()
+	
+	function s.draw_pointer()
 		draw_effects(skills[pskill])
 		spr(9,74,78+(pskill*9))
 	end
-	return t
+	
+	return s
 end
 
 function move_pointer(dx,dy)
