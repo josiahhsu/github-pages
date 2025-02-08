@@ -2,29 +2,25 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 #include shared/math.p8:0
+#include shared/state.p8
 
 function _init()
 	cls()
 	music(0,1)
-	t = 0
 	blocks = {}
+	state=game_state()
+	
 	lines = 0
 	level = 1
 	interval = 30
 	bag = make_bag()
 	pos = choose_piece()
 	piece = get_piece()
-	game_over = false
 end
 
 function _update()
-	if not game_over then
-		t += 1
-		controls()
-		if t % interval == 0 then
-			drop_blocks()
-		end
-	end
+	state.controls()
+	state.update()
 end
 
 function _draw()
@@ -138,22 +134,31 @@ function clear_blocks()
 	end
 end
 -->8
-function controls()
-	if btnp(⬅️) then //left
-		move_blocks(-1)
-	elseif btnp(➡️) then //right
-		move_blocks(1)
-	elseif btnp(⬆️) then //hard drop
-		hard_drop()
-	elseif btn(⬇️) then //down
-		drop_blocks()
+function game_state()
+	local s = template_state()
+	s.t = 0
+	s.set_btnp(⬅️,move_blocks,-1)
+	s.set_btnp(➡️,move_blocks,1)
+	s.set_btnp(⬆️,hard_drop)
+	s.set_btn(⬇️,drop_blocks)
+	
+	s.set_btnp(🅾️,rotate,.25)
+	s.set_btnp(❎,rotate,-.25)
+	
+	function s.update()
+		s.t += 1
+		if s.t % interval == 0 then
+			drop_blocks()
+		end
 	end
 	
-	if btnp(🅾️) then //c-clockwise
-		rotate(.25)
-	elseif btnp(❎) then //clockwise
-		rotate(-.25)
-	end
+	return s
+end
+
+function game_over_state()
+	local s = template_state()
+	
+	return s
 end
 
 function hard_drop()
@@ -194,7 +199,7 @@ function get_piece()
 				end
 			end
 		end
-		game_over = true
+		state=game_over_state()
 	end
 
 	return p
