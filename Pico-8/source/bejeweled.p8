@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 #include shared/grid.p8
+#include shared/state.p8
 #include shared/math.p8:0
 
 function _init()
@@ -15,6 +16,9 @@ function _init()
 	grid = create_grid(size,size,
 	                   true,
 	                   make_cell)
+	                   
+	state = game_state()
+	
 	specials = {}
 	bombs = {}
 	wilds = {}
@@ -24,7 +28,7 @@ function _init()
 end
 
 function _update()
-	controls()
+	state.controls()
 end
 
 function _draw()
@@ -217,27 +221,34 @@ function draw_cell(x,y)
 	end
 end
 -->8
-function controls()
-	//moving the pointer and
-	//controlling swaps
-	if btnp(⬅️) then
+function game_state()
+	local s = template_state()
+	
+	function s.left()
 		move_pointer(-1,0)
-	elseif btnp(➡️) then
+	end
+	
+	function s.right()
 		move_pointer(1,0)
-	elseif btnp(⬆️) then
+	end
+	
+	function s.up()
 		move_pointer(0,-1)
-	elseif btnp(⬇️) then
+	end
+	
+	function s.down()
 		move_pointer(0,1)
 	end
-	if btn(🅾️) and btn(❎) then
-		//testing purposes only
-		//make_wild(grid.get(px,py))
-		//make_bomb(grid.get(px,py))
-		//make_lightning(grid.get(px,py))
-		//shuffle()
-	elseif btnp(🅾️) or btnp(❎) then
+	
+	function s.o()
 		swap_action()
 	end
+	
+	function s.x()
+		s.o()
+	end
+	
+	return s
 end
 
 function move_pointer(dx,dy)
@@ -287,9 +298,7 @@ function swap_action()
 		//swaps selected cell
 		if not (ps.x == c.x
 		   and ps.y == c.y) then
-			pm = c
-			pc = ps.color
-			cc = c.color
+			pm,pc,cc = c,ps.color,c.color
 			if max(pc, cc) == 0 then
 				//double wildcard
 				clear_all()
@@ -314,8 +323,7 @@ function swap_action()
 		else
 			sfx(0)
 		end
-		ps = nil
-		pm = nil
+		ps,pm = nil,nil
 	end
 end
 
