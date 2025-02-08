@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 #include shared/grid.p8
+#include shared/state.p8
 #include shared/math.p8:0
 
 function _init()
@@ -11,10 +12,12 @@ function _init()
 	grid = make_grid()
 	px,py = 1,1
 	mistakes = 0
+	
+	state = game_state()
 end
 
 function _update()
-	controls()
+	state.controls()
 end
 
 function _draw()
@@ -50,25 +53,17 @@ function make_grid()
 	return grid
 end
 -->8
-function controls()
-	//player controls for movement
-	//and revealing cells
-	if btnp(⬅️) then
-		move_horz(-1)
-	elseif btnp(➡️) then
-		move_horz(1)
-	elseif btnp(⬆️) then
-		move_vert(-1)
-	elseif btnp(⬇️) then
-		move_vert(1)
-	end
-
-	local cell = grid.get(px,py)
-	if btn(🅾️) then
-		reveal_cell(cell,1)
-	elseif btn(❎) then
-		reveal_cell(cell,0)
-	end
+function game_state()
+	local s = template_state()
+	
+	s.set_btnp(⬅️,move_horz,-1)
+	s.set_btnp(➡️,move_horz,1)
+	s.set_btnp(⬆️,move_vert,-1)
+	s.set_btnp(⬇️,move_vert,1)
+	s.set_btn(🅾️,reveal_cell,1)
+	s.set_btn(❎,reveal_cell,0)
+	
+	return s
 end
 
 function move_horz(dx)
@@ -83,9 +78,10 @@ function move_vert(dy)
 	end
 end
 
-function reveal_cell(cell,value)
+function reveal_cell(value)
 	//opens a cell, either marking
 	//or clearing based on value
+	local cell = grid.get(px,py)
 	if not cell.revealed then
 		cell.revealed = true
 		if cell.value != value then
