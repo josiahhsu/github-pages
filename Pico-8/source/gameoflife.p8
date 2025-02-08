@@ -122,29 +122,18 @@ function edit_state()
 		py = mod(py+dy,n)
 	end
 
-	function s.left()
-		move_horz(-1)
-	end
+	s.set_btnp(⬅️,move_horz,-1)
+	s.set_btnp(➡️,move_horz,1)
+	s.set_btnp(⬆️,move_vert,-1)
+	s.set_btnp(⬇️,move_vert,1)
 
-	function s.right()
-		move_horz(1)
-	end
-
-	function s.up()
-		move_vert(-1)
-	end
-
-	function s.down()
-		move_vert(1)
-	end
-
-	function s.o()
+	s.set_btnp(🅾️,function()
 		grid.get(px,py).toggle()
-	end
+	end)
 
-	function s.x()
+	s.set_btnp(❎,function()
 		state = play_state()
-	end
+	end)
 
 	function s.drawcontrols()
 		print("⬆️",13,4,5)
@@ -174,23 +163,19 @@ function play_state()
 		end
 	end
 
-	function s.left()
-		update_dur(1)
-	end
+	s.set_btnp(⬅️,update_dur,1)
+	s.set_btnp(➡️,update_dur,-1)
 
-	function s.right()
-		update_dur(-1)
-	end
-
-	function s.o()
+	s.set_btnp(🅾️,function()
 		make_grid()
 		state = edit_state()
 		gen = 0
-	end
+	end)
+	
 
-	function s.x()
+	s.set_btnp(❎,function()
 		state = edit_state()
-	end
+	end)
 
 	function s.update()
 		local old = t

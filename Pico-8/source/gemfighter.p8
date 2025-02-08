@@ -181,31 +181,16 @@ end
 function grid_state()
 	local s = template_state()
 	
-	function s.left()
-		move_pointer(-1,0)
-	end
-	
-	function s.right()
-		move_pointer(1,0)
-	end
-	
-	function s.up()
-		move_pointer(0,-1)
-	end
-	
-	function s.down()
-		move_pointer(0,1)
-	end
-	
-	function s.o()
-		swap_action()
-	end
-	
-	function s.x()
+	s.set_btnp(⬅️,move_pointer,{-1,0})
+	s.set_btnp(➡️,move_pointer,{1,0})
+	s.set_btnp(⬆️,move_pointer,{0,-1})
+	s.set_btnp(⬇️,move_pointer,{0,1})
+	s.set_btnp(🅾️,swap_action)
+	s.set_btnp(❎,function()
 		ps = nil
 		state = action_state()
 		sfx(0)
-	end
+	end)
 	
 	function s.draw_pointer()
 		spr(8,coords(px,py))
@@ -220,28 +205,24 @@ end
 function action_state()
 	local s = template_state()
 	
-	function s.up()
-		if pskill > 1 then
-			pskill-=1
+	local function update_skill(ds)
+		if in_range(1,#skills,pskill+ds) then
+			pskill+=ds
 			sfx(0)
 		end
 	end
 	
-	function s.down()
-		if pskill < #skills then
-			pskill+=1
-			sfx(0)
-		end
-	end
+	s.set_btnp(⬆️,update_skill,-1)
+	s.set_btnp(⬇️,update_skill,1)
 	
-	function s.o()
+	s.set_btnp(🅾️,function()
 		use_skill(skills[pskill])
-	end
+	end)
 	
-	function s.x()
+	s.set_btnp(❎,function()
 		state = grid_state()
 		sfx(0)
-	end
+	end)
 	
 	function s.draw_pointer()
 		draw_effects(skills[pskill])

@@ -83,18 +83,18 @@ function title_state()
 		end
 	end
 	
-	function s.x()
+	s.set_btnp(❎,function()
 		s.show_help = not s.show_help
-	end
+	end)
 	
-	function s.o()
+	s.set_btnp(🅾️,function()
 		if s.show_help then
 			s.show_help = false
 		else
 			start_game()
 			state = map_state()
 		end
-	end
+	end)
 	
 	music(0)
 	return s
@@ -189,31 +189,21 @@ function map_state()
 		return false
 	end
 	
-	function s.left() 
-		move_player(⬅️)
-	end
+	s.set_btnp(⬅️,move_player,⬅️)
+	s.set_btnp(➡️,move_player,➡️)
+	s.set_btnp(⬆️,move_player,⬆️)
+	s.set_btnp(⬇️,move_player,⬇️)
 	
-	function s.right() 
-		move_player(➡️)
-	end
-	
-	function s.up()
-		move_player(⬆️)
-	end
-	
-	function s.down()
-		move_player(⬇️)
-	end
-	
-	function s.o()
-		if not s.is_rolling and
+	local function do_roll()
+	if not s.is_rolling and
 		   s.roll_result == 0 then
 			s.roll_count=20
 			s.is_rolling=true
 		end
 	end
 	
-	function s.x() s.o() end
+	s.set_btnp(🅾️,do_roll)
+	s.set_btnp(❎,do_roll)
 	
 	music(1)
 	return s
@@ -231,11 +221,12 @@ function win_state()
 		map(0,16)
 	end
 	
-	function s.o()
+	local function fn()
 		state=title_state()
 	end
 	
-	function s.x() s.o() end
+	s.set_btn(🅾️,fn)
+	s.set_btn(❎,fn)
 	
 	music(0)
 	return s

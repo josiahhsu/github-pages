@@ -224,29 +224,12 @@ end
 function game_state()
 	local s = template_state()
 	
-	function s.left()
-		move_pointer(-1,0)
-	end
-	
-	function s.right()
-		move_pointer(1,0)
-	end
-	
-	function s.up()
-		move_pointer(0,-1)
-	end
-	
-	function s.down()
-		move_pointer(0,1)
-	end
-	
-	function s.o()
-		swap_action()
-	end
-	
-	function s.x()
-		s.o()
-	end
+	s.set_btnp(⬅️,move_pointer,{-1,0})
+	s.set_btnp(➡️,move_pointer,{1,0})
+	s.set_btnp(⬆️,move_pointer,{0,-1})
+	s.set_btnp(⬇️,move_pointer,{0,1})
+	s.set_btnp(🅾️,swap_action)
+	s.set_btnp(❎,swap_action)
 	
 	return s
 end

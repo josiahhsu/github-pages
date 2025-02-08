@@ -138,14 +138,16 @@ function play_cell(x,y)
 	end
 end
 -->8
+function set_state(st)
+	state = st or change_state()
+end
+
 function base_state()
 	// all states use x to
 	// change states
 	local s = template_state()
 	
-	function s.x()
-		state = change_state()
-	end
+	s.set_btnp(❎,set_state)
 	
 	return s
 end
@@ -155,23 +157,11 @@ function note_state()
 	local s = base_state()
 	s.name="note"
 	
-	function s.left()
-		move_horz(-1)
-	end
-	
-	function s.right()
-		move_horz(1)
-	end
-	
-	function s.up()
-		move_vert(-1)
-	end
-	
-	function s.down()
-		move_vert(1)
-	end
-	
-	function s.o()
+	s.set_btnp(⬅️,move_horz,-1)
+	s.set_btnp(➡️,move_horz,1)
+	s.set_btnp(⬆️,move_vert,-1)
+	s.set_btnp(⬇️,move_vert,1)
+	s.set_btnp(🅾️,function()
 		local cell = grid.get(px,py)
 		if cell.ins == ins then
 			cell.ins = -1
@@ -181,7 +171,7 @@ function note_state()
 			cell.vol = vol
 			play_cell(px,py)
 		end
-	end
+	end)
 	
 	function s.draw()
 		draw_guides({"",
@@ -202,38 +192,30 @@ function select_state()
 		play(ins,vol,1,oct)
 	end
 	
-	function s.left()
-		if vol > 0 then
-			vol -= 1
+	local function update_vol(dv)
+		if in_range(0,3,vol+dv) then
+			vol += dv
 		end
 		test_play()
 	end
 	
-	function s.right()
-		if vol < 3 then
-			vol += 1
+	s.set_btnp(⬅️,update_vol,-1)
+	s.set_btnp(➡️,update_vol,1)
+	
+	local function update_oct(dv)
+		if in_range(0,3,oct+dv) then
+			oct += dv
 		end
 		test_play()
 	end
 	
-	function s.up()
-		if oct < 3 then
-			oct += 1
-		end
-		test_play()
-	end
+	s.set_btnp(⬆️,update_oct,1)
+	s.set_btnp(⬇️,update_oct,-1)
 	
-	function s.down()
-		if oct > 0 then
-			oct -=1
-		end
-		test_play()
-	end
-	
-	function s.o()
+	s.set_btnp(🅾️,function()
 		ins = (ins + 1) % 8
 		test_play()
-	end
+	end)
 	
 	function s.draw()
 		draw_ins_select(9)
@@ -249,42 +231,34 @@ function play_state()
 	local s = base_state()
 	s.name="playback"
 	s.t = 0
-	s.next = 1
+	s.beat = 1
 	s.playing = false
-	update_msr(s.next)
+	update_msr(s.beat)
 	
-	function s.left()
-		if s.next > 1 then
-			s.t = 0
-			s.next -= 1
-			update_msr(s.next)
+	local function change_beat(db)
+		if in_range(1,m,s.beat+db) then
+			s.t=0
+			s.beat += db
+			update_msr(s.beat)
 		end
 	end
 	
-	function s.right()
-		if s.next < m then
-			s.t = 0
-			s.next += 1
-			update_msr(s.next)
+	s.set_btnp(⬅️,change_beat,-1)
+	s.set_btnp(➡️,change_beat,1)
+	
+	local function change_spd(ds)
+		if in_range(1,30,spd+ds) then
+			spd += ds
 		end
 	end
 	
-	function s.up()
-		if spd < 30 then
-			spd += 1
-		end
-	end
+	s.set_btnp(⬆️,change_spd,1)
+	s.set_btnp(⬇️,change_spd,-1)
 	
-	function s.down()
-		if spd > 1 then
-			spd -= 1
-		end
-	end
-	
-	function s.o()
+	s.set_btnp(🅾️,function()
 		s.t = 0
 		s.playing = not s.playing
-	end
+	end)
 	
 	function s.update()
 		if not s.playing then
@@ -292,14 +266,14 @@ function play_state()
 		end
 		
 		if s.t == 0 then
-			grid.do_lane(s.next,false,play_cell)
+			grid.do_lane(s.beat,false,play_cell)
 		elseif s.t % spd == 0 then
-			if s.next == m then
+			if s.beat == m then
 				s.playing = false
 			else
-				s.next+=1
-				update_msr(s.next)
-				grid.do_lane(s.next,false,play_cell)
+				s.beat+=1
+				update_msr(s.beat)
+				grid.do_lane(s.beat,false,play_cell)
 			end
 		end
 		
@@ -308,7 +282,7 @@ function play_state()
 	
 	function s.draw()
 		// only need the x offset
-		local offset = coords(s.next,0)
+		local offset = coords(s.beat,0)
 		local col = 9-tonum(s.playing)
 		rect(offset,7,offset+7,7*(n+1),col)
 		
@@ -325,29 +299,17 @@ function copy_state()
 	local s = base_state()
 	s.name="copy"
 	
-	function s.left()
-		if msr > 1 then
-			msr -= 1
+	local function change_msr(dm)
+		if in_range(1, num_msrs,msr+dm) then
+			msr += dm
 		end
 	end
 	
-	function s.right()
-		if msr <= num_msrs then
-			msr += 1
-		end
-	end
-	
-	function s.up()
-		copy_measure()
-	end
-	
-	function s.down()
-		clear_copy()
-	end
-	
-	function s.o()
-		paste_measure()
-	end
+	s.set_btnp(⬅️,change_msr,-1)
+	s.set_btnp(➡️,change_msr,1)
+	s.set_btnp(⬆️,copy_measure)
+	s.set_btnp(⬇️,clear_copy)
+	s.set_btnp(🅾️,paste_measure)
 	
 	function s.draw()
 		local gd = {"⬅️➡️: change measure",
@@ -366,21 +328,10 @@ function change_state()
 	local s = base_state()
 	s.name="change"
 	
-	function s.left()
-		state = note_state()
-	end
-	
-	function s.right()
-		state = select_state()
-	end
-	
-	function s.up()
-		state = play_state()
-	end
-	
-	function s.down()
-		state = copy_state()
-	end
+	s.set_btn(⬅️,set_state,{note_state()})
+	s.set_btn(➡️,set_state,{select_state()})
+	s.set_btn(⬆️,set_state,{play_state()})
+	s.set_btn(⬇️,set_state,{copy_state()})
 	
 	function s.draw()
 		draw_guides({"⬅️: place notes",

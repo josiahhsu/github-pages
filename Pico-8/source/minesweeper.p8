@@ -256,35 +256,24 @@ function init_state()
 	// before start of game
 	local s = template_state()
 	
-	function s.left()
-		move_horz(-1)
-	end
+	s.set_btnp(⬅️,move_horz,-1)
+	s.set_btnp(➡️,move_horz,1)
+	s.set_btnp(⬆️,move_vert,-1)
+	s.set_btnp(⬇️,move_vert,1)
 	
-	function s.right()
-		move_horz(1)
-	end
-	
-	function s.up()
-		move_vert(-1)
-	end
-	
-	function s.down()
-		move_vert(1)
-	end
-	
-	function s.o()
+	s.set_btnp(🅾️,function()
 		state = play_state()
 		opening_move()
-	end
+	end)
 	
-	function s.x()
+	s.set_btnp(❎,function()
 		// flag or reveal adjacent
 		if grid.get(px,py).opened then
 			open_adjacent()
 		else
 			flag_cell()
 		end
-	end
+	end)
 	
 	function s.draw()
 		draw_pointer()
@@ -302,9 +291,9 @@ function play_state()
 		t+=1/30
 	end
 	
-	function s.o()
+	s.set_btnp(🅾️,function()
 		open_cell(px,py)
-	end
+	end)
 	
 	return s
 end
@@ -326,13 +315,8 @@ function end_state()
 		print("to restart",44,13,5)
 	end
 
-	function s.o()
-		_init()
-	end
-
-	function s.x()
-		_init()
-	end
+	s.set_btnp(🅾️,_init)
+	s.set_btnp(❎,_init)
 
 	return s
 end
