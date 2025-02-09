@@ -218,24 +218,14 @@ function coords(x,y)
 	return (x-1)*7,y*7+18
 end
 
-function draw_stats()
+function draw_grid()
+	//draws grid and info text
+	rectfill(0,0,126,128,7)
 	rectfill(0,0,126,24,7)
 	line(35,0,35,24,5)
 	line(91,0,91,24,5)
 	print("mines:"..mines,94,5,5)
 	print("time:"..flr(t), 94,16,5)
-end
-
-function draw_grid()
-	//draws grid and info text
-	rectfill(0,0,126,128,7)
-	draw_stats()
-	print("⬆️",13,4,5)
-	print("⬅️⬇️➡️",5,10,5)
-	print("to move",3,16,5)
-	print("🅾️ to open",38,2,5)
-	print("❎ to flag or",38,9,5)
-	print("open adjacent",38,16,5)
 
 	grid.do_all(
 	function(x,y)
@@ -276,6 +266,12 @@ function init_state()
 	end)
 	
 	function s.draw()
+		print("⬆️",13,4,5)
+		print("⬅️⬇️➡️",5,10,5)
+		print("to move",3,16,5)
+		print("🅾️ to open",38,2,5)
+		print("❎ to flag or",38,9,5)
+		print("open adjacent",38,16,5)
 		draw_pointer()
 	end
 	
@@ -303,7 +299,6 @@ function end_state()
 	local s = template_state()
 	
 	function s.draw()
-		draw_stats()
 		if remaining == 0 then
 			print("you",10,6,5)
 			print("win",10,13,5)

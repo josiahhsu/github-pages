@@ -80,21 +80,15 @@ function coords(x,y)
 	return (x-1)*7,y*7+18
 end
 
-function draw_stats()
+function draw_grid()
+	//draws grid and info text
+	rectfill(0,0,126,128,7)
 	rectfill(0,0,126,24,7)
 	line(35,0,35,24,5)
 	line(91,0,91,24,5)
 	print("gen:"..gen,94,1,5)
 	print("gen/s:",94,8,5)
 	print(30/dur,94,15,5)
-end
-
-function draw_grid()
-	//draws grid and info text
-	rectfill(0,0,126,128,7)
-	draw_stats()
-	
-	state.drawcontrols()
 	
 	grid.do_all(
 	function(x,y)
@@ -102,12 +96,6 @@ function draw_grid()
 		spr(grid.get(x,y).spr,coords(x,y))
 	end
 	)
-end
-
-function draw_pointer()
-	//draws pointer position
-	local x,y = coords(px,py)
-	rect(x,y,x+7,y+7,9)
 end
 -->8
 function edit_state()
@@ -135,7 +123,11 @@ function edit_state()
 		state = play_state()
 	end)
 
-	function s.drawcontrols()
+	function s.draw()
+		// pointer
+		local x,y = coords(px,py)
+		rect(x,y,x+7,y+7,9)
+		
 		print("⬆️",13,4,5)
 		print("⬅️⬇️➡️",5,10,5)
 		print("to move",3,16,5)
@@ -143,10 +135,6 @@ function edit_state()
 		print("toggle cells",38,7,5)
 		print("❎ to start",38,13,5)
 		print("simulation",38,19,5)
-	end
-
-	function s.draw()
-		draw_pointer()
 	end
 
 	return s
@@ -197,7 +185,7 @@ function play_state()
 		end
 	end
 
-	function s.drawcontrols()
+	function s.draw()
 		print("⬅️/➡️ to",2,4,5)
 		print("adjust",6,10,5)
 		print("speed",7,16,5)
