@@ -36,9 +36,6 @@ function _init()
 	//template gems
 	gems = init_gems()
 
-	//screen
-	screen = init_screen()
-
 	//enemy
 	local r = flr(rnd(3))*4
 	e = enemy(50,3,5,64+r)
@@ -56,7 +53,7 @@ end
 
 function _draw()
 	if gameactive then
-		screen.draw_screen()
+		draw_screen()
 		state.draw_pointer()
 	end
 end
@@ -98,19 +95,14 @@ function end_fight()
 	stats[5] = g
 end
 -->8
-function init_screen()
-	local t = {}
-
-	function t.draw_screen(d)
-		draw_grid()
-		draw_enemy()
-		draw_stats()
-		if d != nil then
-			//optional delay after draw
-			wait(d)
-		end
+function draw_screen(d)
+	draw_grid()
+	draw_enemy()
+	draw_stats()
+	if d != nil then
+		//optional delay after draw
+		wait(d)
 	end
-	return t
 end
 
 function make_cell(x,y,cl)
@@ -160,7 +152,7 @@ function update_grid()
 	local chain = 0
 	while gameactive and num != 0 do
 		chain += 1
-		screen.draw_screen(5)
+		draw_screen(5)
 		num = clear_cells()
 	end
 	return chain
@@ -272,7 +264,7 @@ function swap_action()
 		if not (ps.x == c.x
 		   and ps.y == c.y) then
 			swap(ps, c)
-			screen.draw_screen(5)
+			draw_screen(5)
 			if update_grid() == 0 and
 			   gameactive then
 				//invalid move
@@ -313,7 +305,7 @@ function clear_cells()
 	if gameactive and cl then
 		sfx(1)
 		update_stats()
-		screen.draw_screen(5)
+		draw_screen(5)
 	end
 
 	//counts how many cells
@@ -466,7 +458,7 @@ end
 function update_enemy()
 	//update enemy stats
 	e.hp = max(0,min(e.hp,e.maxhp))
-	screen.draw_screen()
+	draw_screen()
 	if e.hp == 0 then
 		gameactive = false
 	end
@@ -501,7 +493,7 @@ function enemy(h,p,d,s)
 		else
 			t.heal()
 		end
-		screen.draw_screen()
+		draw_screen()
 	end
 
 	function t.fight()
