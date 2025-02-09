@@ -22,9 +22,7 @@ end
 
 function _draw()
 	draw_grid()
-	if total > 0 then
-		draw_pointer(px,py)
-	end
+	state.draw()
 end
 -->8
 function make_grid()
@@ -63,6 +61,30 @@ function game_state()
 	s.set_btn(🅾️,reveal_cell,1)
 	s.set_btn(❎,reveal_cell,0)
 	
+	function s.draw()
+		draw_pointer(px,py)
+		print("⬆️",14,4,5)
+		print("⬅️⬇️➡️",6,10,5)
+		print("to move",4,16,5)
+		print("🅾️ to color",4,22,5)
+		print("❎ to clear",4,28,5)
+		print("remaining:"..total,4,34,5)
+	end
+	
+	return s
+end
+
+function end_state()
+	local s = template_state()
+	
+	function s.draw()
+		msg = mistakes==0 and 
+		     "perfect!" or "finished!"
+		print(msg,4,10,5)
+		print("🅾️ and ❎",4,22,5)
+		print("to restart",4,28,5)
+	end
+	
 	return s
 end
 
@@ -96,6 +118,7 @@ function reveal_cell(value)
 					grid.get(x,y).revealed=true
 				end
 				)
+				state=end_state()
 			end
 		end
 	end
@@ -127,12 +150,6 @@ function draw_grid()
 	rectfill(0,0,128,128,7)
 	rect(0,0,52,52,5)
 	rect(52,52,128,128,5)
-	print("⬆️",14,4,5)
-	print("⬅️⬇️➡️",6,10,5)
-	print("to move",4,16,5)
-	print("🅾️ to color",4,22,5)
-	print("❎ to clear",4,28,5)
-	print("remaining:"..total,4,34,5)
 	print("mistakes:"..mistakes,4,40,5)
 	draw_nums()
 	grid.do_all(draw_cell)
