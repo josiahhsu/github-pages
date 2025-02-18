@@ -287,19 +287,51 @@ function snake_state(goal)
 	local function valid_move(x,y)
 		return s.grid.in_bounds_x(x) and
 		       s.grid.in_bounds_y(y) and
-		       not body_in_cell(x,y)
+		       not body_in_cell(x,y) and
+		       not s.grid.get(x,y).wall
 	end
 	
-	
-	local function spawn_food()
+	local function spawn_object(f)
 		while true do
 			local x,y=ceil(rnd(14)),ceil(rnd(14))
 			if not (s.x == x and s.y == y) and
-			   not body_in_cell(x,y) then
-				s.grid.get(x,y).food = true
+			   not body_in_cell(x,y) and
+			   f(x,y) then
 				return
 			end
 		end
+	end
+	
+	local function spawn_food()
+		spawn_object(function(x,y)
+			local cell = s.grid.get(x,y)
+			if not cell.wall then
+				cell.food = true
+				return true
+			end
+			return false
+		end)
+	end
+	
+	local function spawn_wall()
+		spawn_object(function(x,y)
+			if x == 1 or x == 14 or
+			   y == 1 or y == 14 then
+				return false
+			end
+			
+			local is_valid=true
+			s.grid.do_adj(x,y,
+			function(x2,y2)
+				if s.grid.get(x2,y2).wall then
+					is_valid = false
+				end
+			end)
+			if is_valid then
+				s.grid.get(x,y).wall = true
+			end
+			return is_valid
+		end)
 	end
 	
 	local function move_snake()
@@ -343,6 +375,8 @@ function snake_state(goal)
 			local cell = s.grid.get(x,y)
 			if cell.food then
 				draw_spr(21,x,y)
+			elseif cell.wall then
+				draw_spr(1,x,y)
 			end
 		end)
 		
@@ -357,12 +391,18 @@ function snake_state(goal)
 		cell.x = x
 		cell.y = y
 		cell.food = false
+		cell.wall = false
 		return cell
 	end
 	s.grid=create_grid(14,14,true,
 	                   make_cell)
 	spawn_food()
+	for i=1,10 do
+		spawn_wall()
+	end
 	music(2)
+	s.draw()
+	wait(30)
 	return s
 end
 __gfx__
