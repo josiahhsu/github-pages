@@ -254,17 +254,17 @@ end
 // mini games
 function snake_state(goal)
 	local s=base_state()
-	s.gx,s.gy,s.canturn,s.gdir,s.gback,s.tick=
+	s.x,s.y,s.canturn,s.dir,s.back,s.t=
 	1,1,true,➡️,⬅️,0
 	s.body={}
 	
 	local function turn(dir)
 		local dx,dy,back = unpack(dir_map[dir])
 		if s.canturn and
-		   dir != s.gdir and
-		   dir != s.gback then
-			s.gdir = dir
-			s.gback = back
+		   dir != s.dir and
+		   dir != s.back then
+			s.dir = dir
+			s.back = back
 			s.canturn=false
 		end
 	end
@@ -294,7 +294,7 @@ function snake_state(goal)
 	local function spawn_food()
 		while true do
 			local x,y=ceil(rnd(14)),ceil(rnd(14))
-			if not (s.gx == x and s.gy == y) and
+			if not (s.x == x and s.y == y) and
 			   not body_in_cell(x,y) then
 				s.grid.get(x,y).food = true
 				return
@@ -303,12 +303,12 @@ function snake_state(goal)
 	end
 	
 	local function move_snake()
-		local dx,dy,back=unpack(dir_map[s.gdir])
-		if valid_move(s.gx+dx,s.gy+dy) then
-			local cell = s.grid.get(s.gx,s.gy)
+		local dx,dy,back=unpack(dir_map[s.dir])
+		if valid_move(s.x+dx,s.y+dy) then
+			local cell = s.grid.get(s.x,s.y)
 			add(s.body, cell)
-			s.gx+=dx
-			s.gy+=dy
+			s.x+=dx
+			s.y+=dy
 			if cell.food then
 				cell.food = false
 				if (#s.body == goal) then
@@ -324,9 +324,9 @@ function snake_state(goal)
 	end
 	
 	function s.update()
-		s.tick += 1
-		if s.tick % 5 == 0 then
-			s.tick = 0
+		s.t += 1
+		if s.t % 5 == 0 then
+			s.t = 0
 			if not move_snake() then
 				corrupt(750)
 				state = board_state()
@@ -346,7 +346,7 @@ function snake_state(goal)
 			end
 		end)
 		
-		draw_spr(17+s.gdir,s.gx,s.gy)
+		draw_spr(17+s.dir,s.x,s.y)
 		foreach(s.body,function(cell)
 			draw_spr(16,cell.x,cell.y)
 		end)
