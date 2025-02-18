@@ -78,12 +78,13 @@ function title_state()
 		"of the game itself!", "",
 		"use 🅾️/❎ to roll the die and",
 		"advance towards the goal.", "",
-		"beware: landing on the ! spaces",
-		"will corrupt your game session!",
+		"beware: losing mimigames and",
+		"landing on the ! spaces will",
+		"corrupt your game session!",
 		}
 		
 		for i=1, #txt do
-			print(txt[i],0,8+8*i, 7)
+			print(txt[i],4,8+8*i, 7)
 		end
 	end
 	
@@ -269,10 +270,10 @@ function snake_state(goal)
 		end
 	end
 	
-	s.set_btnp(⬅️,turn,⬅️)
-	s.set_btnp(➡️,turn,➡️)
-	s.set_btnp(⬆️,turn,⬆️)
-	s.set_btnp(⬇️,turn,⬇️)
+	s.set_btn(⬅️,turn,⬅️)
+	s.set_btn(➡️,turn,➡️)
+	s.set_btn(⬆️,turn,⬆️)
+	s.set_btn(⬇️,turn,⬇️)
 	
 	local function body_in_cell(x,y)
 		local in_cell = false
