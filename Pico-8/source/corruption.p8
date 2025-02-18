@@ -148,8 +148,8 @@ function start_game()
 	board.do_all(init_player)
 end
 
-function translate(n)
-	return n*8
+function draw_spr(s,x,y)
+	spr(s,x*8,y*8)
 end
 -->8
 // board
@@ -173,7 +173,7 @@ function board_state()
 		map(current_board,0)
 		local res = 2*s.roll_result
 		spr(34+res,16,96,2,2)
-		spr(32,translate(px),translate(py))
+		draw_spr(32,px,py)
 	end
 	
 	local function valid_move(x,y)
@@ -342,19 +342,13 @@ function snake_state(goal)
 		s.grid.do_all(function(x,y)
 			local cell = s.grid.get(x,y)
 			if cell.food then
-				spr(21,
-				    translate(cell.x),
-				    translate(cell.y))
+				draw_spr(21,x,y)
 			end
 		end)
 		
-		spr(17 + s.gdir,
-		    translate(s.gx),
-		    translate(s.gy))
+		draw_spr(17+s.gdir,s.gx,s.gy)
 		foreach(s.body,function(cell)
-			spr(16,
-			    translate(cell.x),
-			    translate(cell.y))
+			draw_spr(16,cell.x,cell.y)
 		end)
 	end
 	
