@@ -8,6 +8,7 @@ function _init()
 	cls()
 	
 	current_board = nil
+	rt=false
 	dir_map=
 	{ //dx,dy,opposite dir
 		[⬆️]={0,-1,⬇️},
@@ -21,6 +22,9 @@ end
 function _update()
 	state.controls()
 	state.update()
+	if rt then
+		corrupt()
+	end
 end
 
 function _draw()
@@ -126,6 +130,7 @@ function start_state()
 	local s = template_state()
 	s.lvl=1
 	s.board=1
+	s.rt=false
 	
 	local function update_lvl(dl)
 		if in_range(1,20,s.lvl+dl) then
@@ -145,20 +150,37 @@ function start_state()
 	s.set_btnp(⬆️,update_board,1)
 	s.set_btnp(⬇️,update_board,-1)
 	
-	local function start()
-		current_board=board_state(s.board*16,s.lvl)
+	s.set_btnp(🅾️,function()
+		current_board=board_state(s.board*16,s.lvl,s.rt)
 		current_board.resume()
-	end
-	
-	s.set_btnp(❎,start)
-	s.set_btnp(🅾️,start)
+		rt = s.rt
+	end)
+	s.set_btnp(❎,function()
+		s.rt = not s.rt
+	end)
 	
 	function s.draw()
 		cls()
 		map(16,16)
-		print("difficulty: "..s.lvl,32,56)
-		print("board: "..s.board)
-		print("❎ or 🅾️ to start")
+		
+		local rt_enabled="off"
+		if s.rt then
+			rt_enabled="on"
+		end
+		
+		local txt = {
+		"difficulty: "..s.lvl,
+		"⬅️ and ➡️ to change","",
+		"board: "..s.board,
+		"⬆️ and ⬇️ to change","",
+		"realtime corruption: "..rt_enabled,
+		"❎ to toggle","",
+		"🅾️ to start"
+		}
+		
+		for i=1, #txt do
+			print(txt[i],16,8+8*i, 7)
+		end
 	end
 	
 	return s
@@ -303,6 +325,7 @@ function win_state()
 	s.set_btn(🅾️,fn)
 	s.set_btn(❎,fn)
 	
+	rt = false
 	music(0)
 	return s
 end
