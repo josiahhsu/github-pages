@@ -7,10 +7,7 @@ __lua__
 function _init()
 	cls()
 	
-	board = nil
 	current_board = nil
-	px,py,pback=0,0,nil
-	shield=false
 	dir_map=
 	{ //dx,dy,opposite dir
 		[⬆️]={0,-1,⬇️},
@@ -36,12 +33,6 @@ end
 function corrupt(n)
 	n = n or 1
 	
-	sfx(8)
-	if shield then
-		shield = false
-		return
-	end
-	
 	for i=1,n do
 		poke(abs(rnd(-1)),rnd(-1))
 	end
@@ -54,13 +45,11 @@ function wait(n)
 	end
 end
 
-function base_state()
-	local s = template_state()
+function transition()
 	music(-1)
 	sfx(4)
 	cls()
 	wait(16)
-	return s
 end
 -->8
 // main menu
@@ -125,37 +114,13 @@ function title_state()
 		if s.show_help then
 			s.show_help = false
 		else
-			start_game()
-			state = board_state()
+			current_board=board_state()
+			current_board.resume()
 		end
 	end)
 	
 	music(0)
 	return s
-end
-
-function start_game()
-	current_board=ceil(rnd(3))*16
-	local function make_cell(x,y)
-		local cell = {}
-		local m=mget(x+current_board,y)
-		cell.path = fget(m,0)
-		cell.corrupt = fget(m,1)
-		cell.minigame = fget(m,2)
-		cell.finish = fget(m,3)
-		cell.start = fget(m,4)
-		return cell
-	end
-	board=create_grid(14,14,true,
-	                 make_cell)
-	
-	px,py,pback=0,0,nil
-	local function init_player(x,y)
-		if board.get(x,y).start then
-			px,py = x,y
-		end
-	end
-	board.do_all(init_player)
 end
 
 function draw_spr(s,x,y)
@@ -164,10 +129,30 @@ end
 -->8
 // board
 function board_state()
-	local s=base_state()
+	local s=template_state()
+	
+	s.corruption_lvl=750
+	s.shield=false
+	s.back=nil
 	s.roll_count=0
 	s.roll_result=0
 	s.is_rolling=false
+	s.board_num=ceil(rnd(3))*16
+	local function make_cell(x,y)
+		local cell = {}
+		local m=mget(x+s.board_num,y)
+		cell.path = fget(m,0)
+		cell.corrupt = fget(m,1)
+		cell.minigame = fget(m,2)
+		cell.finish = fget(m,3)
+		cell.start = fget(m,4)
+		if cell.start then
+			s.x, s.y = x,y
+		end
+		return cell
+	end
+	s.board=create_grid(14,14,true,
+	                 make_cell)
 	
 	function s.update()
 		if s.roll_count > 0 then
@@ -180,16 +165,16 @@ function board_state()
 	end
 	
 	function s.draw()
-		map(current_board,0)
+		map(s.board_num,0)
 		local res = 2*s.roll_result
 		spr(34+res,16,96,2,2)
-		draw_spr(32 + tonum(shield),px,py)
+		draw_spr(32+tonum(s.shield),s.x,s.y)
 	end
 	
 	local function valid_move(x,y)
-		if board.in_bounds_x(x) and
-		   board.in_bounds_y(y) then
-			return board.get(x,y).path
+		if s.board.in_bounds_x(x) and
+		   s.board.in_bounds_y(y) then
+			return s.board.get(x,y).path
 		end
 		return false
 	end
@@ -198,21 +183,23 @@ function board_state()
 		local dx,dy,back = unpack(dir_map[dir])
 		if not s.is_rolling and
 		   s.roll_result > 0 and
-		   dir != pback and
-		  valid_move(px+dx,py+dy) then
-			px += dx
-			py += dy
-			pback=back
+		   dir != s.back and
+		   valid_move(s.x+dx,s.y+dy) then
+			s.x += dx
+			s.y += dy
+			s.back=back
 			s.roll_result-=1
-			local cell = board.get(px,py)
+			local cell = s.board.get(s.x,s.y)
 			if cell.finish then
-				state = win_state()
+				transition()
+				state=win_state()
 			end
 			if s.roll_result == 0 then
 				if cell.corrupt then
-					corrupt(750)
+					s.corrupt_event()
 				elseif cell.minigame then
-					state = snake_state(10)
+					transition()
+					state=snake_state(10)
 				end
 			end
 		end
@@ -224,7 +211,7 @@ function board_state()
 	s.set_btnp(⬇️,move_player,⬇️)
 	
 	local function do_roll()
-	if not s.is_rolling and
+		if not s.is_rolling and
 		   s.roll_result == 0 then
 			s.roll_count=20
 			s.is_rolling=true
@@ -234,7 +221,26 @@ function board_state()
 	s.set_btnp(🅾️,do_roll)
 	s.set_btnp(❎,do_roll)
 	
-	music(1)
+	function s.corrupt_event()
+		sfx(8)
+		if s.shield then
+			s.shield = false
+		else
+			corrupt(s.corruption_lvl)
+		end
+	end
+	
+	function s.resume()
+		transition()
+		state=current_board
+		music(1)
+	end
+	
+	function s.set_shield()
+		sfx(9)
+		s.shield=true
+	end
+	
 	return s
 end
 
@@ -244,7 +250,7 @@ end
 
 // win screen
 function win_state()
-	local s=base_state()
+	local s=template_state()
 	
 	function s.draw()
 		map(0,16)
@@ -263,7 +269,7 @@ end
 -->8
 // mini games
 function snake_state(goal)
-	local s=base_state()
+	local s=template_state()
 	s.x,s.y,s.canturn,s.dir,s.back,s.t=
 	1,1,true,➡️,⬅️,0
 	s.body={}
@@ -355,10 +361,9 @@ function snake_state(goal)
 				cell.food = false
 				if (#s.body == goal) then
 					music(-1)
-					shield=true
-					sfx(9)
+					current_board.set_shield()
 					wait(30)
-					state = board_state()
+					current_board.resume()
 				end
 				spawn_food()
 			else
@@ -376,9 +381,9 @@ function snake_state(goal)
 			if not move_snake() then
 				music(-1)
 				s.draw()
-				corrupt(750)
+				current_board.corrupt_event()
 				wait(30)
-				state = board_state()
+				current_board.resume()
 			end
 			s.canturn = true
 		end
