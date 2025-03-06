@@ -85,6 +85,8 @@ function title_state()
 		"of the game itself!", "",
 		"use 🅾️/❎ to roll the die and",
 		"advance towards the goal.", "",
+		"winning minigames grant you",
+		"a shield against corruption.","",
 		"beware: losing mimigames and",
 		"landing on the ! spaces will",
 		"corrupt your game session!",
