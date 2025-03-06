@@ -114,12 +114,53 @@ function title_state()
 		if s.show_help then
 			s.show_help = false
 		else
-			current_board=board_state()
-			current_board.resume()
+			state = start_state()
 		end
 	end)
 	
 	music(0)
+	return s
+end
+
+function start_state()
+	local s = template_state()
+	s.lvl=1
+	s.board=1
+	
+	local function update_lvl(dl)
+		if in_range(1,20,s.lvl+dl) then
+			s.lvl += dl
+		end
+	end
+	
+	local function update_board(db)
+		if in_range(1,3,s.board+db) then
+			s.board += db
+		end
+	end
+	
+	s.set_btnp(⬅️,update_lvl,-1)
+	s.set_btnp(➡️,update_lvl,1)
+	
+	s.set_btnp(⬆️,update_board,1)
+	s.set_btnp(⬇️,update_board,-1)
+	
+	local function start()
+		current_board=board_state(s.board*16,s.lvl)
+		current_board.resume()
+	end
+	
+	s.set_btnp(❎,start)
+	s.set_btnp(🅾️,start)
+	
+	function s.draw()
+		cls()
+		map(16,16)
+		print("difficulty: "..s.lvl,32,56)
+		print("board: "..s.board)
+		print("❎ or 🅾️ to start")
+	end
+	
 	return s
 end
 
@@ -128,19 +169,18 @@ function draw_spr(s,x,y)
 end
 -->8
 // board
-function board_state()
+function board_state(board_num,lvl)
 	local s=template_state()
 	
-	s.corruption_lvl=750
+	s.corruption_lvl=lvl*50
 	s.shield=false
 	s.back=nil
 	s.roll_count=0
 	s.roll_result=0
 	s.is_rolling=false
-	s.board_num=ceil(rnd(3))*16
 	local function make_cell(x,y)
 		local cell = {}
-		local m=mget(x+s.board_num,y)
+		local m=mget(x+board_num,y)
 		cell.path = fget(m,0)
 		cell.corrupt = fget(m,1)
 		cell.minigame = fget(m,2)
@@ -165,7 +205,7 @@ function board_state()
 	end
 	
 	function s.draw()
-		map(s.board_num,0)
+		map(board_num,0)
 		local res = 2*s.roll_result
 		spr(34+res,16,96,2,2)
 		draw_spr(32+tonum(s.shield),s.x,s.y)
