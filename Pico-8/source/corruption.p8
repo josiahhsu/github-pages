@@ -194,6 +194,8 @@ end
 function board_state(board_num,lvl)
 	local s=template_state()
 	
+	s.x=0
+	s.y=0
 	s.corruption_lvl=lvl*50
 	s.shield=false
 	s.back=nil
