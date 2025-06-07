@@ -45,7 +45,11 @@
         pico8_gamepads.count = 0;
 
         // When pico8_gpio is defined, reading and writing to gpio pins will read and write to these values
-        var pico8_gpio = new Array(128);
+        var pico8_gpio;
+        if (parent.pico8_gpio)
+            pico8_gpio = parent.pico8_gpio
+        else
+            pico8_gpio = new Array(128);
 
         // When pico8_audio_context context is defined, the html shell (this file) is responsible for creating and managing it.
         // This makes satisfying browser requirements easier -- e.g. initialising audio from a short script in response to a user action.
