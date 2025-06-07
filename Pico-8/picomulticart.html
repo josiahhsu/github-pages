@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Cart</title>
+    <link rel="icon" type="image/x-icon" href="../Birb-icon.png">
+    <link rel="stylesheet" href="../main.css"> <link>
+    <link rel="stylesheet" href="Pico-8-multicart-style.css"> <link>
+</head>
+<body>
+    <div id="home"><a href="../">Back to Home</a></div>
+    <script>
+        var shared_pico8_gpio = new Array(128);
+    </script>
+    <p>
+        Demo of sending signals between active carts. When both carts are running, inputs to the left cart are also sent to the right cart.
+    </p>
+    <div id="multicart_container">
+        <iframe src="picoplayer.html?cart=sender"></iframe>
+        <iframe src="picoplayer.html?cart=receiver"></iframe>
+    </div>
+</body>

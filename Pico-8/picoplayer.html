@@ -45,9 +45,14 @@
         pico8_gamepads.count = 0;
 
         // When pico8_gpio is defined, reading and writing to gpio pins will read and write to these values
+        function has_parent_gpio()
+        {
+            return !!parent.shared_pico8_gpio;
+        }
+
         var pico8_gpio;
-        if (parent.pico8_gpio)
-            pico8_gpio = parent.pico8_gpio
+        if (has_parent_gpio())
+            pico8_gpio = parent.shared_pico8_gpio
         else
             pico8_gpio = new Array(128);
 
@@ -1029,8 +1034,11 @@
 
 
     <!-- Add any content above the cart here -->
-    <div id="home"><a href="../">Back to Home</a></div>
-
+    <div id="home" visibility="has_parent_gpio() ? 'hidden' : 'visible'"><a href="../">Back to Home</a></div>
+    <script>
+        if (has_parent_gpio())
+            document.getElementById("home").remove();
+    </script>
 
     <div id="p8_frame_0" style="max-width:800px; max-height:800px; margin:auto;"> <!-- double function: limit size, and display only this div for touch devices -->
     <div id="p8_frame" style="display:flex; width:100%; max-width:95vw; height:100vw; max-height:95vh; margin:auto;">
