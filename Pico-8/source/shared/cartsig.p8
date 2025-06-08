@@ -2,18 +2,22 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 --[[
+each channel is a pair of 4-byte
+memory locations, with one addr
+for seq nums and one for data
+
 b = base channel num
 n = number of channels
 ]]
 function connection(b,n)
 	local c = {}
-	c.base = 0x5f80+b
-	c.num = n
+	local base = 0x5f80+b
+	local bound = base+((n-1)*8)
 	c.seq_num = 1
 	c.queue = {}
 	
 	function c.reset()
-		for i = 0x5f80, 0x5fff, 4 do
+		for i = base, bound, 8 do
 			poke4(i,0)
 		end
 	end
@@ -23,8 +27,7 @@ function connection(b,n)
 	end
 	
 	function c.send()
-		local rng = c.base+(c.num*4)-1
-		for i = c.base, rng, 8 do
+		for i = base, bound, 8 do
 			if #c.queue == 0 then
 				break
 			end
@@ -40,8 +43,7 @@ function connection(b,n)
 	
 	function c.receive()
 		local data = {}
-		local rng = c.base+(c.num*4)-1
-		for i = c.base, rng, 8 do
+		for i = base, bound, 8 do
 			if peek4(i) == c.seq_num then
 				c.seq_num += 1
 				add(data,peek4(i+4))
@@ -56,7 +58,7 @@ end
 
 function sender()
 	local s = {}
-	s.connection = connection(0,8)
+	s.connection = connection(0,4)
 	s.queue = {}
 	
 	function s.init()
@@ -76,7 +78,7 @@ end
 
 function receiver()
 	local s = {}
-	s.connection = connection(0,8)
+	s.connection = connection(0,4)
 	
 	function s.receive()
 		return s.connection.receive()
